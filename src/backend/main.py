@@ -21,7 +21,7 @@ async def lifespan(_: FastAPI):
     # Startup
     try:
         logger.info(f"Iniciando {settings.APP_NAME} v{settings.APP_VERSION}")
-        create_vector_type()
+        await create_vector_type()
     except Exception as error:
         logger.error(f"Erro na inicialização: {error}")
         raise
