@@ -13,6 +13,7 @@ from wireup import AsyncContainer
 
 from backend.core.config import settings
 from backend.core.database import create_vector_type
+from backend.modules.user.user_router import user_router
 
 
 @asynccontextmanager
@@ -21,7 +22,7 @@ async def lifespan(_: FastAPI):
     # Startup
     try:
         logger.info(f"Iniciando {settings.APP_NAME} v{settings.APP_VERSION}")
-        create_vector_type()
+        await create_vector_type()
     except Exception as error:
         logger.error(f"Erro na inicialização: {error}")
         raise
@@ -43,6 +44,9 @@ def create_app() -> tuple[FastAPI, AsyncContainer]:
         redoc_url="/redoc",
         lifespan=lifespan,
     )
+
+    # Incluir routers
+    application.include_router(user_router)
 
     # Configurar CORS
     application.add_middleware(

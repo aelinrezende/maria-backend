@@ -5,6 +5,7 @@ Configuração do banco de dados
 from contextlib import asynccontextmanager
 
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlmodel import text
 
 from .config import settings
 
@@ -17,11 +18,7 @@ database_engine = create_async_engine(
 async def create_vector_type():
     """Cria o tipo de dado vetorial para o banco de dados"""
     async with database_engine.begin() as connection:
-        await connection.run_sync(
-            lambda engine: engine.execute(
-                "CREATE EXTENSION IF NOT EXISTS vector;"
-            )
-        )
+        await connection.execute(text("CREATE EXTENSION IF NOT EXISTS vector;"))
 
 
 @asynccontextmanager
