@@ -19,6 +19,7 @@ class BaseRepository(Generic[T]):
 
     def __init__(self, model: type[T], connection: DatabaseConnection):
         self.__session = connection.session
+        self.model = model
 
     @property
     def query(self) -> SelectOfScalar[T]:
