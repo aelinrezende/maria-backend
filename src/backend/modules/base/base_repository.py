@@ -1,0 +1,106 @@
+
+from typing import Generic, TypeVar
+
+from fastapi import Depends
+from sqlalchemy import ColumnExpressionArgument
+from sqlmodel import select
+from sqlmodel.sql.expression import SelectOfScalar
+from wireup import service
+
+from backend.core.database import DatabaseConnection
+from backend.models.base import BaseModel
+
+T = TypeVar("T", bound=BaseModel)
+
+
+@service
+class BaseRepository(Generic[T]):
+    """
+    Classe base para repositórios, fornecendo métodos comuns para interação com o banco de dados.
+    """
+
+    def __init__(self, connection: DatabaseConnection = Depends()):
+        """
+        Inicializa o repositório com uma sessão de banco de dados.
+
+        :param session: Sessão do banco de dados a ser usada nas operações.
+        """
+        self.__session = connection.session
+
+    @property
+    def query(self) -> SelectOfScalar[T]:
+        """Retorna o construtor de consultas para a sessão atual."""
+        return select(T)
+
+    async def insert(self, entity: T) -> T:
+        """
+        Cria uma nova entidade no banco de dados.
+
+        :param entity: Entidade a ser criada.
+        :return: Entidade criada.
+        """
+        self.__session.add(entity)
+        return entity
+
+    async def find_by_id(self, id: str) -> T | None:
+        """
+        Busca uma entidade pelo seu ID.
+
+        :param id: ID da entidade a ser buscada.
+        :return: Entidade encontrada ou None se não existir.
+
+        :rtype: T | None
+
+        :raises ValueError: Se a entidade não for encontrada.
+        """
+        return await self.__session.get(T, id)
+
+    async def find_by_id_or_fail(self, id: str) -> T:
+        """
+        Busca uma entidade pelo seu IDa.
+
+        :param id: ID da entidade a ser buscada.
+        :return: Entidade encontrada ou None se não existir.
+        """
+        entity = await self.__session.get(T, id)
+
+        if entity is None:
+            # TODO: Criar uma exceção personalizada para não encontrado
+            raise ValueError(f"Entity with id {id} not found")
+
+        return entity
+
+    async def find_one(self, *expression: ColumnExpressionArgument[bool] | bool) -> T | None:
+        """
+        Busca uma entidade com base em critérios especificados.
+
+        :param kwargs: Critérios de busca.
+        :return: Entidade encontrada ou None se não existir.
+        """
+        return (await self.__session.execute(self.query.where(*expression))).first()
+
+    async def find_one_or_fail(self, *expression: ColumnExpressionArgument[bool] | bool) -> T:
+        """
+        Busca uma entidade com base em critérios especificados.
+        :param kwargs: Critérios de busca.
+        :return: Entidade encontrada ou None se não existir.
+        """
+        entity = (await self.__session.execute(self.query.where(*expression))).first()
+
+        if entity is None:
+            # TODO: Criar uma exceção personalizada para não encontrado
+            raise ValueError("Entity not found with the given criteria")
+
+        return entity
+
+    async def find_many(
+        self,  #
+        *expression: ColumnExpressionArgument[bool] | bool
+    ) -> list[T]:
+        """
+        Busca várias entidades com base em critérios especificados.
+
+        :param kwargs: Critérios de busca.
+        :return: Lista de entidades encontradas.
+        """
+        return (await self.__session.execute(self.query.where(*expression))).all()

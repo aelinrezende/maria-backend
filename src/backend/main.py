@@ -9,20 +9,22 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from loguru import logger
-from wireup import AsyncContainer
+from wireup import AsyncContainer, create_async_container
+from wireup.integration.fastapi import setup
 
 from backend.core.config import settings
-from backend.core.database import create_vector_type
+from backend.core.database import DatabaseConnection
+from backend.modules.user.user_repository import UserRepository
 from backend.modules.user.user_router import user_router
 
 
 @asynccontextmanager
-async def lifespan(_: FastAPI):
+async def lifespan(_: FastAPI, connection=DatabaseConnection()):
     """Lifespan events para inicialização e encerramento"""
     # Startup
     try:
         logger.info(f"Iniciando {settings.APP_NAME} v{settings.APP_VERSION}")
-        await create_vector_type()
+        await connection.create_vector_type()
     except Exception as error:
         logger.error(f"Erro na inicialização: {error}")
         raise
@@ -50,11 +52,25 @@ def create_app() -> tuple[FastAPI, AsyncContainer]:
 
     # Configurar CORS
     application.add_middleware(
-        CORSMiddleware,  # type: ignore[reportUnknownArgumentType]
+        CORSMiddleware,
         allow_origins=settings.ALLOWED_ORIGINS,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
+    )
+
+    # Injeção de dependências
+    container = create_async_container(
+        services=[
+            # Database
+            DatabaseConnection,
+
+            # User
+            UserRepository,
+        ],
+        parameters={
+            "debug": settings.DEBUG
+        },
     )
 
     @application.exception_handler(Exception)
@@ -65,12 +81,14 @@ def create_app() -> tuple[FastAPI, AsyncContainer]:
             status_code=500, content={"detail": "Erro interno do servidor"}
         )
 
-    return (application, {})
+    return (application, container)
 
 
-# Criar instância da aplicação
+# Cria instância da aplicação
 (app, container) = create_app()
 
+# Configura injeção de dependências
+setup(container, app)
 
 if __name__ == "__main__":
     """Executar aplicação diretamente"""

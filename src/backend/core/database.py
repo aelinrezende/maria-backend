@@ -2,31 +2,34 @@
 Configuração do banco de dados
 """
 
-from contextlib import asynccontextmanager
 
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlmodel import text
+from wireup import service
 
 from .config import settings
 
-# Engine assíncrono do banco de dados
-database_engine = create_async_engine(
-    settings.DATABASE_URL, echo=settings.DEBUG, pool_pre_ping=True, pool_recycle=300
-)
 
+@service
+class DatabaseConnection:
+    """Classe para gerenciar a conexão com o banco de dados"""
 
-async def create_vector_type():
-    """Cria o tipo de dado vetorial para o banco de dados"""
-    async with database_engine.begin() as connection:
-        await connection.execute(text("CREATE EXTENSION IF NOT EXISTS vector;"))
+    def __init__(self) -> None:
+        """Inicializa a conexão com o banco de dados usando as configurações definidas"""
+        self.engine = create_async_engine(
+            settings.DATABASE_URL, echo=settings.DEBUG, pool_pre_ping=True, pool_recycle=300
+        )
+        self._session = None
 
+    async def create_vector_type(self) -> None:
+        """Cria o tipo de dado vetorial no banco de dados"""
+        async with self.engine.begin() as connection:
+            await connection.execute(text("CREATE EXTENSION IF NOT EXISTS vector;"))
 
-@asynccontextmanager
-async def get_database_session():
-    """Retorna uma sessão assíncrona do banco de dados"""
-    database_session = AsyncSession(database_engine)
+    @property
+    def session(self) -> AsyncSession:
+        """Retorna uma sessão assíncrona para interação com o banco de dados"""
+        if not self._session:
+            self._session = AsyncSession(self.engine)
 
-    try:
-        yield database_session
-    finally:
-        await database_session.close()
+        return self._session
