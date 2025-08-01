@@ -6,6 +6,7 @@ from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
 
 from backend.models.base import BaseModel
+from backend.modules.base.base_service import BaseService
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -15,8 +16,8 @@ def get_base_router(router: InferringRouter):
 
     @cbv(router)
     class BaseRouter(Generic[T]):
-        def __init__(self):
-            """Inicializa o router com serviços"""
+        def __init__(self, service: BaseService[T]):
+            self.service = service
 
         @router.get("/")
         async def list(self) -> list[T]:
@@ -39,14 +40,13 @@ def get_base_router(router: InferringRouter):
             raise NotImplementedError("Get method not implemented")
 
         @router.post("/")
-        async def create(self) -> T:
+        async def create(self, dto) -> T:
             """
             Endpoint para criar um recurso.
             Returns:
                 T: Instância do recurso criado.
             """
-            # TODO: Implementar lógica de criação
-            raise NotImplementedError("Create method not implemented")
+            await self.service.create(dto.model_dump())
 
         @router.patch("/{id}")
         async def update(self) -> T:
