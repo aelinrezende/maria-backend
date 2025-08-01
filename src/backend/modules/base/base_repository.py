@@ -1,11 +1,9 @@
-
+from dataclasses import dataclass
 from typing import Generic, TypeVar
 
-from fastapi import Depends
 from sqlalchemy import ColumnExpressionArgument
 from sqlmodel import select
 from sqlmodel.sql.expression import SelectOfScalar
-from wireup import service
 
 from backend.core.database import DatabaseConnection
 from backend.models.base import BaseModel
@@ -13,24 +11,18 @@ from backend.models.base import BaseModel
 T = TypeVar("T", bound=BaseModel)
 
 
-@service
+@dataclass
 class BaseRepository(Generic[T]):
     """
     Classe base para repositórios, fornecendo métodos comuns para interação com o banco de dados.
     """
 
-    def __init__(self, connection: DatabaseConnection = Depends()):
-        """
-        Inicializa o repositório com uma sessão de banco de dados.
-
-        :param session: Sessão do banco de dados a ser usada nas operações.
-        """
+    def __init__(self, model: type[T], connection: DatabaseConnection):
         self.__session = connection.session
 
-    @property
     def query(self) -> SelectOfScalar[T]:
         """Retorna o construtor de consultas para a sessão atual."""
-        return select(T)
+        return select(self.model)
 
     async def insert(self, entity: T) -> T:
         """
@@ -40,6 +32,18 @@ class BaseRepository(Generic[T]):
         :return: Entidade criada.
         """
         self.__session.add(entity)
+
+        return entity
+
+    async def update(self, entity: T) -> T:
+        """
+        Atualiza uma entidade existente no banco de dados.
+
+        :param entity: Entidade a ser atualizada.
+        :return: Entidade atualizada.
+        """
+        await self.__session.merge(entity)
+
         return entity
 
     async def find_by_id(self, id: str) -> T | None:
