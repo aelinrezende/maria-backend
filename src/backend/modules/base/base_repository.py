@@ -20,6 +20,7 @@ class BaseRepository(Generic[T]):
     def __init__(self, model: type[T], connection: DatabaseConnection):
         self.__session = connection.session
 
+    @property
     def query(self) -> SelectOfScalar[T]:
         """Retorna o construtor de consultas para a sessão atual."""
         return select(self.model)
