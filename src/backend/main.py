@@ -16,6 +16,7 @@ from backend.core.config import settings
 from backend.core.database import DatabaseConnection
 from backend.modules.user.user_repository import UserRepository
 from backend.modules.user.user_router import user_router
+from backend.modules.user.user_service import UserService
 
 
 @asynccontextmanager
@@ -67,6 +68,7 @@ def create_app() -> tuple[FastAPI, AsyncContainer]:
 
             # User
             UserRepository,
+            UserService,
         ],
         parameters={
             "debug": settings.DEBUG
