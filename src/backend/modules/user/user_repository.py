@@ -1,8 +1,15 @@
+from wireup import service
+
+from backend.core.database import DatabaseConnection
+from backend.models.user import User
 from backend.modules.base.base_repository import BaseRepository
 
 
-class UserRepository(BaseRepository):
+@service(lifetime="scoped")
+class UserRepository(BaseRepository[User]):
     """
     Repositório para operações relacionadas a usuários.
     """
-    pass
+
+    def __init__(self, connection: DatabaseConnection):
+        super().__init__(User, connection)

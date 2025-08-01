@@ -16,6 +16,7 @@ from backend.core.config import settings
 from backend.core.database import DatabaseConnection
 from backend.modules.user.user_repository import UserRepository
 from backend.modules.user.user_router import user_router
+from backend.modules.user.user_service import UserService
 
 
 @asynccontextmanager
@@ -28,6 +29,8 @@ async def lifespan(_: FastAPI, connection=DatabaseConnection()):
     except Exception as error:
         logger.error(f"Erro na inicialização: {error}")
         raise
+    finally:
+        await connection.session.close()
 
     yield
 
@@ -67,6 +70,7 @@ def create_app() -> tuple[FastAPI, AsyncContainer]:
 
             # User
             UserRepository,
+            UserService,
         ],
         parameters={
             "debug": settings.DEBUG
