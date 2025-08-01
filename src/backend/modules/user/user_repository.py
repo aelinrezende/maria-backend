@@ -5,7 +5,7 @@ from backend.models.user import User
 from backend.modules.base.base_repository import BaseRepository
 
 
-@service
+@service(lifetime="scoped")
 class UserRepository(BaseRepository[User]):
     """
     Repositório para operações relacionadas a usuários.

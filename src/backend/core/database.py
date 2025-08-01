@@ -10,7 +10,7 @@ from wireup import service
 from .config import settings
 
 
-@service
+@service(lifetime="scoped")
 class DatabaseConnection:
     """Classe para gerenciar a conexão com o banco de dados"""
 
@@ -19,7 +19,7 @@ class DatabaseConnection:
         self.engine = create_async_engine(
             settings.DATABASE_URL, echo=settings.DEBUG, pool_pre_ping=True, pool_recycle=300
         )
-        self._session = None
+        self._session = AsyncSession(self.engine)
 
     async def create_vector_type(self) -> None:
         """Cria o tipo de dado vetorial no banco de dados"""
@@ -29,7 +29,4 @@ class DatabaseConnection:
     @property
     def session(self) -> AsyncSession:
         """Retorna uma sessão assíncrona para interação com o banco de dados"""
-        if not self._session:
-            self._session = AsyncSession(self.engine)
-
         return self._session

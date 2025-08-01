@@ -29,6 +29,8 @@ async def lifespan(_: FastAPI, connection=DatabaseConnection()):
     except Exception as error:
         logger.error(f"Erro na inicialização: {error}")
         raise
+    finally:
+        await connection.session.close()
 
     yield
 
