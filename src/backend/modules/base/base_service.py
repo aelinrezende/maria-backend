@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from typing import Generic, TypeVar
 
 from backend.models.base import BaseModel
@@ -7,7 +6,6 @@ from backend.modules.base.base_repository import BaseRepository
 T = TypeVar("T", bound=BaseModel)
 
 
-@dataclass
 class BaseService(Generic[T]):
     """
     Classe base para serviços, fornecendo métodos comuns para regras de negócio e lógica de aplicação.
