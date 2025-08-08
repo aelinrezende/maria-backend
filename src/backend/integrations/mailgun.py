@@ -50,7 +50,7 @@ class MailGun:
                     timeout=30.0
                 )
 
-                if response.status_code == 200:
+                if 200 <= response.status_code < 300:
                     return True
 
                 logger.error(
