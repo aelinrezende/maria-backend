@@ -30,6 +30,12 @@ class Settings(BaseSettings):
     # Configurações de CORS
     ALLOWED_ORIGINS: list[str] = ["*"]
 
+    # Configurações de Mailgun
+    MAILGUN_API_KEY: str = "your-mailgun-api-key"
+    MAILGUN_DOMAIN: str = "your-mailgun-domain"
+    MAILGUN_API_URL: str = "https://api.mailgun.net"
+    MAILGUN_TEST_EMAIL: str = "aelinrezende@gmail.com"
+
     class Config:
         env_file = ".env"
         case_sensitive = True
