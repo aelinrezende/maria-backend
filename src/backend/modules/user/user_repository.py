@@ -1,3 +1,4 @@
+from fastapi.params import Depends
 from wireup import service
 
 from backend.core.database import DatabaseConnection
@@ -11,5 +12,5 @@ class UserRepository(BaseRepository[User]):
     Repositório para operações relacionadas a usuários.
     """
 
-    def __init__(self, connection: DatabaseConnection):
+    def __init__(self, connection: DatabaseConnection = Depends()):
         super().__init__(User, connection)

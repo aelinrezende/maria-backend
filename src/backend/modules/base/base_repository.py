@@ -1,6 +1,6 @@
-from dataclasses import dataclass
 from typing import Generic, TypeVar
 
+from fastapi.params import Depends
 from sqlalchemy import ColumnExpressionArgument
 from sqlmodel import select
 from sqlmodel.sql.expression import SelectOfScalar
@@ -11,13 +11,12 @@ from backend.models.base import BaseModel
 T = TypeVar("T", bound=BaseModel)
 
 
-@dataclass
 class BaseRepository(Generic[T]):
     """
     Classe base para repositórios, fornecendo métodos comuns para interação com o banco de dados.
     """
 
-    def __init__(self, model: type[T], connection: DatabaseConnection):
+    def __init__(self, model: type[T], connection: DatabaseConnection = Depends()):
         self.__session = connection.session
         self.model = model
 

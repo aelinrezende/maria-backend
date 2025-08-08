@@ -14,6 +14,8 @@ from wireup.integration.fastapi import setup
 
 from backend.core.config import settings
 from backend.core.database import DatabaseConnection
+from backend.integrations.mailgun import MailGun
+from backend.modules.auth.auth_router import AuthRouter, auth_router
 from backend.modules.user.user_repository import UserRepository
 from backend.modules.user.user_router import user_router
 from backend.modules.user.user_service import UserService
@@ -52,6 +54,7 @@ def create_app() -> tuple[FastAPI, AsyncContainer]:
 
     # Incluir routers
     application.include_router(user_router)
+    application.include_router(auth_router)
 
     # Configurar CORS
     application.add_middleware(
@@ -63,10 +66,16 @@ def create_app() -> tuple[FastAPI, AsyncContainer]:
     )
 
     # Injeção de dependências
-    container = create_async_container(
+    dependencies = create_async_container(
         services=[
             # Database
             DatabaseConnection,
+
+            # Integrations
+            MailGun,
+
+            # Auth
+            AuthRouter,
 
             # User
             UserRepository,
@@ -85,7 +94,7 @@ def create_app() -> tuple[FastAPI, AsyncContainer]:
             status_code=500, content={"detail": "Erro interno do servidor"}
         )
 
-    return (application, container)
+    return (application, dependencies)
 
 
 # Cria instância da aplicação
@@ -95,7 +104,6 @@ def create_app() -> tuple[FastAPI, AsyncContainer]:
 setup(container, app)
 
 if __name__ == "__main__":
-    """Executar aplicação diretamente"""
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
