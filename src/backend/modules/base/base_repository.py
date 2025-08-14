@@ -6,6 +6,7 @@ from sqlmodel import select
 from sqlmodel.sql.expression import SelectOfScalar
 
 from backend.core.database import DatabaseConnection
+from backend.core.exceptions import EntityNotFoundException
 from backend.models.base import BaseModel
 
 T = TypeVar("T", bound=BaseModel)
@@ -62,16 +63,19 @@ class BaseRepository(Generic[T]):
 
     async def find_by_id_or_fail(self, id: str) -> T:
         """
-        Busca uma entidade pelo seu IDa.
+        Busca uma entidade pelo seu ID.
 
         :param id: ID da entidade a ser buscada.
-        :return: Entidade encontrada ou None se não existir.
+        :return: Entidade encontrada.
+        :raises EntityNotFoundException: Se a entidade não for encontrada.
         """
         entity = await self.__session.get(T, id)
 
         if entity is None:
-            # TODO: Criar uma exceção personalizada para não encontrado
-            raise ValueError(f"Entity with id {id} not found")
+            raise EntityNotFoundException(
+                entity_name=self.model.__name__,
+                identifier=id
+            )
 
         return entity
 
@@ -87,14 +91,17 @@ class BaseRepository(Generic[T]):
     async def find_one_or_fail(self, *expression: ColumnExpressionArgument[bool] | bool) -> T:
         """
         Busca uma entidade com base em critérios especificados.
-        :param kwargs: Critérios de busca.
-        :return: Entidade encontrada ou None se não existir.
+        
+        :param expression: Critérios de busca.
+        :return: Entidade encontrada.
+        :raises EntityNotFoundException: Se a entidade não for encontrada.
         """
         entity = (await self.__session.execute(self.query.where(*expression))).first()
 
         if entity is None:
-            # TODO: Criar uma exceção personalizada para não encontrado
-            raise ValueError("Entity not found with the given criteria")
+            raise EntityNotFoundException(
+                entity_name=self.model.__name__
+            )
 
         return entity
 
