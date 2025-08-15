@@ -3,7 +3,6 @@
 from typing import Generic, TypeVar
 
 from fastapi.params import Depends
-from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
 
 from backend.models.base import BaseModel
@@ -15,7 +14,6 @@ T = TypeVar("T", bound=BaseModel)
 def get_base_router(router: InferringRouter):
     """Função para obter o router base"""
 
-    @cbv(router)
     class BaseRouter(Generic[T]):
         def __init__(self, service: BaseService[T] = Depends()):
             self.service = service
