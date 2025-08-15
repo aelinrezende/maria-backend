@@ -26,7 +26,7 @@ def register_exception_handler(app: FastAPI) -> None:
             error = ConflictException()
         else:
             error = InternalServerException()
-            logger.error(f"Erro não tratado: {exc}", exc_info=exc)
+            logger.error(f"Erro não tratado: {exc}")
 
         return JSONResponse(status_code=error.status_code, content=error.to_dict())
 
