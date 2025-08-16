@@ -16,6 +16,9 @@ from backend.core.database import DatabaseConnection
 from backend.exceptions.handler import register_exception_handler
 from backend.integrations.mailgun import MailGun
 from backend.modules.auth.auth_router import AuthRouter, auth_router
+from backend.modules.document.document_repository import DocumentRepository
+from backend.modules.document.document_router import DocumentRouter, document_router
+from backend.modules.document.document_service import DocumentService
 from backend.modules.user.user_repository import UserRepository
 from backend.modules.user.user_router import user_router
 from backend.modules.user.user_service import UserService
@@ -55,6 +58,7 @@ def create_app() -> tuple[FastAPI, AsyncContainer]:
     # Incluir routers
     application.include_router(user_router)
     application.include_router(auth_router)
+    application.include_router(document_router)
 
     # Configurar CORS
     application.add_middleware(
@@ -80,6 +84,11 @@ def create_app() -> tuple[FastAPI, AsyncContainer]:
             # User
             UserRepository,
             UserService,
+
+            # Document
+            DocumentRouter,
+            DocumentService,
+            DocumentRepository,
         ],
         parameters={
             "debug": settings.DEBUG
