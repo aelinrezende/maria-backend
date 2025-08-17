@@ -16,9 +16,7 @@ class DocumentBase(BaseModel):
     kind: DocumentKind
     source: str = Field(min_length=1, max_length=100)
     url: Optional[HttpUrl] = Field(default=None)
-    keywords: List[str] = Field(
-        default_factory=list, max_length=25
-    )
+    keywords: List[str] = Field(default_factory=list, max_length=25)
     metadata: MetadataDict = Field(default_factory=dict)
 
 

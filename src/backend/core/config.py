@@ -19,6 +19,12 @@ class Settings(BaseSettings):
     # Configurações de banco de dados
     DATABASE_URL: str = "postgresql+asyncpg://user:password@localhost/maria_db"
 
+    # Configurações de embeddings
+    # Modelo multilingue forte para retrieval
+    EMBEDDING_MODEL: str = "intfloat/multilingual-e5-base"
+    EMBEDDING_DIMENSION: int = 768
+    EMBEDDING_PROVIDER: str = "local"
+
     # Configurações de segurança
     SECRET_KEY: str = "your-secret-key-here"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
