@@ -14,6 +14,7 @@ from wireup.integration.fastapi import setup
 from backend.core.config import settings
 from backend.core.database import DatabaseConnection
 from backend.exceptions.handler import register_exception_handler
+from backend.integrations.embeddings import LocalSentenceTransformerProvider
 from backend.integrations.mailgun import MailGun
 from backend.modules.auth.auth_router import AuthRouter, auth_router
 from backend.modules.document.document_repository import DocumentRepository
@@ -77,6 +78,7 @@ def create_app() -> tuple[FastAPI, AsyncContainer]:
 
             # Integrations
             MailGun,
+            LocalSentenceTransformerProvider,
 
             # Auth
             AuthRouter,
