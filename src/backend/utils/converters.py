@@ -20,7 +20,7 @@ def html_to_markdown(html_content: str) -> str:
     Returns:
         Uma string contendo o texto em formato Markdown.
     """
-    if not html_content:
+    if not isinstance(html_content, str) or html_content.strip() == '':
         return ""
 
     # A função md() da biblioteca markdownify faz a conversão.
