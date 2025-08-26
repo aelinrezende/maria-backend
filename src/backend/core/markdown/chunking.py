@@ -60,13 +60,15 @@ def chunk_by_paragraph(
 
         # Caso o parágrafo atual esteja abaixo do limite,
         # ele é adicionado ao chunk atual para reutilização
-        if partial_size <= chunk_size and current_chunk_parts:
+        if partial_size <= chunk_size or not current_chunk_parts:
             current_chunk_parts.append(paragraph)
             current_chunk_size += paragraph_size
 
             continue
 
-        merged_chunks.append(_as_chunk(current_chunk_parts))
+        if current_chunk_parts:
+            merged_chunks.append(_as_chunk(current_chunk_parts))
+
         current_chunk_parts, current_chunk_size = [paragraph], paragraph_size
 
     # Adiciona o último chunk que estava sendo montado
