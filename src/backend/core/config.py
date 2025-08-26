@@ -42,6 +42,10 @@ class Settings(BaseSettings):
     MAILGUN_API_URL: str = "https://api.mailgun.net"
     MAILGUN_TEST_EMAIL: str = "aelinrezende@gmail.com"
 
+    # Configurações de Chunking
+    CHUNK_SIZE: int = 512
+    CHUNK_OVERLAP: int = 50
+
     class Config:
         env_file = ".env"
         case_sensitive = True
