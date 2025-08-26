@@ -61,7 +61,7 @@ class ChunkingUtils:
             part_size = len(part)
             partial_size = (
                 current_chunk_size +
-                part_size + (len(current_chunk_parts) - 1)
+                part_size + max(0, len(current_chunk_parts) - 1)
             )
 
             # Caso a parte atual esteja abaixo do limite,
