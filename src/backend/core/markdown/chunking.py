@@ -11,6 +11,7 @@ import re
 from typing import List
 
 from backend.core.config import settings
+from backend.core.markdown.utils import ChunkingUtils
 
 
 def chunk_by_paragraph(
@@ -36,48 +37,77 @@ def chunk_by_paragraph(
     # 1. Divide o texto em parágrafos iniciais
     initial_paragraphs = re.split(r'\n\s*\n', text.strip())
 
-    cleaned_paragraphs = [
-        paragraph.strip()
-        for paragraph in initial_paragraphs if paragraph.strip()
-    ]
+    # 2. Limpa e filtra parágrafos usando utilitário
+    cleaned_paragraphs = ChunkingUtils.clean(initial_paragraphs)
 
     if not cleaned_paragraphs:
         return []
 
-    # 2. Agrupa parágrafos para formar chunks (Greedy Merging)
-    merged_chunks: List[str] = []
-    current_chunk_parts: List[str] = []
-    current_chunk_size = 0
-
-    for paragraph in cleaned_paragraphs:
-        # TODO: Implementar fallback para parágrafos que sozinhos já excedem o chunk_size.
-        # Atualmente, eles serão adicionados como um chunk individual muito grande.
-
-        paragraph_size = len(paragraph)
-        partial_size = (
-            current_chunk_size + paragraph_size + len(current_chunk_parts)
-        )
-
-        # Caso o parágrafo atual esteja abaixo do limite,
-        # ele é adicionado ao chunk atual para reutilização
-        if partial_size <= chunk_size or not current_chunk_parts:
-            current_chunk_parts.append(paragraph)
-            current_chunk_size += paragraph_size
-
-            continue
-
-        if current_chunk_parts:
-            merged_chunks.append(_as_chunk(current_chunk_parts))
-
-        current_chunk_parts, current_chunk_size = [paragraph], paragraph_size
-
-    # Adiciona o último chunk que estava sendo montado
-    if current_chunk_parts:
-        merged_chunks.append(_as_chunk(current_chunk_parts))
-
-    return merged_chunks
+    # 3. Usa o algoritmo comum de Greedy Merging
+    return ChunkingUtils.greedy_merge_chunks(
+        parts=cleaned_paragraphs,
+        chunk_size=chunk_size,
+        joiner="\n\n",
+    )
 
 
-def _as_chunk(chunks: List[str]) -> str:
-    """Converte uma lista de strings em um único chunk formatado."""
-    return "\n\n".join(chunks)
+def chunk_by_sentence(
+    text: str,
+    chunk_size: int = settings.CHUNK_SIZE,
+) -> List[str]:
+    """Divide um texto em sentenças, agrupando as menores (Greedy Merging).
+
+    Estratégia específica para documentos legais onde a preservação da
+    granularidade de sentenças é crítica. Aplica o mesmo algoritmo de
+    "Greedy Merging" do chunking por parágrafo, mas usando sentenças
+    como unidade base.
+
+    Args:
+        text: O texto em formato Markdown a ser dividido.
+        chunk_size: O tamanho máximo aproximado de cada chunk em caracteres.
+
+    Returns:
+        Uma lista de strings, onde cada string é um chunk otimizado
+        preservando a integridade das sentenças.
+    """
+    if not text:
+        return []
+
+    # 1. Divide o texto em sentenças
+    sentences = _extract_sentences(text)
+
+    if not sentences:
+        return []
+
+    # 2. Usa o algoritmo comum de Greedy Merging
+    return ChunkingUtils.greedy_merge_chunks(
+        parts=sentences,
+        chunk_size=chunk_size,
+        joiner=" ",
+    )
+
+
+def _extract_sentences(text: str) -> List[str]:
+    """Extrai sentenças de um texto Markdown preservando a estrutura.
+
+    Usa regex para dividir por pontuação de fim de sentença, mas preserva
+    formatação Markdown e trata casos especiais como abreviações comuns.
+
+    Args:
+        text: Texto em formato Markdown.
+
+    Returns:
+        Lista de sentenças limpas e não vazias.
+    """
+    # Remove quebras de linha extras, mas preserva parágrafos
+    normalized_text = re.sub(r'\n+', ' ', text.strip())
+
+    # Regex para dividir sentenças por pontuação de fim
+    # Considera: . ! ? seguidos por espaço e letra maiúscula ou fim de string
+    sentence_pattern = r'[.!?]+(?:\s+(?=[A-Z])|$)'
+
+    # Divide em sentenças
+    sentences = re.split(sentence_pattern, normalized_text)
+
+    # Usa o utilitário para limpar e filtrar
+    return ChunkingUtils.clean(sentences)
