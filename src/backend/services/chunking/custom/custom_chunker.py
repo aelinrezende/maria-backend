@@ -1,0 +1,99 @@
+
+"""Módulo que implementa um chunker personalizado para dividir textos em chunks otimizados."""
+
+import re
+from typing import List
+
+from backend.core.config import settings
+from backend.services.chunking import ChunkingUtils, IChunker
+
+
+class CustomChunker(IChunker):
+    """Implementação personalizada do serviço de chunking.
+
+    Esta classe implementa o contrato definido por IChunker, utilizando
+    estratégias específicas para dividir textos em chunks por parágrafos
+    e por sentenças.
+    """
+
+    def chunk_by_paragraph(
+        self,
+        text: str,
+        chunk_size: int = settings.CHUNK_SIZE,
+    ) -> List[str]:
+        """Divide um texto em parágrafos, agrupando os menores (Greedy Merging).
+
+        A função primeiro divide o texto em parágrafos. Em seguida, agrupa
+        parágrafos consecutivos para formar chunks que se aproximem do `chunk_size`
+        sem ultrapassá-lo.
+
+        Args:
+            text: O texto em formato Markdown a ser dividido.
+            chunk_size: O tamanho máximo aproximado de cada chunk em caracteres.
+
+        Returns:
+            Uma lista de strings, onde cada string é um chunk otimizado.
+        """
+        if not text:
+            return []
+
+        # 1. Divide o texto em parágrafos iniciais
+        initial_paragraphs = re.split(r'\n\s*\n', text.strip())
+
+        # 2. Limpa e filtra parágrafos usando utilitário
+        cleaned_paragraphs = ChunkingUtils.clean(initial_paragraphs)
+
+        if not cleaned_paragraphs:
+            return []
+
+        # 3. Usa o algoritmo comum de Greedy Merging
+        return ChunkingUtils.greedy_merge_chunks(
+            parts=cleaned_paragraphs,
+            chunk_size=chunk_size,
+            joiner="\n\n",
+        )
+
+    def chunk_by_sentence(
+        self,
+        text: str,
+        chunk_size: int = settings.CHUNK_SIZE,
+    ) -> List[str]:
+        """Divide um texto em sentenças, agrupando as menores (Greedy Merging).
+
+        Estratégia específica para documentos legais onde a preservação da
+        granularidade de sentenças é crítica. Aplica o mesmo algoritmo de
+        "Greedy Merging" do chunking por parágrafo, mas usando sentenças
+        como unidade base.
+
+        Args:
+            text: O texto em formato Markdown a ser dividido.
+            chunk_size: O tamanho máximo aproximado de cada chunk em caracteres.
+
+        Returns:
+            Uma lista de strings, onde cada string é um chunk otimizado
+            preservando a integridade das sentenças.
+        """
+        if not text:
+            return []
+
+        # Remove quebras de linha extras, mas preserva parágrafos
+        normalized_text = re.sub(r'\n+', ' ', text.strip())
+
+        # Regex para dividir sentenças por pontuação de fim
+        # Considera: . ! ? seguidos por espaço e letra maiúscula ou fim de string
+        sentence_pattern = r'[.!?]+(?:\s+(?=[A-Z])|$)'
+
+        # 1. Divide o texto em sentenças
+        sentences = ChunkingUtils.clean(
+            re.split(sentence_pattern, normalized_text)
+        )
+
+        if not sentences:
+            return []
+
+        # 2. Usa o algoritmo comum de Greedy Merging
+        return ChunkingUtils.greedy_merge_chunks(
+            parts=sentences,
+            chunk_size=chunk_size,
+            joiner=" ",
+        )
