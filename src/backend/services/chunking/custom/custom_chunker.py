@@ -5,7 +5,9 @@ import re
 from typing import List
 
 from backend.core.config import settings
-from backend.services.chunking import ChunkingUtils, IChunker
+from backend.interfaces.chunker import IChunker
+
+from .utils import ChunkingUtils
 
 
 class CustomChunker(IChunker):
@@ -16,7 +18,7 @@ class CustomChunker(IChunker):
     e por sentenças.
     """
 
-    def chunk_by_paragraph(
+    def by_paragraph(
         self,
         text: str,
         chunk_size: int = settings.CHUNK_SIZE,
@@ -50,13 +52,15 @@ class CustomChunker(IChunker):
         return ChunkingUtils.greedy_merge_chunks(
             parts=cleaned_paragraphs,
             chunk_size=chunk_size,
+            overlap=settings.CHUNK_OVERLAP,
             joiner="\n\n",
         )
 
-    def chunk_by_sentence(
+    def by_sentence(
         self,
         text: str,
         chunk_size: int = settings.CHUNK_SIZE,
+        overlap: int = settings.CHUNK_OVERLAP,
     ) -> List[str]:
         """Divide um texto em sentenças, agrupando as menores (Greedy Merging).
 
@@ -68,6 +72,7 @@ class CustomChunker(IChunker):
         Args:
             text: O texto em formato Markdown a ser dividido.
             chunk_size: O tamanho máximo aproximado de cada chunk em caracteres.
+            overlap: Número de caracteres para sobrepor entre chunks adjacentes
 
         Returns:
             Uma lista de strings, onde cada string é um chunk otimizado
@@ -95,5 +100,28 @@ class CustomChunker(IChunker):
         return ChunkingUtils.greedy_merge_chunks(
             parts=sentences,
             chunk_size=chunk_size,
+            overlap=overlap,
             joiner=" ",
         )
+
+    def by_size(
+        self,
+        text: str,
+        chunk_size: int = settings.CHUNK_SIZE,
+        overlap: int = settings.CHUNK_OVERLAP,
+    ) -> List[str]:
+        """Divide um texto em chunks por tamanho usando janela deslizante.
+
+        Estratégia de fallback para textos muito grandes que não podem ser
+        divididos adequadamente por estrutura (parágrafos/sentenças).
+        Utiliza janela deslizante com overlap para preservar contexto.
+
+        Args:
+            text: O texto a ser dividido.
+            chunk_size: O tamanho máximo de cada chunk em caracteres.
+            overlap: Número de caracteres para sobrepor entre chunks.
+
+        Returns:
+            Uma lista de strings com tamanho controlado e overlap.
+        """
+        return ChunkingUtils.chunk_by_size_fallback(text, chunk_size, overlap)
