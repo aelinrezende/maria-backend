@@ -69,9 +69,7 @@ class ChunkingUtils:
 
                 break
 
-            [best_break, last_step] = [
-                end, max(end // 2, end - 100)
-            ]
+            best_break, last_step = end, max(end // 2, end - 100)
 
             # Procura por um espaço próximo ao fim para não quebrar palavras
             for i in range(end, last_step, -1):
@@ -85,8 +83,8 @@ class ChunkingUtils:
             if chunk:
                 chunks.append(chunk)
 
-            # Move o início para o próximo chunk, considerando o overlap
-            start = best_break - overlap
+            # Move o início para o próximo chunk, considerando o overlap e garantindo avanço
+            start = max(start + 1, best_break - overlap)
 
         return chunks
 
@@ -117,7 +115,7 @@ class ChunkingUtils:
         current_chunk_size = 0
 
         def merge_chunks():
-            return merged_chunks.append(
+            merged_chunks.append(
                 joiner.join(current_chunk_parts)
             )
 
