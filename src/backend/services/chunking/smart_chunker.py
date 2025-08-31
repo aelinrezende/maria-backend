@@ -90,7 +90,7 @@ class SmartChunker(ISmartChunker):
         text: str,
         strategy: ChunkingStrategy,
         config: AppChunkingConfig
-    ) -> list[str]:
+    ) -> List[str]:
         """Executa a estratégia de chunking selecionada."""
         chunker = self.custom_chunker
 
