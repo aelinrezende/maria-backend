@@ -81,22 +81,23 @@ class CustomChunker(IChunker):
         if not text:
             return []
 
-        # Remove quebras de linha extras, mas preserva parágrafos
-        normalized_text = re.sub(r'\n+', ' ', text.strip())
-
         # Regex para dividir sentenças por pontuação de fim
-        # Considera: . ! ? seguidos por espaço e letra maiúscula ou fim de string
-        sentence_pattern = r'[.!?]+(?:\s+(?=[A-Z])|$)'
+        # (?<!\n\d)   : Evita dividir após quebras de linha seguidas de dígito (ex: listas numeradas como "1. Item")
+        # [.!?]+      : Captura um ou mais sinais de pontuação de fim de sentença
+        # (?:\s+(?=[A-Z])|$) : Garante que a divisão ocorra apenas se houver espaço seguido de letra maiúscula (nova sentença) ou fim de string
+        # Isso evita dividir sentenças em listas numeradas e preserva a integridade das sentenças.
+        sentence_pattern = r'(?<!\n\d)[.!?]+(?:\s+(?=[A-Z])|$)'
 
-        # 1. Divide o texto em sentenças
-        sentences = ChunkingUtils.clean(
-            re.split(sentence_pattern, normalized_text)
-        )
+        # 1. Aplica regex ANTES da normalização (preserva contexto de quebras de linha)
+        raw_sentences = re.split(sentence_pattern, text.strip())
+
+        # 2. Normaliza e limpa sentenças vazias
+        sentences = ChunkingUtils.clean_deep(raw_sentences)
 
         if not sentences:
             return []
 
-        # 2. Usa o algoritmo comum de Greedy Merging
+        # 3. Usa o algoritmo comum de Greedy Merging
         return ChunkingUtils.greedy_merge_chunks(
             parts=sentences,
             chunk_size=chunk_size,
