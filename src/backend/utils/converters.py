@@ -24,5 +24,5 @@ def html_to_markdown(html_content: str) -> str:
         return ""
 
     # A função md() da biblioteca markdownify faz a conversão.
-    # Opções podem ser adicionadas para customizar a saída, se necessário.
-    return md(html_content).strip()
+    # heading_style="ATX": usar ## em vez de ---- para títulos (melhor para embeddings)
+    return md(html_content, heading_style="ATX").strip()

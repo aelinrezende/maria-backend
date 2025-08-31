@@ -5,6 +5,7 @@ Centraliza lógicas comuns como limpeza de texto e algoritmos de agrupamento.
 """
 from __future__ import annotations
 
+import re
 from typing import List
 
 
@@ -26,6 +27,25 @@ class ChunkingUtils:
         """
         return [
             part.strip()
+            for part in parts
+            if part.strip()
+        ]
+
+    @staticmethod
+    def clean_deep(parts: List[str]) -> List[str]:
+        """Limpa e normaliza uma lista de partes de texto.
+
+        Remove espaços em branco extras, filtra partes vazias e
+        normaliza quebras de linha internas para espaços simples.
+
+        Args:
+            parts: Lista de strings a serem limpas e normalizadas
+
+        Returns:
+            Lista de strings limpas, não vazias e normalizadas
+        """
+        return [
+            re.sub(r'\n+', ' ', part.strip())
             for part in parts
             if part.strip()
         ]
