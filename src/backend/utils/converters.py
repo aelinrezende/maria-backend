@@ -5,12 +5,11 @@ Responsabilidades:
 """
 from __future__ import annotations
 
-from io import BytesIO
-
 from fastapi import UploadFile
 from markitdown import MarkItDown
 
 from backend.exceptions.http_exceptions import BadRequestException
+from backend.utils.file import buffer_file
 
 md = MarkItDown()
 
@@ -34,11 +33,8 @@ def document_to_markdown(document_file: UploadFile) -> str:
         # Reset do ponteiro para o início
         document_file.file.seek(0)
 
-        # Lê todo o conteúdo em memória
-        clean_stream = BytesIO(document_file.file.read())
-
         # MarkItDown converte usando o stream limpo
-        result = md.convert_stream(clean_stream)
+        result = md.convert_stream(buffer_file(document_file))
 
         # Reset do arquivo original para outras operações se necessário
         document_file.file.seek(0)
