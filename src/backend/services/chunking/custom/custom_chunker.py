@@ -92,7 +92,7 @@ class CustomChunker(IChunker):
         raw_sentences = re.split(sentence_pattern, text.strip())
 
         # 2. Normaliza e limpa sentenças vazias
-        sentences = ChunkingUtils.clean_deep(raw_sentences)
+        sentences = ChunkingUtils.clean(raw_sentences)
 
         if not sentences:
             return []
