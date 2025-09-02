@@ -1,4 +1,6 @@
-from fastapi import Depends
+
+from fastapi import Body, Depends, UploadFile
+from fastapi.params import File
 from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
 from wireup import service as inject
@@ -6,8 +8,8 @@ from wireup import service as inject
 from backend.models import Document
 from backend.modules.base.base_router import get_base_router
 from backend.modules.document.document_dto import (
-    DocumentCreateTextRequest,
-    DocumentCreateTextResponse,
+    DocumentIngestRequest,
+    DocumentIngestResponse,
 )
 from backend.modules.document.document_service import DocumentService
 
@@ -25,8 +27,26 @@ class DocumentRouter(BaseRouter[Document]):
         self.service = service
 
     @document_router.post(
-        "/text", response_model=DocumentCreateTextResponse, summary="Criar documento a partir de texto bruto"
+        "/ingest/file",
+        response_model=DocumentIngestResponse,
+        summary="Ingerir arquivo e criar documento com chunks"
     )
-    async def create_from_text(self, payload: DocumentCreateTextRequest) -> DocumentCreateTextResponse:
-        """Cria documento a partir de texto puro e retorna eco dos dados principais."""
-        return await self.service.ingest_text(payload)
+    # TODO: Validar arquivo (tamanho, tipo, etc.)
+    async def ingest_file(
+        self,
+        document_file: UploadFile = File(...),
+        dto: DocumentIngestRequest = Body(...),
+    ) -> DocumentIngestResponse:
+        """
+        Ingere um arquivo, convertendo para Markdown, aplicando chunking inteligente,
+        gerando embeddings e persistindo no banco de dados.
+
+        Args:
+            document_file: Arquivo a ser processado
+            dto: Dados do documento (título, tipo, fonte, etc.)
+
+        Returns:
+            Informações do documento criado com chunks e embeddings
+        """
+
+        return await self.service.ingest_file(document_file, dto)

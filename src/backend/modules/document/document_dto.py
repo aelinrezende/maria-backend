@@ -1,32 +1,49 @@
 """DTOs para operações de criação de documentos."""
 
+import json
 from typing import List, Optional
 
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import HttpUrl, field_serializer, model_validator
+from sqlmodel import AutoString, Field, SQLModel
 
 from backend.core.validators import MetadataDict
 from backend.modules.base.base_dto import ModelBase
 from backend.modules.document.document_enums import DocumentKind
 
 
-class DocumentBase(BaseModel):
+class DocumentBase(SQLModel):
     """Modelo base para DTO de documentos com validações de tamanho e estrutura."""
 
     title: str = Field(min_length=1, max_length=200)
     kind: DocumentKind
     source: str = Field(min_length=1, max_length=100)
-    url: Optional[HttpUrl] = Field(default=None)
+    url: Optional[HttpUrl] = Field(default=None, sa_type=AutoString)
     keywords: List[str] = Field(default_factory=list, max_length=25)
-    metadata: MetadataDict = Field(default_factory=dict)
+    meta: Optional[MetadataDict] = Field(default_factory=dict)
 
 
-class DocumentCreateTextRequest(DocumentBase):
+class DocumentIngestRequest(DocumentBase):
     """Payload para criação de um documento a partir de texto puro."""
 
-    content: str = Field(min_length=1, max_length=100_000)
+    @model_validator(mode='before')
+    @classmethod
+    def validate_to_json(cls, value):
+        """Converte de JSON string para dict se necessário."""
+        if isinstance(value, str):
+            return cls(**json.loads(value))
+
+        return value
+
+    @field_serializer('url')
+    def serialize_url(self, value):
+        """Serializa URL como string."""
+        if value is not None:
+            return str(value)
+
+        return None
 
 
-class DocumentCreateTextResponse(ModelBase, DocumentBase):
-    """Resposta de criação de documento."""
+class DocumentIngestResponse(DocumentBase, ModelBase):
+    """Resposta de ingestão de arquivo com chunks processados."""
 
-    content: str
+    total_chunks: int

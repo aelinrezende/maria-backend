@@ -11,12 +11,13 @@ from loguru import logger
 from wireup import AsyncContainer, create_async_container
 from wireup.integration.fastapi import setup
 
-from backend.core.config import settings
-from backend.core.database import DatabaseConnection
+from backend.core import DatabaseConnection, UnitOfWork, settings
 from backend.exceptions.handler import register_exception_handler
 from backend.integrations.embeddings import LocalSentenceTransformerProvider
 from backend.integrations.mailgun import MailGun
 from backend.modules.auth.auth_router import AuthRouter, auth_router
+from backend.modules.chunk.chunk_repository import ChunkRepository
+from backend.modules.chunk.chunk_service import ChunkService
 from backend.modules.document.document_repository import DocumentRepository
 from backend.modules.document.document_router import DocumentRouter, document_router
 from backend.modules.document.document_service import DocumentService
@@ -91,6 +92,14 @@ def create_app() -> tuple[FastAPI, AsyncContainer]:
             DocumentRouter,
             DocumentService,
             DocumentRepository,
+
+            # Chunk
+            ChunkService,
+            ChunkRepository,
+
+            # Outros
+            UnitOfWork
+
         ],
         parameters={
             "debug": settings.DEBUG
