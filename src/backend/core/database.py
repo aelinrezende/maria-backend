@@ -19,7 +19,7 @@ class DatabaseConnection:
         self.engine = create_async_engine(
             settings.DATABASE_URL, echo=settings.DEBUG, pool_pre_ping=True, pool_recycle=300
         )
-        self._session = AsyncSession(self.engine)
+        self._session = AsyncSession(self.engine, expire_on_commit=False)
 
     async def create_vector_type(self) -> None:
         """Cria o tipo de dado vetorial no banco de dados"""

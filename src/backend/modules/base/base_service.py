@@ -1,5 +1,6 @@
 from typing import Generic, TypeVar
 
+from backend.core.unit_of_work import UnitOfWork
 from backend.models.base import BaseModel
 from backend.modules.base.base_repository import BaseRepository
 
@@ -11,9 +12,10 @@ class BaseService(Generic[T]):
     Classe base para serviços, fornecendo métodos comuns para regras de negócio e lógica de aplicação.
     """
 
-    def __init__(self, repository: BaseRepository[T], model: type[T]):
+    def __init__(self, repository: BaseRepository[T], model: type[T], unit_of_work: UnitOfWork):
         self.repository = repository
         self.model = model
+        self.unit_of_work = unit_of_work
 
     async def create(self, dto: dict) -> T:
         """

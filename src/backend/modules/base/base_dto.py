@@ -1,11 +1,12 @@
+from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel
+from sqlmodel import SQLModel
 
 
-class ModelBase(BaseModel):
+class ModelBase(SQLModel):
     """Modelo base para DTOs."""
 
     id: Optional[str] = None
-    created_at: Optional[str] = None
-    updated_at: Optional[str] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None

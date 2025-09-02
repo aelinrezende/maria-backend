@@ -48,7 +48,7 @@ class Document(BaseModel, table=True):
     is_active: bool = Field(nullable=False, default=True)
 
     # Metadados adicionais
-    document_metadata: Dict[str, Any] = Field(
+    meta: Optional[Dict[str, Any]] = Field(
         default_factory=dict,
-        sa_column=Column("metadata", JSON, nullable=False),
+        sa_column=Column(JSON, nullable=True),
     )
