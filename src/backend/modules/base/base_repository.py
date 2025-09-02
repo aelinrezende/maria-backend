@@ -1,4 +1,4 @@
-from typing import Generic, TypeVar
+from typing import Generic, List, TypeVar
 
 from fastapi.params import Depends
 from sqlalchemy import ColumnExpressionArgument
@@ -29,7 +29,7 @@ class BaseRepository(Generic[T]):
         """Retorna o construtor de consultas para a sessão atual."""
         return select(self.model)
 
-    async def insert(self, entity: T) -> T:
+    def insert(self, entity: T) -> T:
         """
         Cria uma nova entidade no banco de dados.
 
@@ -39,6 +39,17 @@ class BaseRepository(Generic[T]):
         self.__session.add(entity)
 
         return entity
+
+    def insert_multiple(self, entities: List[T]) -> List[T]:
+        """
+        Cria novas entidades no banco de dados.
+
+        :param entities: Lista de entidades a serem criadas.
+        :return: Lista de entidades criadas.
+        """
+        self.__session.add_all(entities)
+
+        return entities
 
     async def update(self, entity: T) -> T:
         """
@@ -103,7 +114,7 @@ class BaseRepository(Generic[T]):
     async def find_many(
         self,  #
         *expression: ColumnExpressionArgument[bool] | bool
-    ) -> list[T]:
+    ) -> List[T]:
         """
         Busca várias entidades com base em critérios especificados.
 
