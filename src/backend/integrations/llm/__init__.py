@@ -25,8 +25,9 @@ Exemplo de uso:
     ```
 """
 
-from backend.interfaces import ILLMConfig
+from backend.interfaces.llm import ILLMConfig
 
+from .claude import ClaudeProvider
 from .exceptions import (
     ClaudeError,
     GeminiError,
@@ -36,7 +37,8 @@ from .exceptions import (
     LLMRateLimitError,
     LLMValidationError,
 )
-from .models import Message, StreamChunk
+from .factory import LLMFactory
+from .models import ClaudeConfig, Message, StreamChunk
 from .protocol import ILLMProvider
 
 __all__ = [
@@ -47,6 +49,7 @@ __all__ = [
     "Message",
     "StreamChunk",
     "ILLMConfig",
+    "ClaudeConfig",
 
     # Exceptions
     "LLMError",
@@ -56,4 +59,8 @@ __all__ = [
     "LLMValidationError",
     "ClaudeError",
     "GeminiError",
+
+    # Providers
+    "LLMFactory",
+    "ClaudeProvider",
 ]

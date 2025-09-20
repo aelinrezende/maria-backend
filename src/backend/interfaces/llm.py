@@ -8,4 +8,3 @@ class ILLMConfig(Protocol):
     model: str
     temperature: float
     max_tokens: int
-    STREAM_STOP_MARKER: str
