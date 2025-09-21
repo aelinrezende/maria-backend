@@ -55,7 +55,10 @@ class Settings(BaseSettings):
     CLAUDE_TEMPERATURE: float = 0.7
 
     # Gemini (Google)
-    # TODO: Adicionar variáveis de ambiente para Gemini
+    GEMINI_API_KEY: str = "your-gemini-api-key-here"
+    GEMINI_MODEL: str = "gemini-2.5-pro"
+    GEMINI_MAX_TOKENS: int = 4096
+    GEMINI_TEMPERATURE: float = 0.7
 
     # Configurações gerais LLM
     DEFAULT_LLM_PROVIDER: str = "gemini"
