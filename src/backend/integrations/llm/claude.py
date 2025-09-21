@@ -86,7 +86,6 @@ class ClaudeProvider(ILLMProvider):
             # Inicia streaming
             async with self.client.messages.stream(**request_params) as stream:
                 async for chunk in stream.text_stream:
-                    print(chunk)
                     yield StreamChunk(
                         content=chunk,
                         is_final=False
