@@ -5,9 +5,11 @@ Define a interface comum que todos os provedores LLM devem implementar.
 Foca apenas em streaming para simplicidade e performance.
 """
 
-from typing import AsyncIterator, Protocol
+from typing import AsyncGenerator, Protocol
 
-from .models import LLMConfig, Message, StreamChunk
+from backend.interfaces.llm import ILLMConfig
+
+from .models import Message, StreamChunk
 
 
 class ILLMProvider(Protocol):
@@ -18,7 +20,7 @@ class ILLMProvider(Protocol):
     compatibilidade e intercambialidade.
     """
 
-    def __init__(self, config: LLMConfig) -> None:
+    def __init__(self, config: ILLMConfig) -> None:
         """
         Inicializa o provedor com configuração.
 
@@ -30,7 +32,7 @@ class ILLMProvider(Protocol):
         self,
         messages: list[Message],
         system_prompt: str | None = None
-    ) -> AsyncIterator[StreamChunk]:
+    ) -> AsyncGenerator[StreamChunk, None]:
         """
         Inicia chat streaming com o LLM.
 
@@ -44,6 +46,7 @@ class ILLMProvider(Protocol):
         Raises:
             LLMError: Em caso de erro na comunicação
         """
+        yield StreamChunk(...)
 
     @property
     def provider_name(self) -> str:

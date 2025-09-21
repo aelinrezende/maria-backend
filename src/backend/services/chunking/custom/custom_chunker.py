@@ -84,7 +84,8 @@ class CustomChunker(IChunker):
         # Regex para dividir sentenças por pontuação de fim
         # (?<!\n\d)   : Evita dividir após quebras de linha seguidas de dígito (ex: listas numeradas como "1. Item")
         # [.!?]+      : Captura um ou mais sinais de pontuação de fim de sentença
-        # (?:\s+(?=[A-Z])|$) : Garante que a divisão ocorra apenas se houver espaço seguido de letra maiúscula (nova sentença) ou fim de string
+        # (?:\s+(?=[A-Z])|$) : Garante que a divisão ocorra apenas se houver espaço seguido de
+        # letra maiúscula (nova sentença) ou fim de string
         # Isso evita dividir sentenças em listas numeradas e preserva a integridade das sentenças.
         sentence_pattern = r'(?<!\n\d)[.!?]+(?:\s+(?=[A-Z])|$)'
 

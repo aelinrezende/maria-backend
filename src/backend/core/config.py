@@ -46,6 +46,20 @@ class Settings(BaseSettings):
     CHUNK_SIZE: int = 512
     CHUNK_OVERLAP: int = 50
 
+    # Configurações LLM - Interface Genérica
+
+    # Claude (Anthropic)
+    CLAUDE_API_KEY: str = "your-claude-api-key-here"
+    CLAUDE_MODEL: str = "claude-3-7-sonnet-20250219"
+    CLAUDE_MAX_TOKENS: int = 4096
+    CLAUDE_TEMPERATURE: float = 0.7
+
+    # Gemini (Google)
+    # TODO: Adicionar variáveis de ambiente para Gemini
+
+    # Configurações gerais LLM
+    DEFAULT_LLM_PROVIDER: str = "gemini"
+
     class Config:
         env_file = ".env"
         case_sensitive = True

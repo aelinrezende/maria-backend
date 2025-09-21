@@ -8,6 +8,9 @@ e configurações dos provedores LLM.
 from dataclasses import dataclass
 from typing import Literal
 
+from backend.core.config import settings
+from backend.interfaces.llm import ILLMConfig
+
 
 @dataclass
 class Message:
@@ -21,3 +24,12 @@ class StreamChunk:
     """Representa um chunk de resposta streaming."""
     content: str
     is_final: bool = False
+
+
+@dataclass
+class ClaudeConfig(ILLMConfig):
+    """Configuração específica para o provedor Claude."""
+    api_key: str = settings.CLAUDE_API_KEY
+    model: str = settings.CLAUDE_MODEL
+    max_tokens: int = settings.CLAUDE_MAX_TOKENS
+    temperature: float = settings.CLAUDE_TEMPERATURE
