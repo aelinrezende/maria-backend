@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from pgvector.sqlalchemy import Vector
 from sqlmodel import Field, Relationship
@@ -23,7 +23,7 @@ class Chunk(BaseModel, table=True):
 
     # Informações básicas
     content: str = Field(nullable=False, max_length=10000)
-    embedding: list[float] = Field(
+    embedding: Any = Field(
         nullable=False, sa_type=Vector(settings.EMBEDDING_DIMENSION)
     )
     chunk_size: int = Field(nullable=False)
