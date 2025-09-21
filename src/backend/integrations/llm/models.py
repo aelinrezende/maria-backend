@@ -15,7 +15,7 @@ from backend.interfaces.llm import ILLMConfig
 @dataclass
 class Message:
     """Representa uma mensagem no chat."""
-    role: Literal["user", "assistant", "system"]
+    role: Literal["user", "assistant"]
     content: str
 
 
@@ -33,3 +33,12 @@ class ClaudeConfig(ILLMConfig):
     model: str = settings.CLAUDE_MODEL
     max_tokens: int = settings.CLAUDE_MAX_TOKENS
     temperature: float = settings.CLAUDE_TEMPERATURE
+
+
+@dataclass
+class GeminiConfig(ILLMConfig):
+    """Configuração específica para o provedor Gemini."""
+    api_key: str = settings.GEMINI_API_KEY
+    model: str = settings.GEMINI_MODEL
+    max_tokens: int = settings.GEMINI_MAX_TOKENS
+    temperature: float = settings.GEMINI_TEMPERATURE
