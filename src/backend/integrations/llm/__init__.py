@@ -38,7 +38,8 @@ from .exceptions import (
     LLMValidationError,
 )
 from .factory import LLMFactory
-from .models import ClaudeConfig, Message, StreamChunk
+from .gemini import GeminiProvider
+from .models import ClaudeConfig, GeminiConfig, Message, StreamChunk
 from .protocol import ILLMProvider
 
 __all__ = [
@@ -50,6 +51,7 @@ __all__ = [
     "StreamChunk",
     "ILLMConfig",
     "ClaudeConfig",
+    "GeminiConfig",
 
     # Exceptions
     "LLMError",
@@ -63,4 +65,5 @@ __all__ = [
     # Providers
     "LLMFactory",
     "ClaudeProvider",
+    "GeminiProvider",
 ]
