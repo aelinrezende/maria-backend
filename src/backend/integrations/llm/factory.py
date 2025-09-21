@@ -9,11 +9,12 @@ providers de LLM disponíveis no sistema.
 from typing import TYPE_CHECKING, Literal, Optional
 
 from backend.core.config import settings
-from backend.integrations.llm.models import ClaudeConfig
+from backend.integrations.llm.models import ClaudeConfig, GeminiConfig
 
 from . import ILLMConfig
 from .claude import ClaudeProvider
 from .exceptions import LLMValidationError
+from .gemini import GeminiProvider
 
 if TYPE_CHECKING:
     from backend.integrations.llm import ILLMProvider
@@ -49,8 +50,7 @@ class LLMFactory:
             case "claude":
                 return ClaudeProvider(config or ClaudeConfig())
             case "gemini":
-                # TODO: Implementar GeminiProvider
-                pass
+                return GeminiProvider(config or GeminiConfig())
             case _:
                 raise LLMValidationError(
                     f"Tipo de modelo não suportado: {model}"
