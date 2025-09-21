@@ -10,11 +10,13 @@ from typing import AsyncGenerator
 from google import genai
 from google.genai import types
 
+from backend.interfaces.llm import ILLMConfig
+
 from .exceptions import (
     GeminiError,
     LLMAuthenticationError,
 )
-from .models import GeminiConfig, Message, StreamChunk
+from .models import Message, StreamChunk
 from .protocol import ILLMProvider
 
 
@@ -36,7 +38,7 @@ class GeminiProvider(ILLMProvider):
         """Nome do provedor."""
         return "gemini"
 
-    def __init__(self, config: GeminiConfig) -> None:
+    def __init__(self, config: ILLMConfig) -> None:
         """
         Inicializa o provider do Gemini.
 

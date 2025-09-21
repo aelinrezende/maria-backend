@@ -9,13 +9,15 @@ from typing import AsyncGenerator
 
 import anthropic
 
+from backend.interfaces.llm import ILLMConfig
+
 from .exceptions import (
     ClaudeError,
     LLMAuthenticationError,
     LLMConnectionError,
     LLMRateLimitError,
 )
-from .models import ClaudeConfig, Message, StreamChunk
+from .models import Message, StreamChunk
 from .protocol import ILLMProvider
 
 
@@ -27,7 +29,7 @@ class ClaudeProvider(ILLMProvider):
     da Anthropic com suporte a streaming.
     """
 
-    def __init__(self, config: ClaudeConfig) -> None:
+    def __init__(self, config: ILLMConfig) -> None:
         """
         Inicializa o provider do Claude.
 
