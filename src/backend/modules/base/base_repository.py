@@ -122,3 +122,19 @@ class BaseRepository(Generic[T]):
         :return: Lista de entidades encontradas.
         """
         return (await self.__session.execute(self.query.where(*expression))).all()
+
+    def run(
+        self,
+        scalar: SelectOfScalar[T],
+    ):
+        """
+        Executa uma consulta SQLAlchemy fornecida usando a sessão atual.
+
+        :param scalar: Consulta SQLAlchemy (SelectOfScalar) a ser executada.
+        :return: Resultado da execução da consulta.
+        :rtype: sqlalchemy.engine.Result
+
+        Use este método quando precisar executar manualmente uma consulta personalizada,
+        ao invés dos métodos utilitários como find_one ou find_many, para obter maior controle sobre a execução.
+        """
+        return self.__session.execute(scalar)

@@ -21,6 +21,8 @@ from backend.modules.chunk.chunk_service import ChunkService
 from backend.modules.document.document_repository import DocumentRepository
 from backend.modules.document.document_router import DocumentRouter, document_router
 from backend.modules.document.document_service import DocumentService
+from backend.modules.rag.rag_router import RAGRouter, rag_router
+from backend.modules.rag.rag_service import RAGService
 from backend.modules.user.user_repository import UserRepository
 from backend.modules.user.user_router import user_router
 from backend.modules.user.user_service import UserService
@@ -61,6 +63,7 @@ def create_app() -> tuple[FastAPI, AsyncContainer]:
     application.include_router(user_router)
     application.include_router(auth_router)
     application.include_router(document_router)
+    application.include_router(rag_router)
 
     # Configurar CORS
     application.add_middleware(
@@ -96,6 +99,10 @@ def create_app() -> tuple[FastAPI, AsyncContainer]:
             # Chunk
             ChunkService,
             ChunkRepository,
+
+            # RAG
+            RAGRouter,
+            RAGService,
 
             # Outros
             UnitOfWork
