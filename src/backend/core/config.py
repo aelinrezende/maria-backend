@@ -46,6 +46,9 @@ class Settings(BaseSettings):
     CHUNK_SIZE: int = 512
     CHUNK_OVERLAP: int = 50
 
+    # Configurações RAG
+    RAG_TOP_K_CHUNKS: int = 5
+
     # Configurações LLM - Interface Genérica
 
     # Claude (Anthropic)
