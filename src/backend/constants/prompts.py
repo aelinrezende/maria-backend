@@ -61,3 +61,34 @@ SITUAÇÕES ESPECIAIS:
 
 Respondo sempre com precisão, responsabilidade e o compromisso de contribuir
 positivamente para o bem-estar da comunidade trans brasileira."""
+
+
+# Template do prompt de pergunta - combina contexto dos chunks com query do usuário
+RAG_USER_PROMPT_TEMPLATE = """Com base nos documentos fornecidos abaixo, responda à pergunta do usuário.
+
+=== DOCUMENTOS DE REFERÊNCIA ===
+
+{chunks_context}
+
+=== PERGUNTA ===
+{user_query}
+
+=== INSTRUÇÕES ===
+1. Use APENAS as informações dos documentos acima para responder
+2. Se a informação não estiver disponível nos documentos, seja clara sobre isso
+3. Cite sempre a fonte do documento quando relevante
+4. Mantenha o tom empático e profissional conforme sua personalidade
+5. Inclua disclaimers apropriados para a área da pergunta
+6. Se necessário, oriente para profissionais especializados
+
+Resposta:"""
+
+
+# Template para formatação de contexto dos chunks
+RAG_CHUNK_CONTEXT_TEMPLATE = """DOCUMENTO {chunk_number}:
+Título: {document_title}
+Fonte: {document_source}
+
+{chunk_content}
+
+---"""
