@@ -1,11 +1,13 @@
 from datetime import datetime
 from typing import Optional
 
+from pydantic import ConfigDict
 from sqlmodel import SQLModel
 
 
 class ModelBase(SQLModel):
     """Modelo base para DTOs."""
+    model_config = ConfigDict(use_enum_values=True)
 
     id: Optional[str] = None
     created_at: Optional[datetime] = None
