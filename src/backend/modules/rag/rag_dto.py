@@ -1,6 +1,4 @@
 """DTOs para operações RAG (Retrieval-Augmented Generation)."""
-
-
 from typing import List, Optional
 
 from sqlmodel import Field, SQLModel

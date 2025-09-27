@@ -1,6 +1,5 @@
 """Router para endpoints RAG (Retrieval-Augmented Generation)."""
 
-
 from fastapi import Depends
 from fastapi.responses import StreamingResponse
 from fastapi_utils.cbv import cbv
@@ -40,7 +39,7 @@ class RAGRouter:
         """
         return StreamingResponse(
             self.service.query_rag_stream(request),
-            media_type="text/plain",
+            media_type="text/event-stream",
             headers={
                 "Cache-Control": "no-cache",
                 "Connection": "keep-alive",
