@@ -1,33 +1,33 @@
 """DTOs para operações RAG (Retrieval-Augmented Generation)."""
-
 from typing import List, Optional
 
 from sqlmodel import Field, SQLModel
+
+from backend.modules.base.base_dto import ModelBase
+from backend.modules.rag.rag_enum import RAGChunkKind
 
 
 class RAGQueryRequest(SQLModel):
     """Payload para consulta RAG."""
 
-    query: str = Field(min_length=1, max_length=1000,
-                       description="Pergunta do usuário")
+    query: str = Field(
+        min_length=1,
+        max_length=1000,
+        description="Pergunta do usuário"
+    )
 
 
-class ChunkResult(SQLModel):
-    """Resultado de um chunk encontrado na busca."""
+class RAGStreamChunk(ModelBase):
+    """Chunk individual de streaming com metadados."""
+    content: Optional[str] = Field(
+        default=None, description="Resposta gerada pela Mar.IA"
+    )
+    kind: RAGChunkKind = Field(description="Tipo do chunk")
+    sources: Optional[List[str]] = Field(
+        default=None, description="Lista de fontes dos documentos utilizados"
+    )
 
-    chunk_id: str = Field(description="ID do chunk")
-    content: str = Field(description="Conteúdo do chunk")
-    document_title: Optional[str] = Field(
-        default=None, description="Título do documento")
-    document_source: Optional[str] = Field(
-        default=None, description="Fonte do documento")
-
-
-class RAGQueryResponse(SQLModel):
-    """Resposta da consulta RAG."""
-
-    query: str = Field(description="Pergunta original do usuário")
-    chunks_found: int = Field(description="Número de chunks encontrados")
-    chunks: List[ChunkResult] = Field(description="Lista de chunks relevantes")
-    processing_time_sec: Optional[float] = Field(
-        default=None, description="Tempo de processamento em segundos")
+    @property
+    def streamed(self) -> str:
+        """Formata o chunk para streaming no formato SSE."""
+        return f"data: {self.model_dump(exclude_none=True)}\n\n"

@@ -1,11 +1,12 @@
 """Router para endpoints RAG (Retrieval-Augmented Generation)."""
 
 from fastapi import Depends
+from fastapi.responses import StreamingResponse
 from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
 from wireup import service as inject
 
-from .rag_dto import RAGQueryRequest, RAGQueryResponse
+from .rag_dto import RAGQueryRequest
 from .rag_service import RAGService
 
 rag_router = InferringRouter(prefix="/rag", tags=["RAG"])
@@ -21,13 +22,12 @@ class RAGRouter:
 
     @rag_router.post(
         "/query/stream",
-        response_model=RAGQueryResponse,
         summary="Consultas RAG com streaming de respostas"
     )
     async def query_rag_stream(
         self,
         request: RAGQueryRequest,
-    ) -> RAGQueryResponse:
+    ) -> StreamingResponse:
         """
         Endpoint para consultas RAG com streaming de respostas.
 
@@ -35,6 +35,14 @@ class RAGRouter:
             request: Requisição com query
 
         Returns:
-            Streaming da resposta gerada
+            Streaming da resposta gerada em tempo real
         """
-        return await self.service.query_rag_stream(request)
+        return StreamingResponse(
+            self.service.query_rag_stream(request),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "Access-Control-Allow-Origin": "*"
+            }
+        )
