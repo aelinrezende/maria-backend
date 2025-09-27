@@ -95,10 +95,10 @@ class RAGService:
             )
 
         # 3. Extrair fontes únicas dos documentos encontrados
-        sources = list({
+        sources = list(dict.fromkeys(
             chunk.document.source for chunk in similar_chunks
             if chunk.document.source
-        })
+        ))
 
         yield RAGStreamChunk(
             kind=RAGChunkKind.SOURCES,
