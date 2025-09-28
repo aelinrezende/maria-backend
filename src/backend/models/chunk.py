@@ -26,5 +26,6 @@ class Chunk(BaseModel, table=True):
     embedding: Any = Field(
         nullable=False, sa_type=Vector(settings.EMBEDDING_DIMENSION)
     )
-    chunk_size: int = Field(nullable=False)
-    chunk_order: int = Field(nullable=False)
+    size: int = Field(nullable=False)
+    order: int = Field(nullable=False)
+    page: int = Field(nullable=False)
