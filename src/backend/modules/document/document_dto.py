@@ -11,10 +11,11 @@ from backend.modules.base.base_dto import ModelBase
 from backend.modules.document.document_enums import DocumentKind
 
 
+# TODO: Passar responsabilidade de extrair informações para o LLM
 class DocumentBase(SQLModel):
     """Modelo base para DTO de documentos com validações de tamanho e estrutura."""
 
-    title: str = Field(min_length=1, max_length=200)
+    title: Optional[str] = Field(default=None, min_length=1, max_length=200)
     kind: DocumentKind
     source: str = Field(min_length=1, max_length=100)
     url: Optional[HttpUrl] = Field(default=None, sa_type=AutoString)

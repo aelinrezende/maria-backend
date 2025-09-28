@@ -1,4 +1,5 @@
 
+
 from fastapi import UploadFile
 from fastapi.params import Depends
 from wireup import service
@@ -17,7 +18,8 @@ from backend.modules.document.document_dto import (
 )
 from backend.modules.document.document_repository import DocumentRepository
 from backend.services.chunking.smart_chunker import SmartChunker
-from backend.utils.converters import document_to_markdown
+from backend.services.converter import document_to_markdown
+from backend.services.converter.metadata_extractor import MetadataExtractor
 
 
 @service(lifetime="scoped")
@@ -44,11 +46,16 @@ class DocumentService(BaseService[Document]):
         """Ingere um arquivo, criando documento e chunks com embeddings."""
 
         # 1. Converte arquivo para Markdown
-        markdown_content = document_to_markdown(document_file)
+        metadata: MetadataExtractor = document_to_markdown(
+            document_file
+        )
+
+        dto.title = dto.title or metadata.title or "Sem título"
+        dto.meta.update(metadata.metadata or {})
 
         # 2. Processa com Smart Chunker
-        chunks_text = self._smart_chunker.chunk_intelligently(
-            markdown_content, dto.kind
+        chunked_pages = self._smart_chunker.chunk_intelligently(
+            metadata.pages, dto.kind
         )
 
         # 3. Cria o documento no banco
@@ -56,7 +63,7 @@ class DocumentService(BaseService[Document]):
 
         # 4. Cria os chunks com embeddings
         saved_chunks = await self._chunk_service.create_chunks_with_embeddings(
-            document.id, chunks_text
+            document.id, chunked_pages
         )
 
         await self.unit_of_work.commit()
