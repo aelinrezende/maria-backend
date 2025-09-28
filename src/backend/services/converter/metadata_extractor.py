@@ -19,9 +19,12 @@ class MetadataExtractor(DocumentConverter):
     """
     Extrai texto e metadados de documentos.
     """
-    pages: List[PaperPage] = []
-    title: Optional[str] = None
-    metadata: dict = {}
+
+    def __init__(self):
+        super().__init__()
+        self.pages: List[PaperPage] = []
+        self.title: Optional[str] = None
+        self.metadata: Optional[dict[str, Any]] = None
 
     def accepts(self, _file_stream: BinaryIO, _stream_info: StreamInfo, **_kwargs: Any) -> bool:
         """Aceita todos os formatos de arquivo."""
