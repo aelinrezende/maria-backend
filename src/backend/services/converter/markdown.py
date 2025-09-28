@@ -11,10 +11,10 @@ from markitdown import MarkItDown
 from backend.exceptions.http_exceptions import BadRequestException
 from backend.utils.file import buffer_file
 
-md = MarkItDown()
+from .metadata_extractor import MetadataExtractor
 
 
-def document_to_markdown(document_file: UploadFile) -> str:
+def document_to_markdown(document_file: UploadFile) -> MetadataExtractor:
     """Converte um documento/arquivo para Markdown.
 
     Utiliza a biblioteca `markitdown` para uma conversão robusta,
@@ -29,17 +29,21 @@ def document_to_markdown(document_file: UploadFile) -> str:
     Raises:
         BadRequestException: Se a conversão falhar por qualquer motivo.
     """
+    md = MarkItDown()
+    metadata_extractor = MetadataExtractor()
+    md.register_converter(metadata_extractor, priority=-30.0)
+
     try:
         # Reset do ponteiro para o início
         document_file.file.seek(0)
 
         # MarkItDown converte usando o stream limpo
-        result = md.convert_stream(buffer_file(document_file))
+        md.convert_stream(buffer_file(document_file))
 
         # Reset do arquivo original para outras operações se necessário
         document_file.file.seek(0)
 
-        return result.text_content.strip()
+        return metadata_extractor
 
     except Exception as exception:
         raise BadRequestException("FAILED_TO_CONVERT_DOCUMENT") from exception
