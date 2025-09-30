@@ -146,7 +146,9 @@ Exemplo 8: "Quais os efeitos colaterais do estrogênio?"
 Resposta: { "skip": false }
 Motivo: Informação educativa sobre questões hormonais (área 1)
 
-Após avaliar, responda APENAS com um JSON no formato: { "skip": boolean }
+Após avaliar, responda APENAS com um JSON válido no formato: { "skip": boolean }.
+Se não tiver certeza, responda com { "skip": true } para garantir que o formato seja sempre válido.
+O sistema que consome esta resposta irá validar o JSON e tratar erros caso o formato esteja incorreto.
 
 A seguir, a entrada do usuário:
 
