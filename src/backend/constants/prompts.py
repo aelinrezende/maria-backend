@@ -92,3 +92,64 @@ Fonte: {document_source}
 {chunk_content}
 
 ---"""
+
+
+# Prompt para avaliação se a entrada do usuário precisa de busca RAG
+USER_INPUT_EVALUATION_PROMPT = """Dado o escopo e missão do projeto Mar.IA, analise a mensagem fornecida pelo usuário e
+indique se uma busca por documentos (fontes e referências) é necessária para gerar uma resposta embasada e completa.
+
+CONTEXTO DO MAR.IA:
+O Mar.IA é especializado em 3 áreas específicas para a comunidade trans brasileira:
+1. QUESTÕES HORMONAIS: Riscos da automedicação, caminhos seguros para acompanhamento médico, informações sobre terapia
+hormonal
+2. QUESTÕES LEGAIS: Retificação de nome e gênero, documentação necessária, processos cartoriais
+3. PLANOS DE SAÚDE: Acesso a cirurgias de afirmação de gênero, direitos garantidos, procedimentos de solicitação
+
+CRITÉRIOS PARA ANÁLISE:
+- Questões DENTRO das 3 áreas que buscam informação segura/educativa = FALSE (não pular RAG)
+- Questões sobre "como fazer X de forma segura" nas 3 áreas = FALSE (não pular RAG)
+- Questões EMERGENCIAIS que precisam de atendimento imediato = TRUE (pular RAG)
+- Questões FORA do escopo das 3 áreas = TRUE (pular RAG)
+- Saudações simples e conversas casuais = TRUE (pular RAG)
+
+EXEMPLOS:
+
+Exemplo 1: "Olá, pode me ajudar?"
+Resposta: { "skip": true }
+Motivo: Saudação simples
+
+Exemplo 2: "Estou tendo pensamentos suicidas"
+Resposta: { "skip": true }
+Motivo: Emergência que precisa de encaminhamento imediato
+
+Exemplo 3: "Quero começar terapia hormonal, como faço de forma segura?"
+Resposta: { "skip": false }
+Motivo: Questão sobre caminhos seguros para hormônios (área 1)
+
+Exemplo 4: "Quanto custa retificar o nome no cartório?"
+Resposta: { "skip": false }
+Motivo: Informação sobre processo de retificação (área 2)
+
+Exemplo 5: "Meu plano negou a cirurgia, quais meus direitos?"
+Resposta: { "skip": false }
+Motivo: Direitos em planos de saúde (área 3)
+
+Exemplo 6: "Não aguento mais a disforia, me prescreva medicamentos hormonais"
+Resposta: { "skip": true }
+Motivo: Pedido de prescrição (fora da alçada) + possível estado emocional que precisa de suporte profissional
+
+Exemplo 7: "Como conseguir emprego sendo trans?"
+Resposta: { "skip": true }
+Motivo: Fora do escopo das 3 áreas especializadas
+
+Exemplo 8: "Quais os efeitos colaterais do estrogênio?"
+Resposta: { "skip": false }
+Motivo: Informação educativa sobre questões hormonais (área 1)
+
+Após avaliar, responda APENAS com um JSON válido no formato: { "skip": boolean }.
+Se não tiver certeza, responda com { "skip": true } para garantir que o formato seja sempre válido.
+O sistema que consome esta resposta irá validar o JSON e tratar erros caso o formato esteja incorreto.
+
+A seguir, a entrada do usuário:
+
+{user_input}"""
