@@ -94,8 +94,28 @@ Fonte: {document_source}
 ---"""
 
 
+# Contexto para respostas diretas quando RAG deve ser pulado
+RAG_DIRECT_RESPONSE_PROMPT = """CONTEXTUALIZAÇÃO: Estou respondendo diretamente a uma conversa,
+sem utilizar documentos de referência.
+
+CONTEXTO DA INTERAÇÃO:
+- Esta é uma resposta direta, sem buscas documentais
+- Devo adaptar minha resposta ao tipo específico de interação
+- Mantenho minhas especializações: questões hormonais, retificação de documentos, e acesso a cirurgias via planos
+
+ORIENTAÇÕES:
+✓ Para saudações: Seja acolhedora, apresente-se e ofereça ajuda
+✓ Para emergências: Forneça contatos e encaminhamentos imediatos
+✓ Para fora do escopo: Explique limitações e sugira alternativas
+✓ Para conversas casuais: Mantenha tom acolhedor e profissional
+
+Agora responda à mensagem do usuário:
+{user_input}
+"""
+
+
 # Prompt para avaliação se a entrada do usuário precisa de busca RAG
-USER_INPUT_EVALUATION_PROMPT = """Dado o escopo e missão do projeto Mar.IA, analise a mensagem fornecida pelo usuário e
+USER_INPUT_EVALUATION_PROMPT = '''Dado o escopo e missão do projeto Mar.IA, analise a mensagem fornecida pelo usuário e
 indique se uma busca por documentos (fontes e referências) é necessária para gerar uma resposta embasada e completa.
 
 CONTEXTO DO MAR.IA:
@@ -115,41 +135,44 @@ CRITÉRIOS PARA ANÁLISE:
 EXEMPLOS:
 
 Exemplo 1: "Olá, pode me ajudar?"
-Resposta: { "skip": true }
+Resposta: {{ "skip": true }}
 Motivo: Saudação simples
 
 Exemplo 2: "Estou tendo pensamentos suicidas"
-Resposta: { "skip": true }
+Resposta: {{ "skip": true }}
 Motivo: Emergência que precisa de encaminhamento imediato
 
 Exemplo 3: "Quero começar terapia hormonal, como faço de forma segura?"
-Resposta: { "skip": false }
+Resposta: {{ "skip": false }}
 Motivo: Questão sobre caminhos seguros para hormônios (área 1)
 
 Exemplo 4: "Quanto custa retificar o nome no cartório?"
-Resposta: { "skip": false }
+Resposta: {{ "skip": false }}
 Motivo: Informação sobre processo de retificação (área 2)
 
 Exemplo 5: "Meu plano negou a cirurgia, quais meus direitos?"
-Resposta: { "skip": false }
+Resposta: {{ "skip": false }}
 Motivo: Direitos em planos de saúde (área 3)
 
 Exemplo 6: "Não aguento mais a disforia, me prescreva medicamentos hormonais"
-Resposta: { "skip": true }
+Resposta: {{ "skip": true }}
 Motivo: Pedido de prescrição (fora da alçada) + possível estado emocional que precisa de suporte profissional
 
 Exemplo 7: "Como conseguir emprego sendo trans?"
-Resposta: { "skip": true }
+Resposta: {{ "skip": true }}
 Motivo: Fora do escopo das 3 áreas especializadas
 
 Exemplo 8: "Quais os efeitos colaterais do estrogênio?"
-Resposta: { "skip": false }
+Resposta: {{ "skip": false }}
 Motivo: Informação educativa sobre questões hormonais (área 1)
 
-Após avaliar, responda APENAS com um JSON válido no formato: { "skip": boolean }.
-Se não tiver certeza, responda com { "skip": true } para garantir que o formato seja sempre válido.
-O sistema que consome esta resposta irá validar o JSON e tratar erros caso o formato esteja incorreto.
+Após avaliar, responda 
+- APENAS com um JSON no formato: {{ "skip": boolean }}
+- Não inclua a resposta em um bloco de código (inline ou block)
+- NÃO inclua nenhum outro texto, explicação ou comentário
+- Se não tiver certeza, responda com {{ "skip": true }} para garantir que o formato seja sempre válido.
+- O sistema que consome esta resposta irá validar o JSON e tratar erros caso o formato esteja incorreto.
 
 A seguir, a entrada do usuário:
 
-{user_input}"""
+{user_input}'''
