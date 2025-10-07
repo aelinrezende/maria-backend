@@ -48,6 +48,30 @@ class ILLMProvider(Protocol):
         """
         yield StreamChunk(...)
 
+    async def complete_message(
+        self,
+        message: str,
+        system_prompt: str | None = None,
+        temperature: float = 0.1
+    ) -> str:
+        """
+        Completa uma única mensagem sem streaming.
+
+        Usa baixa temperatura para resposta mais previsível.
+        Ideal para avaliações e classificações.
+
+        Args:
+            message: Mensagem do usuário
+            system_prompt: Prompt de sistema opcional
+            temperature: Temperatura para controle de criatividade (padrão: 0.1)
+
+        Returns:
+            str: Resposta completa do LLM
+
+        Raises:
+            LLMError: Em caso de erro na comunicação
+        """
+
     @property
     def provider_name(self) -> str:
         """

@@ -31,3 +31,8 @@ class RAGStreamChunk(ModelBase):
     def streamed(self) -> str:
         """Formata o chunk para streaming no formato SSE."""
         return f"data: {self.model_dump(exclude_none=True)}\n\n"
+
+
+class UserInputEvaluation(SQLModel):
+    """Modelo para resposta de avaliação da entrada do usuário."""
+    skip: bool
