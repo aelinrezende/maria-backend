@@ -15,6 +15,7 @@ from backend.integrations.embeddings import LocalSentenceTransformerProvider
 from backend.integrations.llm import LLMFactory, Message
 from backend.models.chunk import Chunk
 from backend.modules.chunk.chunk_repository import ChunkRepository
+from backend.modules.rag import handlers
 from backend.modules.rag.rag_dto import (
     RAGQueryRequest,
     RAGStreamChunk,
@@ -33,6 +34,7 @@ class RAGService:
     ):
         self.embeddings = embeddings
         self.chunk_repository = chunk_repository
+        self.llm_provider = LLMFactory.create_provider()
 
     def _format_chunks_context(self, chunk_results: List[Chunk]) -> str:
         """
@@ -69,6 +71,12 @@ class RAGService:
         Yields:
             RAGStreamChunk: Chunks da resposta com fontes conforme são gerados pelo LLM
         """
+        if (await handlers.should_skip_rag(self, request.query)):
+            async for chunk in handlers.generate_direct_response(self, request.query):
+                yield chunk
+
+            return
+
         # 1. Buscar chunks similares
         query_embedding, *_ = await self.embeddings.embed_queries([request.query])
 
@@ -106,12 +114,10 @@ class RAGService:
         ).streamed
 
         # 4. Gerar resposta com LLM em streaming
-        llm_provider = LLMFactory.create_provider()
-
         messages = [Message(role="user", content=user_prompt)]
 
         # 5. Fazer yield dos chunks com fontes conforme chegam do LLM
-        async for chunk in llm_provider.stream_chat(
+        async for chunk in self.llm_provider.stream_chat(
             messages=messages,
             system_prompt=RAG_SYSTEM_PROMPT
         ):

@@ -47,6 +47,11 @@ class ClaudeProvider(ILLMProvider):
             raise LLMAuthenticationError(
                 f"CLAUDE_INITIALIZATION_ERROR: {exception}") from exception
 
+    @property
+    def provider_name(self) -> str:
+        """Nome do provedor."""
+        return "claude"
+
     async def stream_chat(
         self,
         messages: list[Message],
@@ -115,7 +120,60 @@ class ClaudeProvider(ILLMProvider):
             raise ClaudeError(
                 f"CLAUDE_UNEXPECTED_ERROR: {exception}") from exception
 
-    @property
-    def provider_name(self) -> str:
-        """Nome do provedor."""
-        return "claude"
+    async def complete_message(
+        self,
+        message: str,
+        system_prompt: str | None = None,
+        temperature: float = 0.1
+    ) -> str:
+        """
+        Completa uma única mensagem sem streaming.
+
+        Args:
+            message: Mensagem do usuário
+            system_prompt: Prompt de sistema opcional
+            temperature: Temperatura para controle de criatividade
+
+        Returns:
+            str: Resposta completa do LLM
+
+        Raises:
+            ClaudeError: Em caso de erro na API do Claude
+        """
+        try:
+            # Prepara mensagem do usuário
+            messages = [{"role": "user", "content": message}]
+
+            # Prepara parâmetros da requisição
+            request_params = {
+                "model": self.config.model,
+                "max_tokens": self.config.max_tokens,
+                "temperature": temperature,  # Usa temperatura baixa para previsibilidade
+                "messages": messages,
+            }
+
+            # Adiciona system prompt se fornecido
+            if system_prompt:
+                request_params["system"] = system_prompt
+
+            # Faz requisição síncrona completa
+            response = await self.client.messages.create(**request_params)
+
+            # Retorna conteúdo da resposta
+            return response.content[0].text
+
+        except anthropic.AuthenticationError as exception:
+            raise LLMAuthenticationError(
+                f"CLAUDE_AUTHENTICATION_ERROR: {exception}") from exception
+
+        except anthropic.RateLimitError as exception:
+            raise LLMRateLimitError(
+                f"CLAUDE_RATE_LIMIT_EXCEEDED: {exception}") from exception
+
+        except anthropic.APIConnectionError as exception:
+            raise LLMConnectionError(
+                f"CLAUDE_CONNECTION_ERROR: {exception}") from exception
+
+        except Exception as exception:
+            raise ClaudeError(
+                f"CLAUDE_UNEXPECTED_ERROR: {exception}") from exception

@@ -106,3 +106,52 @@ class GeminiProvider(ILLMProvider):
 
         except Exception as exception:
             raise GeminiError(f"GEMINI_API_ERROR: {exception}") from exception
+
+    async def complete_message(
+        self,
+        message: str,
+        system_prompt: str | None = None,
+        temperature: float = 0.1
+    ) -> str:
+        """
+        Completa uma única mensagem sem streaming.
+
+        Args:
+            message: Mensagem do usuário
+            system_prompt: Prompt de sistema opcional
+            temperature: Temperatura para controle de criatividade
+
+        Returns:
+            str: Resposta completa do LLM
+
+        Raises:
+            GeminiError: Em caso de erro na API do Gemini
+        """
+        try:
+            # Prepara conteúdo da mensagem
+            contents = [
+                types.ContentDict({
+                    "role": "user",
+                    "parts": [types.PartDict({"text": message})]
+                })
+            ]
+
+            # Prepara parâmetros da requisição
+            request_params = {
+                "model": self.config.model,
+                "contents": contents,
+                "config": types.GenerateContentConfig(
+                    max_output_tokens=self.config.max_tokens,
+                    temperature=temperature,
+                    system_instruction=system_prompt
+                )
+            }
+
+            # Faz requisição síncrona completa
+            response = await self.client.aio.models.generate_content(**request_params)
+
+            # Retorna conteúdo da resposta
+            return response.text
+
+        except Exception as exception:
+            raise GeminiError(f"GEMINI_API_ERROR: {exception}") from exception
