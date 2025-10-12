@@ -7,6 +7,8 @@ mantendo a personalidade Mar.IA e a interface de streaming.
 
 from typing import TYPE_CHECKING, AsyncGenerator
 
+from loguru import logger
+
 from backend.constants import RAG_DIRECT_RESPONSE_PROMPT, RAG_SYSTEM_PROMPT
 from backend.exceptions.http_exceptions import InternalServerException
 from backend.integrations.llm import Message
@@ -32,6 +34,8 @@ async def generate_direct_response(hub: "RAGService", user_input: str) -> AsyncG
         InternalServerException: Em caso de erro na geração da resposta
     """
     try:
+        logger.info("Pulando RAG, gerando resposta direta ao LLM")
+
         # Prepara mensagem para o LLM adicionando contexto como prefixo da mensagem do usuário
         messages = [Message(
             role="user",
