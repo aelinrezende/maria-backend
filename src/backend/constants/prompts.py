@@ -223,8 +223,8 @@ Chunk 5:
 Ao integrar a TH no SUS, médicos e enfermeiras aprenderam a...
 
 Resposta: {{
-  requires_new_query: false,
-  irrelevant_chunks_zero_based_indexes: [4, 5]
+  "requires_new_query": false,
+  "irrelevant_chunks_zero_based_indexes": [4, 5]
 }}
 
 A seguir, entrada do usuário e chunks:
