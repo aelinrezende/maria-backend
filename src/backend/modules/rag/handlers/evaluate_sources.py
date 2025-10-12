@@ -46,7 +46,7 @@ async def evaluate_found_sources(
     try:
         # Formata chunks para o prompt
         formatted_chunks = [
-            f"---\nChunk {i}: {chunk}" for i, chunk in enumerate(chunks, 1) if chunk.strip()
+            f"---\nChunk {i}: {chunk}" for i, chunk in enumerate(chunks) if chunk.strip()
         ]
 
         # Formata prompt com entrada do usuário e chunks
