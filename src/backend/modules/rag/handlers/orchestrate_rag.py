@@ -1,5 +1,5 @@
 
-from typing import TYPE_CHECKING, AsyncGenerator, List
+from typing import TYPE_CHECKING, AsyncGenerator, List, Tuple
 
 from loguru import logger
 from sqlalchemy.orm import selectinload
@@ -13,8 +13,7 @@ from backend.constants.prompts import (
 from backend.integrations.llm.models import Message
 from backend.models.chunk import Chunk
 from backend.modules.rag import handlers
-from backend.modules.rag.handlers.evaluate_sources import ChunkEvaluationCallback
-from backend.modules.rag.rag_dto import RAGStreamChunk
+from backend.modules.rag.rag_dto import RAGStreamChunk, SourceEvaluationResult
 from backend.modules.rag.rag_enum import RAGChunkKind
 
 if TYPE_CHECKING:
@@ -41,7 +40,7 @@ async def orchestrate_rag(
     query_embedding, *_ = await hub.embeddings.embed_queries([query])
 
     # 2. Busca chunks similares com lógica de tentativas múltiplas
-    async def callback(excluded_chunk_ids: List[int]) -> ChunkEvaluationCallback:
+    async def callback(excluded_chunk_ids: List[int]) -> Tuple[List[Chunk], SourceEvaluationResult]:
         chunks: List[Chunk] = await hub.chunk_repository.get_similar(
             query_embedding,
             builder=lambda query: query.where(col(Chunk.id).not_in(excluded_chunk_ids)).options(
