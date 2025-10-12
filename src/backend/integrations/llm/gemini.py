@@ -111,7 +111,8 @@ class GeminiProvider(ILLMProvider):
         self,
         message: str,
         system_prompt: str | None = None,
-        temperature: float = 0.1
+        temperature: float = 0.1,
+        as_json: bool = False
     ) -> str:
         """
         Completa uma única mensagem sem streaming.
@@ -143,7 +144,8 @@ class GeminiProvider(ILLMProvider):
                 "config": types.GenerateContentConfig(
                     max_output_tokens=self.config.max_tokens,
                     temperature=temperature,
-                    system_instruction=system_prompt
+                    system_instruction=system_prompt,
+                    response_mime_type="application/json" if as_json else None
                 )
             }
 

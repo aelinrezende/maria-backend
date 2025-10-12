@@ -38,7 +38,8 @@ async def should_skip_rag(hub: "RAGService", user_input: str) -> bool:
         # Solicita avaliação ao LLM com baixa temperatura para maior previsibilidade
         response = await hub.llm_provider.complete_message(
             message=evaluation_prompt,
-            temperature=0.1
+            temperature=0.1,
+            as_json=True
         )
 
         # Faz parsing da resposta JSON
