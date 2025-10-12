@@ -36,3 +36,17 @@ class RAGStreamChunk(ModelBase):
 class UserInputEvaluation(SQLModel):
     """Modelo para resposta de avaliação da entrada do usuário."""
     skip: bool
+
+
+class SourceEvaluationResult(SQLModel):
+    """Modelo para resposta de avaliação de fontes encontradas."""
+    requires_new_query: bool
+    irrelevant_chunks_zero_based_indexes: List[int] = []
+
+    @staticmethod
+    def empty() -> "SourceEvaluationResult":
+        """Retorna um resultado vazio padrão."""
+        return SourceEvaluationResult(
+            requires_new_query=False,
+            irrelevant_chunks_zero_based_indexes=[]
+        )

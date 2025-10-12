@@ -64,7 +64,8 @@ positivamente para o bem-estar da comunidade trans brasileira."""
 
 
 # Template do prompt de pergunta - combina contexto dos chunks com query do usuário
-RAG_USER_PROMPT_TEMPLATE = """Com base nos documentos fornecidos abaixo, responda à pergunta do usuário.
+RAG_USER_PROMPT_TEMPLATE = """Com base nos documentos fornecidos abaixo, responda
+à pergunta do usuário.
 
 === DOCUMENTOS DE REFERÊNCIA ===
 
@@ -115,8 +116,9 @@ Agora responda à mensagem do usuário:
 
 
 # Prompt para avaliação se a entrada do usuário precisa de busca RAG
-USER_INPUT_EVALUATION_PROMPT = '''Dado o escopo e missão do projeto Mar.IA, analise a mensagem fornecida pelo usuário e
-indique se uma busca por documentos (fontes e referências) é necessária para gerar uma resposta embasada e completa.
+USER_INPUT_EVALUATION_PROMPT = '''Dado o escopo e missão do projeto Mar.IA, analise a mensagem
+fornecida pelo usuário e indique se uma busca por documentos (fontes e referências) é necessária
+para gerar uma resposta embasada e completa.
 
 CONTEXTO DO MAR.IA:
 O Mar.IA é especializado em 3 áreas específicas para a comunidade trans brasileira:
@@ -166,7 +168,7 @@ Exemplo 8: "Quais os efeitos colaterais do estrogênio?"
 Resposta: {{ "skip": false }}
 Motivo: Informação educativa sobre questões hormonais (área 1)
 
-Após avaliar, responda 
+Após avaliar, responda
 - APENAS com um JSON no formato: {{ "skip": boolean }}
 - Não inclua a resposta em um bloco de código (inline ou block)
 - NÃO inclua nenhum outro texto, explicação ou comentário
@@ -176,3 +178,59 @@ Após avaliar, responda
 A seguir, a entrada do usuário:
 
 {user_input}'''
+
+
+# Prompt para avaliação das fontes encontradas na busca semântica
+SOURCE_EVALUATION_PROMPT = '''Dado o escopo e missão do projeto Mar.IA, avalie se os chunks
+abaixo são suficientes e relevantes para responder à pergunta do usuário de forma SEGURA e CONFIÁVEL.
+
+CRITÉRIO SIMPLES:
+- Um chunk é RELEVANTE se contribui para responder a pergunta específica
+- Um chunk é IRRELEVANTE se não tem relação com a pergunta ou está fora das 3 áreas do Mar.IA
+- Uma nova busca é necessária se faltam informações importantes para uma resposta completa
+
+ÁREAS DO MAR.IA:
+1. Questões hormonais (riscos, caminhos seguros)
+2. Retificação de nome e gênero
+3. Cirurgias via planos de saúde
+
+Após avaliar, retorne um JSON simples (NÃO em bloco de código com backticks) no formato:
+{{
+  "requires_new_query": boolean,
+  "irrelevant_chunks_zero_based_indexes": [números dos chunks irrelevantes]
+}}
+
+Novamente: Não inclua a resposta em um bloco de código (inline ou block).
+
+EXEMPLO:
+
+Entrada: "Quero aprender sobre terapia hormonal e tópicos similares"
+Chunks:
+---
+Chunk 1:
+A terapia hormonal é um procedimento que deve ser realizado sob...
+---
+Chunk 2:
+acompanhamento multidisciplinar de diferentes profissionais,...
+---
+Chunk 3:
+como endocrinologistas e psicólogos...
+---
+Chunk 4:
+Os medicamentos X e Y são geralmente prescritos com as dosagens...
+---
+Chunk 5:
+Ao integrar a TH no SUS, médicos e enfermeiras aprenderam a...
+
+Resposta: {{
+  "requires_new_query": false,
+  "irrelevant_chunks_zero_based_indexes": [4, 5]
+}}
+
+A seguir, entrada do usuário e chunks:
+
+Entrada: {user_query}
+
+Chunks:
+
+{chunks}'''

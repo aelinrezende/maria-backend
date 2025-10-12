@@ -52,7 +52,8 @@ class ILLMProvider(Protocol):
         self,
         message: str,
         system_prompt: str | None = None,
-        temperature: float = 0.1
+        temperature: float = 0.1,
+        as_json: bool = False
     ) -> str:
         """
         Completa uma única mensagem sem streaming.
@@ -64,6 +65,7 @@ class ILLMProvider(Protocol):
             message: Mensagem do usuário
             system_prompt: Prompt de sistema opcional
             temperature: Temperatura para controle de criatividade (padrão: 0.1)
+            as_json: Se True, espera que a resposta seja um JSON válido
 
         Returns:
             str: Resposta completa do LLM

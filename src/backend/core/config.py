@@ -48,6 +48,7 @@ class Settings(BaseSettings):
 
     # Configurações RAG
     RAG_TOP_K_CHUNKS: int = 5
+    RAG_MAX_SEARCH_ATTEMPTS: int = 2
 
     # Configurações LLM - Interface Genérica
 
