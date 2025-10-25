@@ -71,12 +71,6 @@ async def refine_and_reorder_chunks(
 
             return ChunkRefinementResponse.fallback(chunks)
 
-        logger.info(
-            f"Refinamento concluído com sucesso. "
-            f"Texto original: {len(chunks)} chunks, "
-            f"texto refinado: {len(refined_text)} caracteres"
-        )
-
         return ChunkRefinementResponse(refined_text=refined_text)
 
     except Exception as exception:
