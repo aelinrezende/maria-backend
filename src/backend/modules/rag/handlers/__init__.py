@@ -6,6 +6,7 @@ from backend.modules.rag.handlers.evaluate_sources import (
     rag_chunk_evaluation,
 )
 from backend.modules.rag.handlers.evaluate_user_query import should_skip_rag
+from backend.modules.rag.handlers.expand_query import expand_user_query
 from backend.modules.rag.handlers.orchestrate_rag import orchestrate_rag
 
 __all__ = [
@@ -13,5 +14,6 @@ __all__ = [
     "generate_direct_response",
     "evaluate_found_sources",
     "rag_chunk_evaluation",
+    "expand_user_query",
     "orchestrate_rag"
 ]

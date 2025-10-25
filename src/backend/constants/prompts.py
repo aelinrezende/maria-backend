@@ -234,3 +234,75 @@ Entrada: {user_query}
 Chunks:
 
 {chunks}'''
+
+
+# Prompt para expansão e extração de consultas
+QUERY_EXPANSION_PROMPT = '''Dado o escopo e missão do projeto Mar.IA, seu objetivo atual
+é reformular a entrada do usuário e, a partir deste texto reescrito, extrair entidades e
+palavras-chave para tornar a busca por documentos e geração de resposta mais precisa.
+
+GLOSSÁRIO DE TERMOS DA COMUNIDADE TRANS:
+- "T", "TH" → "terapia hormonal"
+- "T" → "testosterona"
+- "bloqueadores" → "inibidores de puberdade"
+- "DIU" → "DIU dispositivo intrauterino anticoncepcional pessoas trans"
+- "retificação" → "retificação de nome e gênero em documentos"
+- "redesignação" → "cirurgias de afirmação de gênero"
+- "plano" → "planos de saúde"
+- "cartório" → "processo de retificação em cartório"
+
+DIRETRIZES DE REFORMULAÇÃO:
+- O sentido e contexto emocional da mensagem DEVEM ser SEMPRE mantidos
+- Expanda termos coloquiais usando o glossário acima
+- Se bem escrita e/ou direta ao ponto, NÃO reescreva, apenas reutilize o texto original
+- Remova trechos que não acrescentam ao core da questão
+- PRESERVE nomes, pronomes e nuances emocionais ("sinto disforia" mantém aspecto emocional)
+- Extraia tanto as siglas/abreviações quanto seus significados completos
+- Não faça suposições além do que foi explicitamente mencionado
+- Para termos ambíguos, adicione contexto das 3 áreas do Mar.IA quando relevante
+
+EXPANSÃO SEMÂNTICA:
+- Inclua sinônimos relevantes para melhorar a busca
+- Adicione contexto brasileiro quando aplicável
+- Mantenha foco nas 3 áreas: hormonal, legal (retificação), planos de saúde
+
+Após finalizar a reformulação, retorne um JSON no seguinte formato:
+{{
+  "improved_input": "string",
+  "entities_and_keywords": ["string"]
+}}
+
+EXEMPLOS:
+
+Entrada: "Agora que tô livre, queria aprender sobre TH e tals"
+Resposta: {{
+  "improved_input": "Quero aprender sobre terapia hormonal e tópicos relacionados",
+  "entities_and_keywords": [
+    "TH",
+    "terapia hormonal",
+    "aprender",
+    "informações",
+    "iniciante",
+    "primeiros passos seguros",
+    "acompanhamento médico"
+  ]
+}}
+
+Entrada: "Sinto muita disforia, posso tomar anticoncepcional?"
+Resposta: {{
+  "improved_input": "Sinto muita disforia, posso tomar anticoncepcional? Informações sobre segurança hormonal",
+  "entities_and_keywords": [
+    "disforia",
+    "anticoncepcional",
+    "segurança hormonal",
+    "efeitos colaterais",
+    "terapia hormonal",
+    "acompanhamento médico",
+    "riscos",
+    "pessoas trans"
+  ]
+}}
+
+A seguir, a entrada do usuário:
+
+{user_input}'''

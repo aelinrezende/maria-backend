@@ -50,6 +50,9 @@ class Settings(BaseSettings):
     RAG_TOP_K_CHUNKS: int = 5
     RAG_MAX_SEARCH_ATTEMPTS: int = 2
 
+    # Configurações de Expansão de Consultas
+    ENABLE_QUERY_EXPANSION: bool = True
+
     # Configurações LLM - Interface Genérica
 
     # Claude (Anthropic)
@@ -66,6 +69,8 @@ class Settings(BaseSettings):
 
     # Configurações gerais LLM
     DEFAULT_LLM_PROVIDER: str = "gemini"
+
+    # Configurações de Teste
 
     class Config:
         env_file = ".env"
@@ -98,8 +103,3 @@ def setup_logging():
         rotation="1 day",
         retention="30 days",
     )
-
-
-def get_settings() -> Settings:
-    """Retorna as configurações do sistema"""
-    return settings

@@ -30,7 +30,7 @@ class RAGStreamChunk(ModelBase):
     @property
     def streamed(self) -> str:
         """Formata o chunk para streaming no formato SSE."""
-        return f"data: {self.model_dump(exclude_none=True)}\n\n"
+        return f"data: {self.model_dump_json(exclude_none=True)}\n\n"
 
 
 class UserInputEvaluation(SQLModel):
@@ -49,4 +49,22 @@ class SourceEvaluationResult(SQLModel):
         return SourceEvaluationResult(
             requires_new_query=False,
             irrelevant_chunks_zero_based_indexes=[]
+        )
+
+
+class QueryExpansionResponse(SQLModel):
+    """Modelo para resposta de expansão e extração de consultas."""
+    improved_input: str = Field(
+        description="Consulta reformulada e expandida para melhor precisão na busca"
+    )
+    entities_and_keywords: List[str] = Field(
+        description="Lista de entidades e palavras-chave extraídas da consulta"
+    )
+
+    @staticmethod
+    def fallback(original_query: str) -> "QueryExpansionResponse":
+        """Retorna uma resposta de fallback usando a query original."""
+        return QueryExpansionResponse(
+            improved_input=original_query,
+            entities_and_keywords=[]
         )

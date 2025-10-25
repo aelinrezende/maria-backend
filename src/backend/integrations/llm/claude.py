@@ -124,7 +124,8 @@ class ClaudeProvider(ILLMProvider):
         self,
         message: str,
         system_prompt: str | None = None,
-        temperature: float = 0.1
+        temperature: float = 0.1,
+        as_json: bool = False
     ) -> str:
         """
         Completa uma única mensagem sem streaming.
@@ -133,7 +134,7 @@ class ClaudeProvider(ILLMProvider):
             message: Mensagem do usuário
             system_prompt: Prompt de sistema opcional
             temperature: Temperatura para controle de criatividade
-
+            as_json: Se deve retornar a resposta como JSON
         Returns:
             str: Resposta completa do LLM
 
