@@ -80,6 +80,7 @@ Respondo sempre com precisão, responsabilidade e o compromisso de contribuir
 positivamente para o bem-estar da comunidade trans brasileira."""
 
 
+# TODO: Adicionar informações do usuário (nome, pronome) na mensagem abaixo
 # Template do prompt de pergunta - combina contexto dos chunks com query do usuário
 RAG_USER_PROMPT_TEMPLATE = """Com base nos documentos fornecidos abaixo, responda
 à pergunta do usuário.
@@ -97,7 +98,7 @@ RAG_USER_PROMPT_TEMPLATE = """Com base nos documentos fornecidos abaixo, respond
 2. Se a informação não estiver disponível nos documentos, seja clara sobre isso
 3. Cite sempre a fonte do documento quando relevante
 4. Mantenha o tom empático e profissional conforme sua personalidade
-5. Inclua disclaimers apropriados para a área da pergunta usando blockquotes (">") 
+5. Inclua disclaimers apropriados para a área da pergunta usando blockquotes (">")
 6. Se necessário, oriente para profissionais especializados
 
 Resposta:"""
