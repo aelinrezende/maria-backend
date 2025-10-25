@@ -6,7 +6,6 @@ from sqlalchemy.orm import selectinload
 from sqlmodel import col
 
 from backend.constants.prompts import (
-    RAG_CHUNK_CONTEXT_TEMPLATE,
     RAG_SYSTEM_PROMPT,
     RAG_USER_PROMPT_TEMPLATE,
 )
@@ -35,7 +34,7 @@ async def orchestrate_rag(
     2. Gera embedding da query expandida.
     3. Busca chunks similares no banco.
     4. Prepara prompt baseado na disponibilidade de chunks.
-        1. Refinamento e estruturação dos chunks encontrados.
+        1. Refina e reordena os chunks encontrados via LLM (se habilitado).
         2. Informa a ausência de contexto.
     5. Gera resposta com LLM em streaming.
     """
@@ -58,13 +57,16 @@ async def orchestrate_rag(
 
     # 4. Prepara prompt baseado na disponibilidade de chunks
     if similar_chunks:
-        # 4.1 TODO: Refinamento e estruturação dos chunks encontrados
+        # 4.1 Refinamento e estruturação dos chunks encontrados
+        refinement_result = await handlers.refine_and_reorder_chunks(hub, similar_chunks, expanded_query)
+
+        # Usa o texto refinado no prompt do usuário
         user_prompt = RAG_USER_PROMPT_TEMPLATE.format(
-            chunks_context=_format_chunks_context(similar_chunks),
+            chunks_context=refinement_result.refined_text,
             user_query=expanded_query
         )
     else:
-        # 4.2 TODO: Informa a ausência de contexto
+        # 4.2 Informa a ausência de contexto
         user_prompt = (
             f"Entrada do usuário: {query}\n\n"
             f"Não foram encontrados documentos relevantes sobre este tópico."
@@ -95,30 +97,6 @@ async def orchestrate_rag(
             ).streamed
 
     yield RAGStreamChunk(kind=RAGChunkKind.FINAL).streamed
-
-
-def _format_chunks_context(chunk_results: List[Chunk]) -> str:
-    """
-      Formata os chunks usando o template de contexto.
-
-      Args:
-          chunk_results: Lista de chunks encontrados
-
-      Returns:
-          Contexto formatado para o LLM
-      """
-    if not chunk_results:
-        return ""
-
-    return "\n".join([
-        RAG_CHUNK_CONTEXT_TEMPLATE.format(
-            chunk_number=i,
-            document_title=chunk.document.title or "Documento sem título",
-            document_source=chunk.document.source or "Fonte não disponível",
-            chunk_content=chunk.content
-        )
-        for i, chunk in enumerate(chunk_results, 1)
-    ])
 
 
 def _search_and_evaluate_sources(

@@ -8,6 +8,7 @@ from backend.modules.rag.handlers.evaluate_sources import (
 from backend.modules.rag.handlers.evaluate_user_query import should_skip_rag
 from backend.modules.rag.handlers.expand_query import expand_user_query
 from backend.modules.rag.handlers.orchestrate_rag import orchestrate_rag
+from backend.modules.rag.handlers.refine_chunks import refine_and_reorder_chunks
 
 __all__ = [
     "should_skip_rag",
@@ -15,5 +16,6 @@ __all__ = [
     "evaluate_found_sources",
     "rag_chunk_evaluation",
     "expand_user_query",
-    "orchestrate_rag"
+    "orchestrate_rag",
+    "refine_and_reorder_chunks"
 ]

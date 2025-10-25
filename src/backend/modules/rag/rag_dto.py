@@ -3,6 +3,7 @@ from typing import List, Optional
 
 from sqlmodel import Field, SQLModel
 
+from backend.models.chunk import Chunk
 from backend.modules.base.base_dto import ModelBase
 from backend.modules.rag.rag_enum import RAGChunkKind
 
@@ -67,4 +68,19 @@ class QueryExpansionResponse(SQLModel):
         return QueryExpansionResponse(
             improved_input=original_query,
             entities_and_keywords=[]
+        )
+
+
+class ChunkRefinementResponse(SQLModel):
+    """Modelo para resposta de refinamento e reordenação de chunks."""
+    refined_text: str = Field(
+        min_length=1,
+        description="Texto refinado e reestruturado dos chunks originais"
+    )
+
+    @staticmethod
+    def fallback(chunks: List[Chunk]) -> "ChunkRefinementResponse":
+        """Retorna uma resposta de fallback usando o texto original concatenado."""
+        return ChunkRefinementResponse(
+            refined_text="\n\n".join([chunk.content for chunk in chunks])
         )

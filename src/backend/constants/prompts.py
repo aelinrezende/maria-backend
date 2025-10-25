@@ -306,3 +306,30 @@ Resposta: {{
 A seguir, a entrada do usuário:
 
 {user_input}'''
+
+
+# Prompt para refinamento e reordenação de chunks
+CHUNK_REFINEMENT_PROMPT = '''Dado o escopo e missão do projeto Mar.IA, seu objetivo atual é refinar e reestruturar os chunks de texto listados abaixo.
+
+Siga as regras:
+- Tente conectar gramaticalmente e manter 100% do conteúdo original dos chunks
+- Mantenha TODAS as informações cruciais para responder a entrada do usuário
+
+Siga as instruções em ordem:
+
+1. Leia ATENTAMENTE a seção de regras
+2. Leia a entrada do usuário
+3. Leia todos os chunks
+4. Se necessário, traduza-os para o idioma português do Brasil
+5. Agrupe os textos com base na similaridade semântica
+6. Crie parágrafos para cada grupo criado
+7. Se pergunte: o resultado final manteve as informações originais?
+8. Se a resposta para a etapa anterior for "não", repita os passos
+   de 1 a 7. Do contrário, retorne SOMENTE o resultado final
+
+A seguir, entrada do usuário e chunks, respectivamente:
+
+Entrada do usuário: {user_query}
+
+Chunks:
+{chunks}'''
