@@ -54,5 +54,5 @@ async def expand_user_query(hub: "RAGService", query: str) -> QueryExpansionResp
 
     except Exception as exception:
         raise InternalServerException(
-            "Erro ao avaliar necessidade de RAG"
+            "Erro ao expandir consulta"
         ) from exception
