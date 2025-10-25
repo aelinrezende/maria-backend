@@ -56,6 +56,9 @@ class Settings(BaseSettings):
     # Configurações de Refinamento de Chunks
     ENABLE_CHUNK_REFINEMENT: bool = True
 
+    # Configurações de Avaliação de Entrada do Usuário
+    ENABLE_USER_INPUT_EVALUATION: bool = True
+
     # Configurações LLM - Interface Genérica
 
     # Claude (Anthropic)

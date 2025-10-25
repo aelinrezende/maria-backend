@@ -6,6 +6,7 @@ from sqlalchemy.orm import selectinload
 from sqlmodel import col
 
 from backend.constants.prompts import (
+    RAG_NO_SOURCES_PROMPT_TEMPLATE,
     RAG_SYSTEM_PROMPT,
     RAG_USER_PROMPT_TEMPLATE,
 )
@@ -66,10 +67,9 @@ async def orchestrate_rag(
             user_query=expanded_query
         )
     else:
-        # 4.2 Informa a ausência de contexto
-        user_prompt = (
-            f"Entrada do usuário: {query}\n\n"
-            f"Não foram encontrados documentos relevantes sobre este tópico."
+        # 4.2 Usa prompt especializado para ausência de fontes
+        user_prompt = RAG_NO_SOURCES_PROMPT_TEMPLATE.format(
+            user_query=expanded_query
         )
 
     # Extrai fontes únicas dos documentos encontrados e faz yield como chunk separado
