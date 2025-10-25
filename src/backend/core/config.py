@@ -71,7 +71,6 @@ class Settings(BaseSettings):
     DEFAULT_LLM_PROVIDER: str = "gemini"
 
     # Configurações de Teste
-    TEST: bool = False
 
     class Config:
         env_file = ".env"
