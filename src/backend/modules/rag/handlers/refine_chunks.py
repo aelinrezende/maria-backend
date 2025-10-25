@@ -1,7 +1,6 @@
 """Handler para refinamento e reordenação de chunks RAG."""
 
-from ast import List
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from loguru import logger
 
