@@ -35,9 +35,10 @@ async def orchestrate_rag(
     2. Gera embedding da query expandida.
     3. Busca chunks similares no banco.
     4. Prepara prompt baseado na disponibilidade de chunks.
-        1. Refinamento e estruturação dos chunks encontrados.
+        1. Refina e reordena os chunks encontrados via LLM (se habilitado).
         2. Informa a ausência de contexto.
-    5. Gera resposta com LLM em streaming.
+    5. Prepara prompt baseado na disponibilidade de chunks.
+    6. Gera resposta com LLM em streaming.
     """
     logger.info(f"Iniciando orquestração RAG para query: {query}")
 
@@ -58,13 +59,16 @@ async def orchestrate_rag(
 
     # 4. Prepara prompt baseado na disponibilidade de chunks
     if similar_chunks:
-        # 4.1 TODO: Refinamento e estruturação dos chunks encontrados
+        # 4.1 Refinamento e estruturação dos chunks encontrados
+        refinement_result = await handlers.refine_and_reorder_chunks(hub, similar_chunks, expanded_query)
+
+        # Usa o texto refinado no prompt do usuário
         user_prompt = RAG_USER_PROMPT_TEMPLATE.format(
-            chunks_context=_format_chunks_context(similar_chunks),
+            chunks_context=refinement_result.refined_text,
             user_query=expanded_query
         )
     else:
-        # 4.2 TODO: Informa a ausência de contexto
+        # 4.2 Informa a ausência de contexto
         user_prompt = (
             f"Entrada do usuário: {query}\n\n"
             f"Não foram encontrados documentos relevantes sobre este tópico."

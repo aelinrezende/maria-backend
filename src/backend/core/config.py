@@ -53,6 +53,9 @@ class Settings(BaseSettings):
     # Configurações de Expansão de Consultas
     ENABLE_QUERY_EXPANSION: bool = True
 
+    # Configurações de Refinamento de Chunks
+    ENABLE_CHUNK_REFINEMENT: bool = True
+
     # Configurações LLM - Interface Genérica
 
     # Claude (Anthropic)
