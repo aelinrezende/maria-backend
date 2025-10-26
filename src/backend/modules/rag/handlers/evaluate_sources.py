@@ -43,6 +43,20 @@ async def evaluate_found_sources(
     Raises:
         InternalServerException: Em caso de erro na avaliação ou parsing da resposta
     """
+    if not settings.ENABLE_SOURCE_EVALUATION:
+        logger.info(
+            "Avaliação de fontes desabilitada, retornando resultado vazio padrão"
+        )
+
+        return SourceEvaluationResult.empty()
+
+    if not chunks:
+        logger.info(
+            "Nenhum chunk encontrado para avaliação de fontes, retornando vazio"
+        )
+
+        return SourceEvaluationResult.empty()
+
     try:
         # Formata chunks para o prompt
         formatted_chunks = [
@@ -80,15 +94,31 @@ async def evaluate_found_sources(
 
 
 async def rag_chunk_evaluation(
-    callback: Callable[[List[str]], Awaitable[Tuple[List[Chunk], SourceEvaluationResult]]],
+    hub: "RAGService",
+    query: str,
+    callback: Callable[[List[str]], Awaitable[List[Chunk]]],
 ) -> List[Chunk]:
     """
     Realiza a lógica de tentativas múltiplas para busca e avaliação de chunks.
 
     Args:
+        hub: Instância do RAGService com acesso ao LLM
+        query: Pergunta original do usuário
         callback: Função assíncrona que recebe IDs de chunks irrelevantes e retorna
-        uma tupla com lista de chunks e resultado da avaliação para novas buscas (ou não)
+        uma lista de chunks similares encontrados, excluindo os irrelevantes.
+    Returns:
+        Lista de chunks avaliados como relevantes
     """
+    # Se avaliação de fontes estiver desabilitada, faz busca direta
+    if not settings.ENABLE_SOURCE_EVALUATION:
+        logger.info("Avaliação de fontes desabilitada - usando busca direta")
+
+        return await callback([])
+
+    # Fluxo normal com avaliação de fontes habilitada
+    logger.info(
+        "Avaliação de fontes habilitada - usando lógica de tentativas múltiplas")
+
     search_attempt = 0
     similar_chunks = []
     excluded_chunk_ids: List[str] = []
@@ -99,7 +129,12 @@ async def rag_chunk_evaluation(
         )
 
         search_attempt += 1
-        chunks, evaluation = await callback(excluded_chunk_ids)
+        chunks: List[Chunk] = await callback(excluded_chunk_ids)
+
+        # Avalia os chunks encontrados
+        evaluation = await evaluate_found_sources(hub, query, [
+            chunk.content for chunk in chunks
+        ])
 
         if not chunks:
             return []

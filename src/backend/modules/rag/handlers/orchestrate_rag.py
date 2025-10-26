@@ -1,5 +1,5 @@
 
-from typing import TYPE_CHECKING, AsyncGenerator, List, Tuple
+from typing import TYPE_CHECKING, AsyncGenerator, List
 
 from loguru import logger
 from sqlalchemy.orm import selectinload
@@ -13,11 +13,7 @@ from backend.constants.prompts import (
 from backend.integrations.llm.models import Message
 from backend.models.chunk import Chunk
 from backend.modules.rag import handlers
-from backend.modules.rag.rag_dto import (
-    QueryExpansionResponse,
-    RAGStreamChunk,
-    SourceEvaluationResult,
-)
+from backend.modules.rag.rag_dto import RAGStreamChunk
 from backend.modules.rag.rag_enum import RAGChunkKind
 
 if TYPE_CHECKING:
@@ -49,12 +45,12 @@ async def orchestrate_rag(
     # 2. Gerar embedding da query expandida
     query_embedding, *_ = await hub.embeddings.embed_queries([entities_and_keywords])
 
-    # 3. Busca chunks similares com lógica de tentativas múltiplas
-    similar_chunks = await handlers.rag_chunk_evaluation(_search_and_evaluate_sources(
+    # 3. Busca chunks similares com avaliação de fontes
+    similar_chunks = await handlers.rag_chunk_evaluation(
         hub,
-        query_embedding,
-        expansion_result
-    ))
+        expanded_query,
+        _search_similar_chunks(hub, query_embedding)
+    )
 
     # 4. Prepara prompt baseado na disponibilidade de chunks
     if similar_chunks:
@@ -99,32 +95,23 @@ async def orchestrate_rag(
     yield RAGStreamChunk(kind=RAGChunkKind.FINAL).streamed
 
 
-def _search_and_evaluate_sources(
-        hub: "RAGService",
-        query_embedding: List[float],
-        expansion: QueryExpansionResponse,
+def _search_similar_chunks(
+    hub: "RAGService",
+    query_embedding: List[float]
 ):
     """
-    Retorna uma função de callback para busca e avaliação de fontes com exclusão de chunks irrelevantes.
+    Retorna uma função de callback para buscar chunks similares, excluindo chunks já utilizados.
     Args:
-        hub: Instância do RAGService com acesso ao repositório de chunks e LLM
-        query_embedding: Embedding da query expandida
-        expansion: Resultado da expansão da query
+        query_embedding: Embedding da query do usuário
     Returns:
-        Função de callback que realiza a busca e avaliação de fontes
+        Função assíncrona para buscar chunks similares
     """
-    async def callback(excluded_chunk_ids: List[int]) -> Tuple[List[Chunk], SourceEvaluationResult]:
-        chunks: List[Chunk] = await hub.chunk_repository.get_similar(
+    async def callback(excluded_chunk_ids: List[str]) -> List[Chunk]:
+        return await hub.chunk_repository.get_similar(
             query_embedding,
             builder=lambda query: query.where(col(Chunk.id).not_in(excluded_chunk_ids)).options(
                 selectinload(Chunk.document)
             ),
         )
-
-        evaluation = await handlers.evaluate_found_sources(hub, expansion.improved_input, [
-            chunk.content for chunk in chunks
-        ])
-
-        return (chunks, evaluation)
 
     return callback
