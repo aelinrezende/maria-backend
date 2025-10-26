@@ -13,6 +13,7 @@ from backend.constants.prompts import (
 from backend.integrations.llm.models import Message
 from backend.models.chunk import Chunk
 from backend.modules.rag import handlers
+from backend.modules.rag.handlers.source_extraction import extract_source_info
 from backend.modules.rag.rag_dto import RAGStreamChunk
 from backend.modules.rag.rag_enum import RAGChunkKind
 
@@ -68,11 +69,8 @@ async def orchestrate_rag(
             user_query=expanded_query
         )
 
-    # Extrai fontes únicas dos documentos encontrados e faz yield como chunk separado
-    sources = list(dict.fromkeys(
-        chunk.document.source for chunk in similar_chunks
-        if chunk.document.source
-    ))
+    # Extrai informações estruturadas das fontes
+    sources = extract_source_info(similar_chunks)
 
     yield RAGStreamChunk(
         kind=RAGChunkKind.SOURCES,
