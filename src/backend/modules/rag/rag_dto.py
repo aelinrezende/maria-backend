@@ -8,6 +8,15 @@ from backend.modules.base.base_dto import ModelBase
 from backend.modules.rag.rag_enum import RAGChunkKind
 
 
+class SourceInfo(SQLModel):
+    """Informações estruturadas de uma fonte utilizada no RAG."""
+    title: str = Field()
+    category: str = Field()
+    description: str = Field()
+    order: int = Field()
+    url: Optional[str] = Field(default=None)
+
+
 class RAGQueryRequest(SQLModel):
     """Payload para consulta RAG."""
 
@@ -24,8 +33,8 @@ class RAGStreamChunk(ModelBase):
         default=None, description="Resposta gerada pela Mar.IA"
     )
     kind: RAGChunkKind = Field(description="Tipo do chunk")
-    sources: Optional[List[str]] = Field(
-        default=None, description="Lista de fontes dos documentos utilizados"
+    sources: Optional[List[SourceInfo]] = Field(
+        default=None, description="Informações das fontes utilizadas"
     )
 
     @property
