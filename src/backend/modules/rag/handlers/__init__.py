@@ -17,5 +17,5 @@ __all__ = [
     "rag_chunk_evaluation",
     "expand_user_query",
     "orchestrate_rag",
-    "refine_and_reorder_chunks"
+    "refine_and_reorder_chunks",
 ]

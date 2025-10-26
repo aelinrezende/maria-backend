@@ -50,14 +50,11 @@ class Settings(BaseSettings):
     RAG_TOP_K_CHUNKS: int = 5
     RAG_MAX_SEARCH_ATTEMPTS: int = 2
 
-    # Configurações de Expansão de Consultas
+    # Configurações do fluxo RAG
     ENABLE_QUERY_EXPANSION: bool = True
-
-    # Configurações de Refinamento de Chunks
     ENABLE_CHUNK_REFINEMENT: bool = True
-
-    # Configurações de Avaliação de Entrada do Usuário
     ENABLE_USER_INPUT_EVALUATION: bool = True
+    ENABLE_SOURCE_EVALUATION: bool = True
 
     # Configurações LLM - Interface Genérica
 
