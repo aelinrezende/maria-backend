@@ -22,9 +22,8 @@ async def send_invitation(
     Handler principal para envio de convites.
 
     Args:
-        user_service: Instância do UserService
-        name: Nome do convidado
-        email: E-mail do convidado
+        hub: Instância do UserService
+        request: Dados do convite
 
     Returns:
         bool: True se enviado com sucesso
