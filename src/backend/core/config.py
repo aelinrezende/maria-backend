@@ -28,6 +28,11 @@ class Settings(BaseSettings):
     # Configurações de segurança
     SECRET_KEY: str = "your-secret-key-here"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    INVITATION_CODE_EXPIRE_DAYS: int = 7
+
+    # URLs do Frontend
+    FRONT_USER_URL: str = "http://localhost:3000"
+    FRONT_ADMIN_URL: str = "http://localhost:3000"
 
     # Configurações de logging
     LOG_LEVEL: str = "INFO"

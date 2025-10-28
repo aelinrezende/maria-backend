@@ -14,3 +14,9 @@ class UserRepository(BaseRepository[User]):
 
     def __init__(self, connection: DatabaseConnection = Depends()):
         super().__init__(User, connection)
+
+    async def find_by_email(self, email: str) -> User | None:
+        """Busca usuário por e-mail"""
+        return await self.find_one(
+            User.email == email.lower()
+        )
