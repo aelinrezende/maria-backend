@@ -14,4 +14,4 @@ def generate_code(length: int = 10) -> str:
     Returns:
         str: Código de convite único e seguro
     """
-    return secrets.token_urlsafe(length)[:length].upper()
+    return secrets.token_hex(length)[:length].upper()
