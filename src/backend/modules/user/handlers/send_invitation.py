@@ -74,6 +74,7 @@ async def _send_invitation_email(
     Envia e-mail de convite para novo usuário.
 
     Args:
+        hub: Instância do UserService
         user: Instância do usuário convidado
         invitation_code: Código de convite
         expiration_date: Data de expiração do convite
