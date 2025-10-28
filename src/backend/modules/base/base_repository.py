@@ -96,7 +96,7 @@ class BaseRepository(Generic[T]):
         :param kwargs: Critérios de busca.
         :return: Entidade encontrada ou None se não existir.
         """
-        return (await self.__session.execute(self.query.where(*expression))).first()
+        return (await self.__session.execute(self.query.where(*expression))).scalar_one_or_none()
 
     async def find_one_or_fail(self, *expression: ColumnExpressionArgument[bool] | bool) -> T:
         """
@@ -104,7 +104,7 @@ class BaseRepository(Generic[T]):
         :param kwargs: Critérios de busca.
         :return: Entidade encontrada ou None se não existir.
         """
-        entity = (await self.__session.execute(self.query.where(*expression))).first()
+        entity = (await self.__session.execute(self.query.where(*expression))).scalar_one_or_none()
 
         if entity is None:
             raise NotFoundException(f"{self.model.__name__.upper()}_NOT_FOUND")
@@ -121,7 +121,7 @@ class BaseRepository(Generic[T]):
         :param kwargs: Critérios de busca.
         :return: Lista de entidades encontradas.
         """
-        return (await self.__session.execute(self.query.where(*expression))).all()
+        return (await self.__session.execute(self.query.where(*expression))).scalars().all()
 
     def run(
         self,
