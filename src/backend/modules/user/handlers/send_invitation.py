@@ -94,7 +94,7 @@ async def _send_invitation_email(
       Você foi convidado(a) para acessar a plataforma Mar.IA.<br><br>
 
       <b>📧 Seu código de convite:</b>
-      <a href="{f"{settings.FRONT_USER_URL}/onboarding/1?code={invitation_code}"}">Acessar</a><br><br>
+      <a href="{settings.FRONT_USER_URL}/onboarding/1?code={invitation_code}">Acessar</a><br><br>
       <b>⏰ Validade:</b> {expiration_text}"""
     ).strip()
 
