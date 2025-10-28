@@ -40,7 +40,7 @@ class MailGun:
                     "from": from_email or self.from_email,
                     "to": to,
                     "subject": subject,
-                    "text": body
+                    "html": body
                 }
 
                 response = await client.post(
