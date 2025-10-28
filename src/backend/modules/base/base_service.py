@@ -25,7 +25,9 @@ class BaseService(Generic[T]):
         :return: Entidade criada.
         """
         entity = self.model(**dto)
-        await self.repository.insert(entity)
+
+        self.repository.insert(entity)
+        await self.unit_of_work.commit()
 
         return entity
 

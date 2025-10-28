@@ -5,7 +5,7 @@ from sqlalchemy import ColumnExpressionArgument
 from sqlmodel import select
 from sqlmodel.sql.expression import SelectOfScalar
 
-from backend.core.database import DatabaseConnection
+from backend.core.database import AsyncSession, DatabaseConnection
 from backend.exceptions import NotFoundException
 from backend.models.base import BaseModel
 
@@ -21,8 +21,8 @@ class BaseRepository(Generic[T]):
     """
 
     def __init__(self, model: type[T], connection: DatabaseConnection = Depends()):
-        self.__session = connection.session
-        self.model = model
+        self.__session: AsyncSession = connection.session
+        self.model: type[T] = model
 
     @property
     def query(self) -> SelectOfScalar[T]:
