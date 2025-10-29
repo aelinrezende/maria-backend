@@ -20,3 +20,9 @@ class UserRepository(BaseRepository[User]):
         return await self.find_one(
             User.email == email.lower()
         )
+
+    async def find_by_invitation_code(self, invitation_code: str) -> User | None:
+        """Busca usuário por código de convite"""
+        return await self.find_one(
+            User.invitation_code == invitation_code.strip().upper()
+        )
