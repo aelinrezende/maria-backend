@@ -23,6 +23,8 @@ from backend.modules.document.document_router import DocumentRouter, document_ro
 from backend.modules.document.document_service import DocumentService
 from backend.modules.rag.rag_router import RAGRouter, rag_router
 from backend.modules.rag.rag_service import RAGService
+from backend.modules.session.session_repository import SessionRepository
+from backend.modules.session.session_service import SessionService
 from backend.modules.user.user_repository import UserRepository
 from backend.modules.user.user_router import user_router
 from backend.modules.user.user_service import UserService
@@ -86,6 +88,10 @@ def create_app() -> tuple[FastAPI, AsyncContainer]:
 
             # Auth
             AuthRouter,
+
+            # Session
+            SessionRepository,
+            SessionService,
 
             # User
             UserRepository,
