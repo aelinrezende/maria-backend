@@ -27,6 +27,8 @@ class Settings(BaseSettings):
 
     # Configurações de segurança
     SECRET_KEY: str = "your-secret-key-here"
+    JWT_ALGORITHM: str = "HS256"
+    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 10080  # 7 dias em minutos
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     INVITATION_CODE_EXPIRE_DAYS: int = 7
 
