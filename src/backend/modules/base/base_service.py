@@ -1,4 +1,4 @@
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, Union
 
 from backend.core.unit_of_work import UnitOfWork
 from backend.models.base import BaseModel
@@ -31,7 +31,7 @@ class BaseService(Generic[T]):
 
         return entity
 
-    async def update(self, id: str, dto: dict) -> T:
+    async def update(self, id: str, dto: Union[dict, T]) -> T:
         """
         Atualiza uma entidade existente no banco de dados.
 
@@ -39,8 +39,9 @@ class BaseService(Generic[T]):
         :param dto: DTO com os novos dados da entidade.
         :return: Entidade atualizada.
         """
+        data = dto.model_dump() if isinstance(dto, BaseModel) else dto
         entity = await self.repository.find_by_id_or_fail(id)
 
-        await self.repository.update(self.model(**dto, id=entity.id))
+        await self.repository.update(self.model(**data, id=entity.id))
 
         return entity
