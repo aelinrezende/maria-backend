@@ -74,20 +74,16 @@ async def complete_registration(
 
     updated_user = await hub.update(user.id, update_data)
 
-    if not updated_user:
-        raise BadRequestException("FAILED_TO_UPDATE_USER")
-
     # 6. Gera token JWT para o usuário
-    access_token = create_user_token(str(updated_user.id))
+    access_token = create_user_token(updated_user.id)
 
     # 7. Cria sessão para o usuário
     session = Session(
-        user_id=str(updated_user.id),
+        user_id=updated_user.id,
         token=access_token,
         status=SessionStatus.ACTIVE
     )
 
-    # Criar instância do SessionRepository e persistir
     hub.session_repository.insert(session)
 
     await hub.unit_of_work.commit()
