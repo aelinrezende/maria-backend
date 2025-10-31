@@ -34,9 +34,8 @@ async def validate_invitation(
         UserResponse: Dados do usuário se código for válido
 
     Raises:
-        BadRequestException: Se formato do código for inválido
-        NotFoundException: Se código não for encontrado
-        ConflictException: Se código já foi utilizado ou expirou
+        BadRequestException: Se o código estiver expirado ou já foi usado
+        NotFoundException: Se o código não for encontrado
     """
     # Busca usuário pelo código de convite
     user = await user_service.repository.find_by_invitation_code(invitation_code)
@@ -44,8 +43,10 @@ async def validate_invitation(
     if not user or not user.invitation_code:
         raise NotFoundException("CODE_NOT_FOUND")
 
+    expiration_date = user.invitation_code_expiration_date
+
     # Verifica se o código está expirado
-    if date.is_past(user.invitation_code_expiration_date):
+    if expiration_date and date.is_past(expiration_date):
         raise BadRequestException("CODE_EXPIRED")
 
     # Verifica se usuário ainda tem status INVITED
