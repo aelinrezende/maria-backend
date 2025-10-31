@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Optional
 
 from pydantic import ConfigDict
+from pydantic.alias_generators import to_camel
 from sqlmodel import SQLModel
 
 
@@ -12,3 +13,12 @@ class ModelBase(SQLModel):
     id: Optional[str] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
+
+
+class BaseRequest(SQLModel):
+    """Modelo base para Requests."""
+    model_config = ConfigDict(
+        from_attributes=True,
+        populate_by_name=True,
+        alias_generator=to_camel
+    )
