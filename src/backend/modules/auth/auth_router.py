@@ -41,7 +41,7 @@ class AuthRouter:
         )
 
     @auth_router.post(
-        "/complete-registration",
+        "/complete_registration",
         response_model=SessionResponse,
         summary="Finalizar cadastro de usuário"
     )
