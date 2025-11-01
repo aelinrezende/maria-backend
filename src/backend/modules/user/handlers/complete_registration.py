@@ -28,6 +28,7 @@ if TYPE_CHECKING:
 
 async def complete_registration(
     hub: "UserService",
+    invitation_code: str,
     request: CompleteRegistrationRequest
 ) -> SessionResponse:
     """
@@ -46,7 +47,7 @@ async def complete_registration(
         ConflictException: Se usuário já completou cadastro
     """
     # 1. Busca usuário pelo código de convite
-    user = await hub.repository.find_by_invitation_code(request.invitation_code)
+    user = await hub.repository.find_by_invitation_code(invitation_code)
 
     if not user or not user.invitation_code:
         raise NotFoundException("CODE_NOT_FOUND")

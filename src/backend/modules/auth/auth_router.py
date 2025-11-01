@@ -41,12 +41,13 @@ class AuthRouter:
         )
 
     @auth_router.post(
-        "/complete_registration",
+        "/complete_registration/{invitation_code}",
         response_model=SessionResponse,
         summary="Finalizar cadastro de usuário"
     )
     async def complete_registration(
         self,
+        invitation_code: str,
         request: CompleteRegistrationRequest
     ) -> SessionResponse:
         """
@@ -57,5 +58,6 @@ class AuthRouter:
         """
         return await self.user_service.handlers.complete_registration(
             self.user_service,
+            invitation_code,
             request
         )

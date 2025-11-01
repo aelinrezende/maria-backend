@@ -1,6 +1,7 @@
 """DTOs relacionados à autenticação"""
 
 from typing import Optional
+
 from pydantic import EmailStr, Field
 
 from backend.core.validators import StrongPassword
@@ -38,13 +39,6 @@ class ValidateInviteRequest(BaseRequest):
 
 class CompleteRegistrationRequest(BaseRequest):
     """Request para finalização de cadastro de usuário"""
-
-    invitation_code: str = Field(
-        ...,
-        min_length=1,
-        max_length=10,
-        description="Código de convite recebido por e-mail"
-    )
 
     name: str = Field(
         ...,
