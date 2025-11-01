@@ -1,5 +1,4 @@
 import re
-from textwrap import dedent
 
 from pydantic_core import PydanticCustomError
 
@@ -30,10 +29,8 @@ def validate_password_strength(password: str) -> str:
     if not re.match(pattern, password):
         raise PydanticCustomError(
             "password_weak",
-            dedent(
-                """A senha deve ter no mínimo 8 caracteres e conter pelo menos: uma letra maiúscula,
-                uma letra minúscula, um número e um caractere especial""".strip()
-            ),
+            "A senha deve ter no mínimo 8 caracteres e conter pelo menos: "
+            "uma letra maiúscula, uma letra minúscula, um número e um caractere especial",
         )
 
     return password
