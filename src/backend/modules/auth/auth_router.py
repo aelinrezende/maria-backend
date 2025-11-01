@@ -4,9 +4,11 @@ from fastapi_utils.inferring_router import InferringRouter
 from wireup import service
 
 from backend.modules.auth.auth_dto import (
+    CompleteRegistrationRequest,
     InviteRequest,
     ValidateInviteRequest,
 )
+from backend.modules.session.session_dto import SessionResponse
 from backend.modules.user.user_dto import UserResponse
 from backend.modules.user.user_service import UserService
 
@@ -36,4 +38,26 @@ class AuthRouter:
         return await self.user_service.handlers.validate_invitation(
             self.user_service,
             request.invitation_code
+        )
+
+    @auth_router.post(
+        "/complete_registration/{invitation_code}",
+        response_model=SessionResponse,
+        summary="Finalizar cadastro de usuário"
+    )
+    async def complete_registration(
+        self,
+        invitation_code: str,
+        request: CompleteRegistrationRequest
+    ) -> SessionResponse:
+        """
+        Finaliza o cadastro de usuário com base em convite válido.
+
+        Este endpoint permite que um usuário convidado complete seu cadastro
+        fornecendo nome, pronomes e senha. Um token JWT será gerado para acesso.
+        """
+        return await self.user_service.handlers.complete_registration(
+            self.user_service,
+            invitation_code,
+            request
         )
