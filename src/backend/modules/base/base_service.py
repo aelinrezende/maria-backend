@@ -42,6 +42,8 @@ class BaseService(Generic[T]):
         data = dto.model_dump() if isinstance(dto, BaseModel) else dto
         entity = await self.repository.find_by_id_or_fail(id)
 
+        del data["id"]
+
         await self.repository.update(self.model(**data, id=entity.id))
 
         return entity
