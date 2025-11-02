@@ -26,7 +26,7 @@ def is_past(date_to_check: datetime) -> bool:
     Returns:
         bool: True se a data estiver no passado
     """
-    return _ensure_time_zone(date_to_check) < datetime.now()
+    return _ensure_time_zone(date_to_check) < datetime.now(timezone.utc)
 
 
 def _ensure_time_zone(date: datetime) -> datetime:

@@ -1,11 +1,15 @@
 from datetime import datetime
-from typing import Optional
+from typing import TYPE_CHECKING, List, Optional
 
-from sqlmodel import Column, DateTime, Enum, Field
+from sqlmodel import Column, DateTime, Enum, Field, Relationship
 
 from backend.modules.user.user_enums import UserStatus
 
 from .base import BaseModel
+
+if TYPE_CHECKING:
+    from backend.models.message import Message
+    from backend.models.session import Session
 
 
 class User(BaseModel, table=True):
@@ -27,3 +31,7 @@ class User(BaseModel, table=True):
         default=None,
         sa_type=DateTime(timezone=True)
     )
+
+    # Relacionamentos
+    sessions: List["Session"] = Relationship(back_populates="user")
+    messages: List["Message"] = Relationship(back_populates="user")
