@@ -6,11 +6,11 @@ on:
   workflow_dispatch:
 
 env:
-  PROJECT_ID: ${{ secrets.GCLOUD_PROJECT }}
-  REGION: ${{ secrets.GCLOUD_REGION || 'us-central1' }}
+  PROJECT_ID: ${{ vars.GCLOUD_PROJECT }}
+  REGION: ${{ vars.GCLOUD_REGION || 'us-central1' }}
   SERVICE_NAME: maria-backend
   IMAGE_NAME: maria-backend
-  REGISTRY: ${{ secrets.GCLOUD_REGION || 'us-central1' }}-docker.pkg.dev
+  REGISTRY: ${{ vars.GCLOUD_REGION || 'us-central1' }}-docker.pkg.dev
 
 jobs:
   build-and-deploy:
