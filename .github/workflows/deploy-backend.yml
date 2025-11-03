@@ -72,9 +72,9 @@ jobs:
             --set-env-vars "DEFAULT_LLM_PROVIDER=${{ vars.DEFAULT_LLM_PROVIDER || 'gemini' }}" \
             --set-env-vars "DEBUG=false" \
             --set-env-vars "LOG_LEVEL=INFO" \
-            --set-env-vars "ALLOWED_ORIGINS=${{ vars.FRONTEND_URL || 'http://localhost:3000' }}" \
+            --set-env-vars "ALLOWED_ORIGINS=${{ vars.FRONT_USER_URL || 'http://localhost:3000' }}" \
             --set-env-vars "MAILGUN_API_KEY=${{ secrets.MAILGUN_API_KEY }}" \
-            --set-env-vars "MAILGUN_DOMAIN=${{ vars.MAILGUN_DOMAIN || secrets.MAILGUN_DOMAIN }}" \
+            --set-env-vars "MAILGUN_DOMAIN=${{ vars.MAILGUN_DOMAIN }}" \
             --set-env-vars "MAILGUN_API_URL=${{ vars.MAILGUN_API_URL || 'https://api.mailgun.net' }}" \
             --set-env-vars "MAILGUN_TEST_EMAIL=${{ vars.MAILGUN_TEST_EMAIL || secrets.MAILGUN_TEST_EMAIL }}" \
             --set-env-vars "CHUNK_SIZE=${{ vars.CHUNK_SIZE || '512' }}" \

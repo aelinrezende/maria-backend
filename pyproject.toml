@@ -1,5 +1,5 @@
 [project]
-name = "maria-backend"
+name = "maria-api"
 version = "0.1.0"
 description = "Backend para o sistema Mar.IA - TCC"
 authors = [
@@ -57,7 +57,7 @@ python_classes = ["Test*"]
 python_functions = ["test_*"]
 
 [tool.pyrefly]
-site-package-path = ["C:\\Users\\Marco\\AppData\\Local\\pypoetry\\Cache\\virtualenvs\\maria-backend-6h-KCwWU-py3.13\\Lib\\site-packages"]
+site-package-path = ["C:\\Users\\Marco\\AppData\\Local\\pypoetry\\Cache\\virtualenvs\\maria-api-6h-KCwWU-py3.13\\Lib\\site-packages"]
 
 [tool.flake8]
 max-line-length = 100
