@@ -13,19 +13,19 @@ Mar.IA é um sistema de inteligência artificial que fornece informações educa
 ## Arquitetura
 
 - **Framework**: FastAPI
-- **Banco de Dados**: PostgreSQL
-- **Cache**: Redis
-- **Embeddings**: Sentence Transformers
-- **LLM**: Claude (Anthropic)
-- **Vector Store**: FAISS
+- **Banco de Dados**: PostgreSQL com pgvector
+- **Embeddings**: Sentence Transformers (intfloat/multilingual-e5-base)
+- **LLM**: Claude (Anthropic), Gemini (Google), OpenAI
+- **Dependency Injection**: Wireup
+- **Logging**: Loguru
 
 ## Instalação
 
 ### Pré-requisitos
 
-- Python 3.10+
-- PostgreSQL
-- Redis
+- Python 3.13+
+- PostgreSQL com pgvector
+- Poetry
 
 ### Configuração
 
@@ -81,24 +81,58 @@ poetry run uvicorn src.backend.main:app --reload
 - `GET /health` - Health check geral
 - `GET /docs` - Documentação Swagger
 
+## 🚀 Deploy para Produção
+
+### Deploy Automático (Google Cloud Run)
+
+Este projeto está configurado para deploy **totalmente automatizado** via GitHub Actions para Google Cloud Run.
+
+**Documentação completa:** [DEPLOYMENT.md](./DEPLOYMENT.md)
+
+**Setup rápido:**
+1. Configure os secrets no GitHub (veja [SECRETS-SETUP.md](./SECRETS-SETUP.md))
+2. Faça push para branch `main`
+3. Deploy automático acontece em ~5 minutos
+
+**Arquivos de deploy:**
+- `.github/workflows/deploy-backend.yml` - GitHub Action
+- `Dockerfile` - Multi-stage build otimizado
+- `SECRETS-SETUP.md` - Guia de configuração
+- `DEPLOYMENT.md` - Documentação completa
+
+### Configuração de Production
+- **CPU**: 1 vCPU
+- **Memory**: 2GB RAM (otimizado para ML models)
+- **Scaling**: 0-10 instâncias (economia)
+- **Region**: `us-central1`
+- **Database**: PostgreSQL + pgvector via Cloud SQL
+
+### Links Úteis
+- Service URL: `https://maria-backend-xxxxx.a.run.app`
+- API Documentation: `/docs`
+- Health Check: `/health`
+
 ## Estrutura do Projeto
 
 ```
 backend/
+├── .github/workflows/   # GitHub Actions (CI/CD)
 ├── src/backend/
-│   ├── core/           # Configurações centrais
-│   ├── models/         # Modelos de dados
-│   ├── modules/        # Módulos da aplicação
-│   │   ├── rag/        # Sistema RAG
-│   │   └── user/       # Sistema de usuários
-│   ├── services/       # Serviços
-│   │   └── embedding_service.py
-│   └── utils/          # Utilitários
-│       ├── chunking.py
-│       └── disclaimers.py
-├── tests/              # Testes
-├── logs/               # Logs da aplicação
-└── pyproject.toml      # Dependências
+│   ├── core/           # Configurações centrais (DB, settings, validators)
+│   ├── modules/        # Módulos de negócio
+│   │   ├── auth/       # Autenticação JWT
+│   │   ├── document/   # Gestão de documentos
+│   │   ├── chunk/      # Processamento de chunks
+│   │   └── rag/        # Sistema RAG principal
+│   ├── integrations/   # Integrações externas
+│   │   ├── llm/        # Interfaces LLM (Claude, Gemini, OpenAI)
+│   │   └── embeddings/ # Providers de embeddings
+│   └── services/       # Serviços de domínio
+├── Dockerfile          # Multi-stage build para produção
+├── .dockerignore       # Build otimizado
+├── pyproject.toml      # Dependências Poetry
+├── SECRETS-SETUP.md    # Configuração de secrets
+└── DEPLOYMENT.md       # Guia completo de deploy
 ```
 
 ## Responsabilidade Digital
