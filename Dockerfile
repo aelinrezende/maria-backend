@@ -40,7 +40,7 @@ FROM python:3.13-slim as production
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PATH="/root/.local/bin:$PATH" \
-    PORT=8090
+    PORT=8080
 
 # Install runtime dependencies only
 RUN apt-get update && apt-get install -y \
@@ -72,7 +72,7 @@ RUN chown -R maria:maria /app
 USER maria
 
 # Expose port (Cloud Run will set PORT env var)
-EXPOSE 8090
+EXPOSE 8080
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
