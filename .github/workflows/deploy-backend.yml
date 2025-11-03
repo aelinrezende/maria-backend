@@ -64,35 +64,35 @@ jobs:
             --concurrency 10 \
             --max-instances 10 \
             --min-instances 0 \
-            --set-env-vars "DATABASE_URL=${{ env.DATABASE_URL }}" \
+            --set-env-vars "DATABASE_URL=${{ secrets.DATABASE_URL }}" \
             --set-env-vars "SECRET_KEY=${{ secrets.SECRET_KEY }}" \
             --set-env-vars "ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}" \
             --set-env-vars "GOOGLE_AI_API_KEY=${{ secrets.GOOGLE_AI_API_KEY }}" \
             --set-env-vars "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" \
-            --set-env-vars "DEFAULT_LLM_PROVIDER=${{ env.DEFAULT_LLM_PROVIDER }}" \
+            --set-env-vars "DEFAULT_LLM_PROVIDER=${{ vars.DEFAULT_LLM_PROVIDER || 'gemini' }}" \
             --set-env-vars "DEBUG=false" \
             --set-env-vars "LOG_LEVEL=INFO" \
-            --set-env-vars "ALLOWED_ORIGINS=${{ env.ALLOWED_ORIGINS }}" \
+            --set-env-vars "ALLOWED_ORIGINS=${{ vars.FRONTEND_URL || 'http://localhost:3000' }}" \
             --set-env-vars "MAILGUN_API_KEY=${{ secrets.MAILGUN_API_KEY }}" \
-            --set-env-vars "MAILGUN_DOMAIN=${{ env.MAILGUN_DOMAIN }}" \
-            --set-env-vars "MAILGUN_API_URL=${{ env.MAILGUN_API_URL }}" \
-            --set-env-vars "MAILGUN_TEST_EMAIL=${{ env.MAILGUN_TEST_EMAIL }}" \
-            --set-env-vars "CHUNK_SIZE=${{ env.CHUNK_SIZE }}" \
-            --set-env-vars "CHUNK_OVERLAP=${{ env.CHUNK_OVERLAP }}" \
-            --set-env-vars "RAG_TOP_K_CHUNKS=${{ env.RAG_TOP_K_CHUNKS }}" \
-            --set-env-vars "RAG_MAX_SEARCH_ATTEMPTS=${{ env.RAG_MAX_SEARCH_ATTEMPTS }}" \
-            --set-env-vars "EMBEDDING_MODEL=${{ env.EMBEDDING_MODEL }}" \
-            --set-env-vars "EMBEDDING_DIMENSION=${{ env.EMBEDDING_DIMENSION }}" \
-            --set-env-vars "EMBEDDING_PROVIDER=${{ env.EMBEDDING_PROVIDER }}" \
-            --set-env-vars "CLAUDE_MODEL=${{ env.CLAUDE_MODEL }}" \
-            --set-env-vars "CLAUDE_MAX_TOKENS=${{ env.CLAUDE_MAX_TOKENS }}" \
-            --set-env-vars "CLAUDE_TEMPERATURE=${{ env.CLAUDE_TEMPERATURE }}" \
-            --set-env-vars "GEMINI_MODEL=${{ env.GEMINI_MODEL }}" \
-            --set-env-vars "GEMINI_MAX_TOKENS=${{ env.GEMINI_MAX_TOKENS }}" \
-            --set-env-vars "GEMINI_TEMPERATURE=${{ env.GEMINI_TEMPERATURE }}" \
-            --set-env-vars "JWT_ALGORITHM=${{ env.JWT_ALGORITHM }}" \
-            --set-env-vars "JWT_ACCESS_TOKEN_EXPIRE_MINUTES=${{ env.JWT_ACCESS_TOKEN_EXPIRE_MINUTES }}" \
-            --set-env-vars "INVITATION_CODE_EXPIRE_DAYS=${{ env.INVITATION_CODE_EXPIRE_DAYS }}"
+            --set-env-vars "MAILGUN_DOMAIN=${{ vars.MAILGUN_DOMAIN || secrets.MAILGUN_DOMAIN }}" \
+            --set-env-vars "MAILGUN_API_URL=${{ vars.MAILGUN_API_URL || 'https://api.mailgun.net' }}" \
+            --set-env-vars "MAILGUN_TEST_EMAIL=${{ vars.MAILGUN_TEST_EMAIL || secrets.MAILGUN_TEST_EMAIL }}" \
+            --set-env-vars "CHUNK_SIZE=${{ vars.CHUNK_SIZE || '512' }}" \
+            --set-env-vars "CHUNK_OVERLAP=${{ vars.CHUNK_OVERLAP || '50' }}" \
+            --set-env-vars "RAG_TOP_K_CHUNKS=${{ vars.RAG_TOP_K_CHUNKS || '5' }}" \
+            --set-env-vars "RAG_MAX_SEARCH_ATTEMPTS=${{ vars.RAG_MAX_SEARCH_ATTEMPTS || '2' }}" \
+            --set-env-vars "EMBEDDING_MODEL=${{ vars.EMBEDDING_MODEL || 'intfloat/multilingual-e5-base' }}" \
+            --set-env-vars "EMBEDDING_DIMENSION=${{ vars.EMBEDDING_DIMENSION || '768' }}" \
+            --set-env-vars "EMBEDDING_PROVIDER=${{ vars.EMBEDDING_PROVIDER || 'local' }}" \
+            --set-env-vars "CLAUDE_MODEL=${{ vars.CLAUDE_MODEL || 'claude-3-5-sonnet-20241022' }}" \
+            --set-env-vars "CLAUDE_MAX_TOKENS=${{ vars.CLAUDE_MAX_TOKENS || '4096' }}" \
+            --set-env-vars "CLAUDE_TEMPERATURE=${{ vars.CLAUDE_TEMPERATURE || '0.7' }}" \
+            --set-env-vars "GEMINI_MODEL=${{ vars.GEMINI_MODEL || 'gemini-1.5-pro' }}" \
+            --set-env-vars "GEMINI_MAX_TOKENS=${{ vars.GEMINI_MAX_TOKENS || '4096' }}" \
+            --set-env-vars "GEMINI_TEMPERATURE=${{ vars.GEMINI_TEMPERATURE || '0.7' }}" \
+            --set-env-vars "JWT_ALGORITHM=${{ vars.JWT_ALGORITHM || 'HS256' }}" \
+            --set-env-vars "JWT_ACCESS_TOKEN_EXPIRE_MINUTES=${{ vars.JWT_ACCESS_TOKEN_EXPIRE_MINUTES || '10080' }}" \
+            --set-env-vars "INVITATION_CODE_EXPIRE_DAYS=${{ vars.INVITATION_CODE_EXPIRE_DAYS || '7' }}"
 
       - name: Health Check
         run: |

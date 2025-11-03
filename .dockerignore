@@ -93,9 +93,6 @@ yarn-error.log*
 .env.test
 .env.production
 
-# Poetry specific
-poetry.lock
-
 # Tests
 tests/
 test_*.py
