@@ -67,7 +67,7 @@ Siga o guia completo em `SECRETS-SETUP.md`. Os secrets obrigatórios são:
 ```bash
 # Exemplo usando GitHub CLI
 gh secret set GOOGLE_APPLICATION_CREDENTIALS < service-account.json
-gh secret set GCLOUD_PROJECT "maria-backend-prod"
+gh secret set GCLOUD_PROJECT "maria-api-prod"
 gh secret set GCLOUD_REGION "us-central1"
 gh secret set DATABASE_URL "postgresql+asyncpg://user:pass@IP:5432/maria_db"
 gh secret set SECRET_KEY "$(openssl rand -base64 32)"
@@ -88,12 +88,12 @@ O deploy é **totalmente automático**:
 ### 3. Deploy Manual (se necessário)
 ```bash
 # Build e push manual
-docker build -t us-central1-docker.pkg.dev/PROJECT/maria-backend:latest .
-docker push us-central1-docker.pkg.dev/PROJECT/maria-backend:latest
+docker build -t us-central1-docker.pkg.dev/PROJECT/maria-api:latest .
+docker push us-central1-docker.pkg.dev/PROJECT/maria-api:latest
 
 # Deploy manual
-gcloud run deploy maria-backend \
-  --image us-central1-docker.pkg.dev/PROJECT/maria-backend:latest \
+gcloud run deploy maria-api \
+  --image us-central1-docker.pkg.dev/PROJECT/maria-api:latest \
   --region us-central1 \
   --memory 2Gi \
   --cpu 1 \
@@ -168,7 +168,7 @@ gh run list --limit 5
 gh run view --log
 
 # Verificar serviço Cloud Run
-gcloud run services describe maria-backend --region=us-central1
+gcloud run services describe maria-api --region=us-central1
 ```
 
 ### Database Issues
@@ -191,25 +191,25 @@ gcloud sql instances logs list maria-db
 Cloud Run mantém versões anteriores:
 ```bash
 # Listar revisões
-gcloud run revisions list --service=maria-backend
+gcloud run revisions list --service=maria-api
 
 # Rollback para revisão anterior
-gcloud run services update-traffic maria-backend \
-  --to-revisions=maria-backend-00002-abc=100
+gcloud run services update-traffic maria-api \
+  --to-revisions=maria-api-00002-abc=100
 ```
 
 ### Manual Rollback
 ```bash
 # Deploy versão específica
-gcloud run deploy maria-backend \
-  --image us-central1-docker.pkg.dev/PROJECT/maria-backend:sha-anterior \
+gcloud run deploy maria-api \
+  --image us-central1-docker.pkg.dev/PROJECT/maria-api:sha-anterior \
   --region us-central1
 ```
 
 ## 📱 URLs de Acesso
 
 Após deploy bem-sucedido:
-- **API**: `https://maria-backend-abcdef.a.run.app`
+- **API**: `https://maria-api-abcdef.a.run.app`
 - **Documentation**: `/docs` e `/redoc`
 - **Health Check**: `/health`
 - **Ready Check**: `/ready`

@@ -108,7 +108,7 @@ Este projeto está configurado para deploy **totalmente automatizado** via GitHu
 - **Database**: PostgreSQL + pgvector via Cloud SQL
 
 ### Links Úteis
-- Service URL: `https://maria-backend-xxxxx.a.run.app`
+- Service URL: `https://maria-api-xxxxx.a.run.app`
 - API Documentation: `/docs`
 - Health Check: `/health`
 

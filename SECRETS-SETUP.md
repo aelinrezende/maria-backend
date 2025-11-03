@@ -15,7 +15,7 @@ Este documento explica como configurar todos os secrets necessários no GitHub r
   - Formato: JSON completo (conteúdo do arquivo)
 
 - **`GCLOUD_PROJECT`**: ID do seu projeto Google Cloud
-  - Exemplo: `maria-backend-prod`
+  - Exemplo: `maria-api-prod`
 
 - **`GCLOUD_REGION`**: Região do deploy
   - Padrão: `us-central1`
@@ -119,8 +119,8 @@ CLAUDE_MODEL=claude-3-opus-20240229
 O GitHub Action usa algumas variáveis definidas diretamente no workflow:
 
 **Variáveis Fixas (definidas no início do workflow):**
-- **`SERVICE_NAME`**: `maria-backend` - Nome do serviço no Cloud Run
-- **`IMAGE_NAME`**: `maria-backend` - Nome da imagem Docker
+- **`SERVICE_NAME`**: `maria-api` - Nome do serviço no Cloud Run
+- **`IMAGE_NAME`**: `maria-api` - Nome da imagem Docker
 - **`REGISTRY`**: `${GCLOUD_REGION}-docker.pkg.dev` - Registry do Google Cloud
 
 **Variáveis de Ambiente (precisam de secrets):**
@@ -132,8 +132,8 @@ O GitHub Action usa algumas variáveis definidas diretamente no workflow:
 env:
   PROJECT_ID: ${{ secrets.GCLOUD_PROJECT }}  # ← Secret obrigatório
   REGION: ${{ secrets.GCLOUD_REGION || 'us-central1' }}  # ← Secret opcional
-  SERVICE_NAME: maria-backend                  # ← Fixo no workflow
-  IMAGE_NAME: maria-backend                    # ← Fixo no workflow
+  SERVICE_NAME: maria-api                  # ← Fixo no workflow
+  IMAGE_NAME: maria-api                    # ← Fixo no workflow
   REGISTRY: ${{ secrets.GCLOUD_REGION || 'us-central1' }}-docker.pkg.dev  # ← Baseado na região
 ```
 
@@ -208,7 +208,7 @@ Depois de configurar todos os secrets:
 gcloud logs read "resource.type=cloud_run_revision" --limit 50
 
 # Verificar service status
-gcloud run services describe maria-backend --region=us-central1
+gcloud run services describe maria-api --region=us-central1
 ```
 
 ## 💡 Dicas
