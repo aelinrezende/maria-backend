@@ -15,7 +15,7 @@ env:
 jobs:
   build-and-deploy:
     name: Build and Deploy to Cloud Run
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-4-cores
 
     permissions:
       contents: "read"
@@ -24,6 +24,29 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Free up disk space
+        run: |
+          echo "=== Before cleanup ==="
+          df -h
+
+          # Clean Docker
+          docker system prune -af
+
+          # Clean apt caches
+          sudo apt-get clean
+          sudo rm -rf /var/lib/apt/lists/*
+          sudo rm -rf /tmp/*
+          sudo rm -rf /var/tmp/*
+
+          # Clean GitHub cache
+          sudo rm -rf /home/runner/actions-runner/cached/_diag/*
+
+          # Clean npm cache if exists
+          npm cache clean --force 2>/dev/null || true
+
+          echo "=== After cleanup ==="
+          df -h
 
       - name: Google Auth
         id: "auth"
