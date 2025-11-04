@@ -15,7 +15,11 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     libpq-dev \
     curl \
-    && rm -rf /var/lib/apt/lists/*
+    --no-install-recommends \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /tmp/* \
+    && rm -rf /var/tmp/*
 
 # Install Poetry
 RUN pip install "poetry==1.8.4"
@@ -29,9 +33,9 @@ COPY pyproject.toml poetry.lock ./
 # Configure Poetry to create venv in the container
 RUN poetry config virtualenvs.create false
 
-# Install dependencies (including dev dependencies for build)
-# This will download all ML models during build time
-RUN poetry install --no-interaction --no-ansi
+# Install only production dependencies to save space
+RUN poetry install --only=main --no-interaction --no-ansi && \
+    poetry cache clear --all pypi --no-interaction
 
 # Production stage - Minimal runtime image
 FROM python:3.13-slim as production
@@ -46,8 +50,11 @@ ENV PYTHONUNBUFFERED=1 \
 RUN apt-get update && apt-get install -y \
     libpq5 \
     curl \
+    --no-install-recommends \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
+    && rm -rf /tmp/* \
+    && rm -rf /var/tmp/*
 
 # Create non-root user for security
 RUN useradd --create-home --shell /bin/bash maria
