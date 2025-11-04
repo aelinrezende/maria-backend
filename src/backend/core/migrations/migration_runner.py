@@ -166,7 +166,7 @@ class MigrationRunner:
                 success=False,
                 message="Migration failed",
                 applied_count=0,
-                pending_count=pending_count if 'pending_count' in locals() else 0,
+                pending_count=pending_count,
                 duration_seconds=duration,
                 error_details=str(exception)
             )
