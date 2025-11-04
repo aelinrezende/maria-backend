@@ -9,7 +9,7 @@ env:
   PROJECT_ID: ${{ vars.GCLOUD_PROJECT }}
   REGION: ${{ vars.GCLOUD_REGION || 'us-central1' }}
   SERVICE_NAME: maria-api
-  IMAGE_NAME: maria-api
+  IMAGE_NAME: docker
   REGISTRY: ${{ vars.GCLOUD_REGION || 'us-central1' }}-docker.pkg.dev
 
 jobs:
