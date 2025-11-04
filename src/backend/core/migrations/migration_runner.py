@@ -27,7 +27,7 @@ class MigrationRunner:
     def _get_alembic_config(self) -> Config:
         """Configuração do Alembic usando settings do projeto"""
 
-        config = Config("alembic.ini")
+        config = Config("src/alembic.ini")
         config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
 
         return config
