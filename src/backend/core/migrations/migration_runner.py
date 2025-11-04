@@ -133,7 +133,7 @@ class MigrationRunner:
             logger.info("Starting automatic migrations check")
 
             # Executar upgrade do Alembic em thread separada para não bloquear
-            loop = asyncio.get_event_loop()
+            loop = asyncio.get_running_loop()
 
             await loop.run_in_executor(
                 None,
