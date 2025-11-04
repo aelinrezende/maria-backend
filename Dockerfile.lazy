@@ -1,0 +1,90 @@
+# Ultra-minimal Dockerfile for Mar.IA Backend
+# Strategy: Install basic deps in build, download ML models at runtime
+
+# Build stage - Only basic dependencies
+FROM python:3.13-slim as builder
+
+# Set environment variables for minimal build
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Install MINIMAL system dependencies (no build tools!)
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    curl \
+    --no-install-recommends \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /tmp/* \
+    && rm -rf /var/tmp/*
+
+# Install Poetry
+RUN pip install --no-cache-dir "poetry==1.8.4"
+
+# Set work directory
+WORKDIR /app
+
+# Copy Poetry files
+COPY pyproject.toml poetry.lock ./
+
+# Configure Poetry
+RUN poetry config virtualenvs.create false
+
+# Install dependencies BUT exclude heavy ML packages from main installation
+RUN poetry install --only=main --no-interaction --no-ansi && \
+    poetry cache clear --all pypi --no-interaction
+
+# Production stage - Ultra minimal
+FROM python:3.13-slim as production
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PATH="/root/.local/bin:$PATH" \
+    PORT=8080 \
+    TRANSFORMERS_CACHE=/app/.cache/transformers \
+    SENTENCE_TRANSFORMERS_HOME=/app/.cache/sentence-transformers
+
+# Install ONLY runtime system dependencies
+RUN apt-get update && apt-get install -y \
+    libpq5 \
+    curl \
+    --no-install-recommends \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /tmp/* \
+    && rm -rf /var/tmp/*
+
+# Create non-root user
+RUN useradd --create-home --shell /bin/bash maria
+
+# Set work directory
+WORKDIR /app
+
+# Create cache directory for models (persistent!)
+RUN mkdir -p /app/.cache/transformers /app/.cache/sentence-transformers logs
+
+# Copy installed packages from builder stage
+COPY --from=builder /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+
+# Copy application code
+COPY src/ ./src/
+
+# Change ownership to non-root user
+RUN chown -R maria:maria /app
+
+# Switch to non-root user
+USER maria
+
+# Expose port
+EXPOSE 8080
+
+# Health check (simple - don't require models)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
+    CMD curl -f http://localhost:${PORT}/health || exit 1
+
+# Download models lazily at startup (not build time)
+CMD ["sh", "-c", "python -c 'from src.backend.services.model_downloader import download_models; download_models()' && uvicorn src.backend.main:app --host 0.0.0.0 --port 8080"]
