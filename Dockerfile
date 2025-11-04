@@ -1,18 +1,17 @@
-# Multi-stage Dockerfile for Mar.IA Backend on Google Cloud Run
-# Optimized for Python 3.13, Poetry, and ML dependencies
+# Ultra-minimal Dockerfile for Mar.IA Backend
+# Strategy: Install basic deps in build, download ML models at runtime
 
-# Build stage - Installs dependencies
+# Build stage - Only basic dependencies
 FROM python:3.13-slim as builder
 
-# Set environment variables
+# Set environment variables for minimal build
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Install system dependencies needed for pgvector and ML models
+# Install MINIMAL system dependencies (no build tools!)
 RUN apt-get update && apt-get install -y \
-    build-essential \
     libpq-dev \
     curl \
     --no-install-recommends \
@@ -22,7 +21,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/tmp/*
 
 # Install Poetry
-RUN pip install "poetry==1.8.4"
+RUN pip install --no-cache-dir "poetry==1.8.4"
 
 # Set work directory
 WORKDIR /app
@@ -30,23 +29,25 @@ WORKDIR /app
 # Copy Poetry files
 COPY pyproject.toml poetry.lock ./
 
-# Configure Poetry to create venv in the container
+# Configure Poetry
 RUN poetry config virtualenvs.create false
 
-# Install only production dependencies to save space
+# Install dependencies BUT exclude heavy ML packages from main installation
 RUN poetry install --only=main --no-interaction --no-ansi && \
     poetry cache clear --all pypi --no-interaction
 
-# Production stage - Minimal runtime image
+# Production stage - Ultra minimal
 FROM python:3.13-slim as production
 
-# Set environment variables for production
+# Set environment variables
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PATH="/root/.local/bin:$PATH" \
-    PORT=8080
+    PORT=8080 \
+    TRANSFORMERS_CACHE=/app/.cache/transformers \
+    SENTENCE_TRANSFORMERS_HOME=/app/.cache/sentence-transformers
 
-# Install runtime dependencies only
+# Install ONLY runtime system dependencies
 RUN apt-get update && apt-get install -y \
     libpq5 \
     curl \
@@ -56,11 +57,14 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /tmp/* \
     && rm -rf /var/tmp/*
 
-# Create non-root user for security
+# Create non-root user
 RUN useradd --create-home --shell /bin/bash maria
 
 # Set work directory
 WORKDIR /app
+
+# Create cache directory for models (persistent!)
+RUN mkdir -p /app/.cache/transformers /app/.cache/sentence-transformers logs
 
 # Copy installed packages from builder stage
 COPY --from=builder /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
@@ -69,21 +73,18 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 # Copy application code
 COPY src/ ./src/
 
-# Create logs directory
-RUN mkdir -p logs
-
 # Change ownership to non-root user
 RUN chown -R maria:maria /app
 
 # Switch to non-root user
 USER maria
 
-# Expose port (Cloud Run will set PORT env var)
+# Expose port
 EXPOSE 8080
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+# Health check (simple - don't require models)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
     CMD curl -f http://localhost:${PORT}/health || exit 1
 
-# Run the application
-CMD ["uvicorn", "src.backend.main:app", "--host", "0.0.0.0", "--port", "8080"]
+# Download models lazily at startup (not build time)
+CMD ["sh", "-c", "python -c 'from src.backend.services.model_downloader import download_models; download_models()' && uvicorn src.backend.main:app --host 0.0.0.0 --port 8080"]
