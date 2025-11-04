@@ -80,7 +80,8 @@ class Settings(BaseSettings):
     # Configurações gerais LLM
     DEFAULT_LLM_PROVIDER: str = "gemini"
 
-    # Configurações de Teste
+    # Configurações de Migrations Automáticas
+    AUTO_MIGRATIONS: bool = True
 
     class Config:
         env_file = ".env"

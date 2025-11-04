@@ -12,6 +12,7 @@ from wireup import AsyncContainer, create_async_container
 from wireup.integration.fastapi import setup
 
 from backend.core import DatabaseConnection, UnitOfWork, settings
+from backend.core.migrations import MigrationRunner
 from backend.exceptions.handler import register_exception_handler
 from backend.integrations.embeddings import LocalSentenceTransformerProvider
 from backend.integrations.mailgun import MailGun
@@ -36,6 +37,10 @@ async def lifespan(_: FastAPI, connection=DatabaseConnection()):
     # Startup
     try:
         logger.info(f"Iniciando {settings.APP_NAME} v{settings.APP_VERSION}")
+
+        if settings.AUTO_MIGRATIONS:
+            await MigrationRunner(connection).apply_migrations()
+
         await connection.create_vector_type()
     except Exception as error:
         logger.error(f"Erro na inicialização: {error}")
