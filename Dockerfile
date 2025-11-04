@@ -45,7 +45,8 @@ ENV PYTHONUNBUFFERED=1 \
     PATH="/root/.local/bin:$PATH" \
     PORT=8080 \
     TRANSFORMERS_CACHE=/app/.cache/transformers \
-    SENTENCE_TRANSFORMERS_HOME=/app/.cache/sentence-transformers
+    SENTENCE_TRANSFORMERS_HOME=/app/.cache/sentence-transformers \
+    PYTHONPATH="/app/src:$PYTHONPATH"
 
 # Install ONLY runtime system dependencies
 RUN apt-get update && apt-get install -y \
