@@ -115,8 +115,8 @@ Configure os seguintes secrets no seu repository GitHub:
 - **`OPENAI_API_KEY`**: API key do OpenAI (se usar OpenAI)
 
 #### Opcional
-- **`FRONT_USER_URL`**: URL do frontend para CORS
-- **`MAILGUN_API_KEY`**, `MAILGUN_DOMAIN`**: Para envio de emails
+- **`MAILGUN_API_KEY`**: API key do Mailgun (se usar emails)
+- **`MAILGUN_TEST_EMAIL`**: Email de teste para Mailgun
 
 ### Comandos para Configurar Secrets e Variables via CLI
 
@@ -132,6 +132,37 @@ gh variable set GCLOUD_PROJECT "seu-projeto-id"
 gh variable set GCLOUD_REGION "us-central1"
 gh variable set DEFAULT_LLM_PROVIDER "claude"
 gh variable set FRONT_USER_URL "https://seu-frontend.vercel.app"
+gh variable set MAILGUN_DOMAIN "seu-dominio.mailgun.org"
+gh variable set MAILGUN_API_URL "https://api.mailgun.net"
+gh variable set MAILGUN_TEST_EMAIL "test@example.com"
+
+# Variables de configuração RAG e modelos
+gh variable set CHUNK_SIZE "512"
+gh variable set CHUNK_OVERLAP "50"
+gh variable set RAG_TOP_K_CHUNKS "5"
+gh variable set RAG_MAX_SEARCH_ATTEMPTS "2"
+gh variable set EMBEDDING_MODEL "intfloat/multilingual-e5-base"
+gh variable set EMBEDDING_DIMENSION "768"
+gh variable set EMBEDDING_PROVIDER "local"
+
+# Variables de configuração LLM
+gh variable set CLAUDE_MODEL "claude-3-5-sonnet-20241022"
+gh variable set CLAUDE_MAX_TOKENS "4096"
+gh variable set CLAUDE_TEMPERATURE "0.7"
+gh variable set GEMINI_MODEL "gemini-1.5-pro"
+gh variable set GEMINI_MAX_TOKENS "4096"
+gh variable set GEMINI_TEMPERATURE "0.7"
+
+# Variables de autenticação
+gh variable set JWT_ALGORITHM "HS256"
+gh variable set JWT_ACCESS_TOKEN_EXPIRE_MINUTES "10080"
+gh variable set INVITATION_CODE_EXPIRE_DAYS "7"
+
+# Variables de configuração do fluxo RAG
+gh variable set ENABLE_QUERY_EXPANSION "true"
+gh variable set ENABLE_CHUNK_REFINEMENT "true"
+gh variable set ENABLE_USER_INPUT_EVALUATION "true"
+gh variable set ENABLE_SOURCE_EVALUATION "true"
 ```
 
 ## 🗄️ Configuração do Cloud SQL PostgreSQL
