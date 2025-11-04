@@ -116,4 +116,4 @@ jobs:
             --region ${{ env.REGION }} \
             --format 'value(status.url)')
           echo "🚀 Service deployed at: $SERVICE_URL"
-          echo "📊 Monitor at: https://console.cloud.google.com/run/detail/${{ env.REGION }}/${{ env.SERVICE_NAME }}"
+          echo "📊 Monitor at: https://console.cloud.google.com/run/detail/${{ env.REGION }}/${{ env.SERVICE_NAME }}/metrics?project=${{ env.PROJECT_ID }}"
