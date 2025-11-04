@@ -28,6 +28,9 @@ jobs:
       - name: Free up disk space
         run: |
           echo "=== Before cleanup ==="
+          sudo swapoff -a
+          sudo rm -f /swapfile
+          docker rmi $(docker image ls -aq) || true
           df -h
 
           # Clean Docker
