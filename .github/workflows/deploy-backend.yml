@@ -85,6 +85,7 @@ jobs:
             --region ${{ env.REGION }} \
             --platform managed \
             --allow-unauthenticated \
+            --add-cloudsql-instances ${{ vars.CLOUD_SQL_CONNECTION_NAME }} \
             --memory 2Gi \
             --cpu 1 \
             --timeout 300 \
