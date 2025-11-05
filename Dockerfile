@@ -1,5 +1,5 @@
 # Ultra-minimal Dockerfile for Mar.IA Backend
-# Strategy: Install basic deps in build, download ML models at runtime
+# Strategy: Install ALL deps in build including ML models (pre-downloaded via poetry)
 
 # Build stage - Only basic dependencies
 FROM python:3.13-slim as builder
@@ -32,8 +32,8 @@ COPY pyproject.toml poetry.lock ./
 # Configure Poetry
 RUN poetry config virtualenvs.create false
 
-# Install dependencies BUT exclude heavy ML packages from main installation
-RUN poetry install --only=main --no-interaction --no-ansi && \
+# Install ALL dependencies including ML packages (pre-downloads models during build)
+RUN poetry install --no-interaction --no-ansi && \
     poetry cache clear --all pypi --no-interaction
 
 # Production stage - Ultra minimal
@@ -87,5 +87,5 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
     CMD curl -f http://localhost:${PORT}/health || exit 1
 
-# Download models lazily at startup (not build time)
-CMD ["sh", "-c", "python -c 'from src.backend.services.model_downloader import download_models; download_models()' && uvicorn src.backend.main:app --host 0.0.0.0 --port 8080"]
+# Start application directly (models pre-installed)
+CMD ["uvicorn", "src.backend.main:app", "--host", "0.0.0.0", "--port", "8080"]
