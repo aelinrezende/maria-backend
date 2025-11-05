@@ -8,7 +8,8 @@ FROM python:3.13-slim as builder
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    HF_HOME=/app/.cache/huggingface
 
 # Install MINIMAL system dependencies (no build tools!)
 RUN apt-get update && apt-get install -y \
@@ -26,15 +27,22 @@ RUN pip install --no-cache-dir "poetry==1.8.4"
 # Set work directory
 WORKDIR /app
 
+# Create cache directory for Hugging Face models
+RUN mkdir -p /app/.cache/huggingface
+
 # Copy Poetry files
 COPY pyproject.toml poetry.lock ./
 
 # Configure Poetry
 RUN poetry config virtualenvs.create false
 
-# Install ALL dependencies including ML packages (pre-downloads models during build)
+# Install ALL dependencies including ML packages
 RUN poetry install --no-interaction --no-ansi && \
     poetry cache clear --all pypi --no-interaction
+
+# Copy and run model download script
+COPY download_models.py ./
+RUN python download_models.py && rm download_models.py
 
 # Production stage - Ultra minimal
 FROM python:3.13-slim as production
@@ -44,8 +52,7 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PATH="/root/.local/bin:$PATH" \
     PORT=8080 \
-    TRANSFORMERS_CACHE=/app/.cache/transformers \
-    SENTENCE_TRANSFORMERS_HOME=/app/.cache/sentence-transformers \
+    HF_HOME=/app/.cache/huggingface \
     PYTHONPATH="/app/src:$PYTHONPATH"
 
 # Install ONLY runtime system dependencies
@@ -64,12 +71,15 @@ RUN useradd --create-home --shell /bin/bash maria
 # Set work directory
 WORKDIR /app
 
-# Create cache directory for models (persistent!)
-RUN mkdir -p /app/.cache/transformers /app/.cache/sentence-transformers logs
+# Create cache directory for models 
+RUN mkdir -p /app/.cache/huggingface logs
 
 # Copy installed packages from builder stage
 COPY --from=builder /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
+
+# Copy cached models from builder stage
+COPY --from=builder /app/.cache /app/.cache
 
 # Copy application code
 COPY src/ ./src/
