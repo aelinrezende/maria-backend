@@ -2,12 +2,23 @@
 """
 Script to pre-download ML models during Docker build.
 This ensures models are cached in the image and don't need to be downloaded at runtime.
+Uses HuggingFace token to avoid IP blocks.
 """
 
 import os
+from huggingface_hub import login
 from sentence_transformers import SentenceTransformer
 
-cache_dir = os.getenv("HF_HOME", "/app/.cache/huggingface")
+# Login to HuggingFace if token is provided
+hf_token = os.getenv("HF_TOKEN")
+if hf_token:
+    print("Authenticating with HuggingFace...")
+    login(token=hf_token)
+    print("✓ Authenticated successfully")
+else:
+    print("⚠ No HF_TOKEN provided, downloading without authentication")
+
+cache_dir = os.getenv("HF_HOME", "/models")
 model_name = os.getenv("EMBEDDING_MODEL", "intfloat/multilingual-e5-base")
 
 print(f"Downloading models to: {cache_dir}")
