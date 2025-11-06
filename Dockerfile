@@ -1,8 +1,8 @@
 # Ultra-minimal Dockerfile for Mar.IA Backend
-# Strategy: Install ALL deps in build including ML models (pre-downloaded via poetry)
+# Models are downloaded on first run with HuggingFace authentication
 
 # Build stage - Only basic dependencies
-FROM python:3.13-slim as builder
+FROM python:3.13-slim AS builder
 
 # Set environment variables for minimal build
 ENV PYTHONUNBUFFERED=1 \
@@ -40,12 +40,8 @@ RUN poetry config virtualenvs.create false
 RUN poetry install --no-interaction --no-ansi && \
     poetry cache clear --all pypi --no-interaction
 
-# Copy and run model download script
-COPY download_models.py ./
-RUN python download_models.py && rm download_models.py
-
 # Production stage - Ultra minimal
-FROM python:3.13-slim as production
+FROM python:3.13-slim AS production
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \
@@ -81,11 +77,13 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 # Copy cached models from builder stage
 COPY --from=builder /app/.cache /app/.cache
 
-# Copy application code
+# Copy download script, startup script and application code
+COPY download_models.py ./
+COPY start.sh ./
 COPY src/ ./src/
 
-# Change ownership to non-root user
-RUN chown -R maria:maria /app
+# Make start script executable and change ownership to non-root user
+RUN chmod +x start.sh && chown -R maria:maria /app
 
 # Switch to non-root user
 USER maria
@@ -93,9 +91,9 @@ USER maria
 # Expose port
 EXPOSE 8080
 
-# Health check (simple - don't require models)
-HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
+# Health check with extended startup time for model download on first run
+HEALTHCHECK --interval=30s --timeout=10s --start-period=300s --retries=3 \
     CMD curl -f http://localhost:${PORT}/health || exit 1
 
-# Start application directly (models pre-installed)
-CMD ["uvicorn", "src.backend.main:app", "--host", "0.0.0.0", "--port", "8080"]
+# Start application (downloads models on first run if needed)
+CMD ["./start.sh"]

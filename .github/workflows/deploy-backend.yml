@@ -120,7 +120,8 @@ jobs:
             --set-env-vars "GEMINI_TEMPERATURE=${{ vars.GEMINI_TEMPERATURE || '0.7' }}" \
             --set-env-vars "JWT_ALGORITHM=${{ vars.JWT_ALGORITHM || 'HS256' }}" \
             --set-env-vars "JWT_ACCESS_TOKEN_EXPIRE_MINUTES=${{ vars.JWT_ACCESS_TOKEN_EXPIRE_MINUTES || '10080' }}" \
-            --set-env-vars "INVITATION_CODE_EXPIRE_DAYS=${{ vars.INVITATION_CODE_EXPIRE_DAYS || '7' }}"
+            --set-env-vars "INVITATION_CODE_EXPIRE_DAYS=${{ vars.INVITATION_CODE_EXPIRE_DAYS || '7' }}" \
+            --set-env-vars "HF_TOKEN=${{ secrets.HF_TOKEN }}"
 
       - name: Health Check
         run: |
