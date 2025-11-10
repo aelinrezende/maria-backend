@@ -63,9 +63,7 @@ coverage.xml
 
 # Documentation
 docs/_build/
-README.md
 *.md
-!src/**/*.md
 
 # Logs
 logs/
@@ -115,7 +113,6 @@ app.yaml
 cloudbuild.yaml
 
 # Poetry
-poetry.lock
 poetry.toml
 
 # Development tools
@@ -134,7 +131,6 @@ htmlcov/
 docs/
 examples/
 *.md
-!src/**/*.md
 
 # Database files
 *.sqlite
