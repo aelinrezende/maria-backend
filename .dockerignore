@@ -63,9 +63,7 @@ coverage.xml
 
 # Documentation
 docs/_build/
-README.md
 *.md
-!src/**/*.md
 
 # Logs
 logs/
@@ -107,8 +105,75 @@ Jenkinsfile
 # Docker
 Dockerfile*
 docker-compose*.yml
+.dockerignore
 
 # Cloud specific
 cloud.yaml
 app.yaml
 cloudbuild.yaml
+
+# Poetry
+poetry.toml
+
+# Development tools
+.mypy_cache/
+.pytest_cache/
+.hypothesis/
+.coverage
+htmlcov/
+
+# Package management
+*.egg-info/
+*.whl
+*.tar.gz
+
+# Documentation and examples
+docs/
+examples/
+*.md
+
+# Database files
+*.sqlite
+*.sqlite3
+*.db
+
+# Large files and archives
+*.zip
+*.tar.gz
+*.rar
+*.7z
+*.pdf
+
+# Backup and old versions
+*.bak
+*.backup
+*.old
+*.orig
+
+# Cache directories
+.cache/
+*.cache
+
+# Runtime and temporary
+*.pid
+*.seed
+*.pid.lock
+*.tmp
+*.temp
+
+# OS generated
+.DS_Store
+Thumbs.db
+
+# IDE specific
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Local development files
+.env.local
+.env.development
+.env.test
+.env.*.local

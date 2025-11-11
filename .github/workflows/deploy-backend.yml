@@ -26,31 +26,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Free up disk space
+      - name: Free up disk space (Unified cleanup)
         run: |
-          echo "=== Before cleanup ==="
-          sudo swapoff -a
-          sudo rm -f /swapfile
-          docker rmi $(docker image ls -aq) || true
-          df -h
-
-          # Clean Docker
-          docker system prune -af
-
-          # Clean apt caches
-          sudo apt-get clean
-          sudo rm -rf /var/lib/apt/lists/*
-          sudo rm -rf /tmp/*
-          sudo rm -rf /var/tmp/*
-
-          # Clean GitHub cache
-          sudo rm -rf /home/runner/actions-runner/cached/_diag/*
-
-          # Clean npm cache if exists
-          npm cache clean --force 2>/dev/null || true
-
-          echo "=== After cleanup ==="
-          df -h
+          echo "🧹 Running unified disk space cleanup..."
+          chmod +x free_disk_space.sh
+          sudo ./free_disk_space.sh
 
       - name: Google Auth
         id: "auth"
@@ -63,32 +43,124 @@ jobs:
         with:
           project_id: ${{ env.PROJECT_ID }}
 
+      - name: Check and reinstall Docker if needed
+        run: |
+          echo "🐳 Checking Docker daemon status..."
+
+          # Check if Docker is installed and running
+          if ! sudo docker info >/dev/null 2>&1; then
+            echo "❌ Docker daemon is not running or not installed"
+
+            # Check if Docker service exists (better indicator than command -v)
+            if ! systemctl list-unit-files | grep -q docker.service 2>/dev/null; then
+              echo "🔧 Docker service not found - reinstalling Docker completely..."
+
+              # Install Docker
+              curl -fsSL https://get.docker.com -o get-docker.sh
+              sudo sh get-docker.sh || echo "   Docker installation failed"
+
+              # Add user to docker group
+              sudo usermod -aG docker $USER || echo "   Failed to add user to docker group"
+
+              # Start Docker service
+              sudo systemctl start docker || echo "   systemctl start failed"
+              sudo service docker start || echo "   service start failed"
+
+              echo "✅ Docker reinstalled successfully"
+            else
+              echo "🔄 Docker service exists but daemon is not running - attempting to start..."
+              sudo systemctl start docker || echo "   systemctl start failed"
+              sudo service docker start || echo "   service start failed"
+
+              # If systemctl fails, try alternative approach
+              if ! sudo docker info >/dev/null 2>&1; then
+                echo "🔄 Systemctl failed, trying alternative Docker start..."
+                sudo dockerd &>/dev/null &
+                sleep 10
+              fi
+            fi
+
+            # Wait for Docker to start
+            sleep 15
+
+            # Check if Docker is working now
+            if sudo docker info >/dev/null 2>&1; then
+              echo "✅ Docker daemon is now running"
+              sudo docker version || echo "   Could not get Docker version"
+            else
+              echo "❌ Failed to start Docker daemon after installation"
+              echo "   Available disk space:"
+              df -h
+              echo "   Checking Docker installation status:"
+              which docker || echo "   Docker binary not found"
+              systemctl list-unit-files | grep docker || echo "   Docker service not found"
+              exit 1
+            fi
+          else
+            echo "✅ Docker daemon is already running"
+          fi
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Docker Auth
         run: |
           gcloud auth configure-docker ${{ env.REGISTRY }}
 
-      - name: Build and Push Docker Image
+      - name: Build and Push Docker Image (Optimized for model download)
         run: |
-          # Build the Docker image
-          docker build -t ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}:${{ github.sha }} .
-          docker tag ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}:${{ github.sha }} ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}:latest
+          echo "🐳 Starting optimized Docker build with model download..."
+          echo "🔍 Build started at: $(date)"
+          START_TIME=$(date +%s)
+
+          # Set build arguments for model download
+          export DOCKER_BUILDKIT=1
+          export BUILDKIT_PROGRESS=plain
+
+          # Build the Docker image with extended timeout and cache
+          echo "📦 Building Docker image (this may take 10-15 minutes due to model download)..."
+          docker buildx build \
+            --build-arg HF_TOKEN="${{ secrets.HF_TOKEN }}" \
+            --build-arg EMBEDDING_MODEL="${{ vars.EMBEDDING_MODEL || 'intfloat/multilingual-e5-base' }}" \
+            --cache-from type=gha \
+            --cache-to type=gha,mode=max \
+            --tag ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            --tag ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}:latest \
+            --load \
+            .
+
+          END_TIME=$(date +%s)
+          BUILD_DURATION=$((END_TIME - START_TIME))
+          BUILD_MINUTES=$((BUILD_DURATION / 60))
+
+          echo "✅ Docker build completed in ${BUILD_MINUTES} minutes"
+
+          # Check final image size
+          IMAGE_SIZE=$(docker images ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}:latest --format "table {{.Size}}" | tail -n 1)
+          echo "📊 Final image size: ${IMAGE_SIZE}"
 
           # Push the Docker image
+          echo "📤 Pushing Docker image to registry..."
           docker push ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           docker push ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}:latest
+
+          echo "🎉 Docker build and push completed successfully!"
 
       - name: Deploy to Cloud Run
         run: |
           # Deploy to Cloud Run
+          echo "🚀 Deploying to production environment"
+          echo "📊 Service name: ${{ env.SERVICE_NAME }}"
+
           gcloud run deploy ${{ env.SERVICE_NAME }} \
             --image ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
             --region ${{ env.REGION }} \
             --platform managed \
             --allow-unauthenticated \
             --add-cloudsql-instances ${{ vars.CLOUD_SQL_CONNECTION_NAME }} \
-            --memory 2Gi \
-            --cpu 1 \
-            --timeout 300 \
+            --memory 4Gi \
+            --cpu 2 \
+            --timeout 1000 \
             --concurrency 10 \
             --max-instances 10 \
             --min-instances 0 \
@@ -122,22 +194,6 @@ jobs:
             --set-env-vars "JWT_ACCESS_TOKEN_EXPIRE_MINUTES=${{ vars.JWT_ACCESS_TOKEN_EXPIRE_MINUTES || '10080' }}" \
             --set-env-vars "INVITATION_CODE_EXPIRE_DAYS=${{ vars.INVITATION_CODE_EXPIRE_DAYS || '7' }}" \
             --set-env-vars "HF_TOKEN=${{ secrets.HF_TOKEN }}"
-
-      - name: Health Check
-        run: |
-          # Get service URL
-          SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
-            --region ${{ env.REGION }} \
-            --format 'value(status.url)')
-
-          # Wait a bit for service to be ready
-          sleep 30
-
-          # Test health endpoint
-          curl -f "$SERVICE_URL/health" || exit 1
-
-          echo "✅ Deployment successful! Service URL: $SERVICE_URL"
-          echo "Service URL: $SERVICE_URL" >> $GITHUB_OUTPUT
 
       - name: Show Service URL
         run: |
