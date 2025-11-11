@@ -52,7 +52,7 @@ class MetadataExtractor(DocumentConverter):
         )
 
     def _extract_pdf_pages(self, file_stream: BinaryIO):
-        """Extrai páginas de PDF usando pdfplumber."""
+        """Extrai páginas de PDF usando pymupdf."""
 
         with pymupdf.open(stream=file_stream) as pdf:
             # pylint: disable=no-member
