@@ -41,8 +41,9 @@ class RAGRouter:
             self.service.query_rag_stream(request),
             media_type="text/event-stream",
             headers={
-                "Cache-Control": "no-cache",
+                "Cache-Control": "no-cache, no-store, must-revalidate",
                 "Connection": "keep-alive",
+                "X-Accel-Buffering": "no", 
                 "Access-Control-Allow-Origin": "*"
             }
         )
