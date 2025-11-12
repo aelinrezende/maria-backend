@@ -106,7 +106,7 @@ Configure os seguintes secrets no seu repository GitHub:
   - Formato: `postgresql+asyncpg://usuario:senha@IP:5432/nome_db`
 
 #### Application
-- **`SECRET_KEY`**: Chave secreta para JWT (gerar com `openssl rand -base64 32`)
+- **`JWT_SECRET_KEY`**: Chave secreta para JWT (gerar com `openssl rand -base64 32`)
 - **`DEFAULT_LLM_PROVIDER`**: Provedor LLM (`claude` ou `gemini`)
 
 #### LLM Providers (pelo menos um)
@@ -124,7 +124,7 @@ Configure os seguintes secrets no seu repository GitHub:
 # Secrets (valores sensíveis)
 gh secret set GOOGLE_APPLICATION_CREDENTIALS < service-account.json
 gh secret set DATABASE_URL "postgresql+asyncpg://user:pass@IP:5432/db_name"
-gh secret set SECRET_KEY "$(openssl rand -base64 32)"
+gh secret set JWT_SECRET_KEY "$(openssl rand -base64 32)"
 gh secret set ANTHROPIC_API_KEY "sk-ant-sua-chave"
 
 # Variables (configurações)
