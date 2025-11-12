@@ -44,7 +44,7 @@ def create_access_token(
     # Gera token
     encoded_jwt = jwt.encode(
         to_encode,
-        settings.SECRET_KEY,
+        settings.JWT_SECRET_KEY,
         algorithm=settings.JWT_ALGORITHM
     )
 
