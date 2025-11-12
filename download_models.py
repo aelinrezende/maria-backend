@@ -149,22 +149,7 @@ def main():
     # Download the model
     try:
         print(f"📥 Downloading {model_name}...")
-        model = SentenceTransformer(model_name, cache_folder=cache_dir)
-
-        # Verify model was downloaded successfully
-        if check_model_exists(cache_dir, model_name):
-            print("✅ Model downloaded successfully!")
-            print(f"📏 Max sequence length: {model.get_max_seq_length()} tokens")
-            print(f"🎯 Embedding dimension: {model.get_sentence_embedding_dimension()}")
-
-            # Check final disk space
-            final_free_mb, _ = get_disk_space()
-            used_mb = free_mb - final_free_mb
-            print(f"💾 Model used approximately: {used_mb:,} MB")
-            print(f"💾 Remaining free space: {final_free_mb:,} MB")
-
-        else:
-            raise RuntimeError("Model download completed but cache verification failed")
+        SentenceTransformer(model_name, cache_folder=cache_dir)
 
     except Exception as e:
         print(f"❌ Error downloading model: {e}")
