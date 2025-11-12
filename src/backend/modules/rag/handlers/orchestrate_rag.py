@@ -1,4 +1,3 @@
-
 import asyncio
 from typing import TYPE_CHECKING, AsyncGenerator, List
 
@@ -57,12 +56,13 @@ async def orchestrate_rag(
     # 4. Prepara prompt baseado na disponibilidade de chunks
     if similar_chunks:
         # 4.1 Refinamento e estruturação dos chunks encontrados
-        refinement_result = await handlers.refine_and_reorder_chunks(hub, similar_chunks, expanded_query)
+        refinement_result = await handlers.refine_and_reorder_chunks(
+            hub, similar_chunks, expanded_query
+        )
 
         # Usa o texto refinado no prompt do usuário
         user_prompt = RAG_USER_PROMPT_TEMPLATE.format(
-            chunks_context=refinement_result.refined_text,
-            user_query=expanded_query
+            chunks_context=refinement_result.refined_text, user_query=expanded_query
         )
     else:
         # 4.2 Usa prompt especializado para ausência de fontes
@@ -72,34 +72,26 @@ async def orchestrate_rag(
 
     # Extrai informações estruturadas das fontes
     sources = extract_source_info(similar_chunks)
-
+    
     yield RAGStreamChunk(
         kind=RAGChunkKind.SOURCES,
         sources=sources
     ).streamed
 
+    await asyncio.sleep(0) 
+
     # 5. Gera resposta com LLM em streaming
-    queue = asyncio.Queue()
+    messages = [Message(role="user", content=user_prompt)]
 
-    # 5.1 Configura tarefas
-    llm_task_handle = asyncio.create_task(llm_task(hub, queue, user_prompt))
-    heartbeat_task_handle = asyncio.create_task(heartbeat_task(queue, llm_task_handle))
+    async for chunk in hub.llm_provider.stream_chat(
+        messages=messages, system_prompt=RAG_SYSTEM_PROMPT
+    ):
+        if chunk.content:
+            yield RAGStreamChunk(
+                content=chunk.content, kind=RAGChunkKind.CONTENT
+            ).streamed
 
-    while True:
-        chunk = await queue.get()
-
-        if chunk is None:
-            break
-
-        yield chunk.streamed
-
-    # 5.2 Finaliza tarefa de heartbeat
-    if not heartbeat_task_handle.done():
-        heartbeat_task_handle.cancel()
-        try:
-            await heartbeat_task_handle
-        except asyncio.CancelledError:
-            pass  # Expected when cancelling
+            await asyncio.sleep(0) 
 
     yield RAGStreamChunk(kind=RAGChunkKind.FINAL).streamed
 
@@ -124,44 +116,3 @@ def _search_similar_chunks(
         )
 
     return callback
-
-async def llm_task(
-    hub: "RAGService",
-    queue: asyncio.Queue[RAGStreamChunk],
-    user_prompt: str
-):
-    """
-    Tarefa assíncrona que executa o LLM e coloca os chunks na fila.
-    """
-    try:
-        messages = [Message(role="user", content=user_prompt)]
-        
-        async for chunk in hub.llm_provider.stream_chat(
-            messages=messages,
-            system_prompt=RAG_SYSTEM_PROMPT
-        ):
-            if chunk.content:
-                await queue.put(
-                    RAGStreamChunk(
-                        content=chunk.content,
-                        kind=RAGChunkKind.CONTENT
-                    )
-                )
-    except Exception as e:
-        logger.error(f"Error in llm_task: {e}")
-    finally:
-        await queue.put(None)
-async def heartbeat_task(
-    queue: asyncio.Queue[RAGStreamChunk],
-    llm_task_handle: asyncio.Task
-):
-    """
-    Enfileira um chunk de tipo THINKING a cada 5 segundos
-    enquanto a tarefa de LLM não termina.
-    """
-    while not llm_task_handle.done():
-        try:
-            await asyncio.wait_for(asyncio.shield(llm_task_handle), timeout=5.0)
-        except asyncio.TimeoutError:
-            if not llm_task_handle.done():
-                await queue.put(RAGStreamChunk(kind=RAGChunkKind.THINKING))
