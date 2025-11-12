@@ -160,12 +160,12 @@ jobs:
             --max-instances 10 \
             --min-instances 0 \
             --set-env-vars "DATABASE_URL=${{ secrets.DATABASE_URL }}" \
-            --set-env-vars "SECRET_KEY=${{ secrets.SECRET_KEY }}" \
-            --set-env-vars "ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}" \
+            --set-env-vars "CLAUDE_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}" \
             --set-env-vars "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" \
             --set-env-vars "DEFAULT_LLM_PROVIDER=${{ vars.DEFAULT_LLM_PROVIDER || 'gemini' }}" \
             --set-env-vars "DEBUG=false" \
             --set-env-vars "LOG_LEVEL=INFO" \
+            --set-env-vars "AUTO_MIGRATIONS=${{ vars.AUTO_MIGRATIONS || 'true' }}" \
             --set-env-vars "^|^ALLOWED_ORIGINS=${{ vars.ALLOWED_ORIGINS }}" \
             --set-env-vars "MAILGUN_API_KEY=${{ secrets.MAILGUN_API_KEY }}" \
             --set-env-vars "MAILGUN_DOMAIN=${{ vars.MAILGUN_DOMAIN }}" \
@@ -178,16 +178,23 @@ jobs:
             --set-env-vars "EMBEDDING_MODEL=${{ vars.EMBEDDING_MODEL || 'intfloat/multilingual-e5-base' }}" \
             --set-env-vars "EMBEDDING_DIMENSION=${{ vars.EMBEDDING_DIMENSION || '768' }}" \
             --set-env-vars "EMBEDDING_PROVIDER=${{ vars.EMBEDDING_PROVIDER || 'local' }}" \
-            --set-env-vars "CLAUDE_MODEL=${{ vars.CLAUDE_MODEL || 'claude-3-5-sonnet-20241022' }}" \
+            --set-env-vars "CLAUDE_MODEL=${{ vars.CLAUDE_MODEL || 'claude-3-7-sonnet-20250219' }}" \
             --set-env-vars "CLAUDE_MAX_TOKENS=${{ vars.CLAUDE_MAX_TOKENS || '4096' }}" \
             --set-env-vars "CLAUDE_TEMPERATURE=${{ vars.CLAUDE_TEMPERATURE || '0.7' }}" \
             --set-env-vars "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" \
-            --set-env-vars "GEMINI_MODEL=${{ vars.GEMINI_MODEL || 'gemini-1.5-pro' }}" \
+            --set-env-vars "GEMINI_MODEL=${{ vars.GEMINI_MODEL || 'gemini-2.5-pro' }}" \
             --set-env-vars "GEMINI_MAX_TOKENS=${{ vars.GEMINI_MAX_TOKENS || '4096' }}" \
             --set-env-vars "GEMINI_TEMPERATURE=${{ vars.GEMINI_TEMPERATURE || '0.7' }}" \
+            --set-env-vars "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" \
             --set-env-vars "JWT_ALGORITHM=${{ vars.JWT_ALGORITHM || 'HS256' }}" \
             --set-env-vars "JWT_ACCESS_TOKEN_EXPIRE_MINUTES=${{ vars.JWT_ACCESS_TOKEN_EXPIRE_MINUTES || '10080' }}" \
             --set-env-vars "INVITATION_CODE_EXPIRE_DAYS=${{ vars.INVITATION_CODE_EXPIRE_DAYS || '7' }}" \
+            --set-env-vars "FRONT_USER_URL=${{ vars.FRONT_USER_URL }}" \
+            --set-env-vars "FRONT_ADMIN_URL=${{ vars.FRONT_ADMIN_URL }}" \
+            --set-env-vars "ENABLE_QUERY_EXPANSION=${{ vars.ENABLE_QUERY_EXPANSION }}" \
+            --set-env-vars "ENABLE_CHUNK_REFINEMENT=${{ vars.ENABLE_CHUNK_REFINEMENT }}" \
+            --set-env-vars "ENABLE_USER_INPUT_EVALUATION=${{ vars.ENABLE_USER_INPUT_EVALUATION }}" \
+            --set-env-vars "ENABLE_SOURCE_EVALUATION=${{ vars.ENABLE_SOURCE_EVALUATION }}" \
             --set-env-vars "HF_TOKEN=${{ secrets.HF_TOKEN }}"
 
       - name: Show Service URL
