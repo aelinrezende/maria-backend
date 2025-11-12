@@ -159,7 +159,6 @@ jobs:
             --concurrency 10 \
             --max-instances 10 \
             --min-instances 0 \
-            --use-http2 \
             --set-env-vars "DATABASE_URL=${{ secrets.DATABASE_URL }}" \
             --set-env-vars "CLAUDE_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}" \
             --set-env-vars "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" \
