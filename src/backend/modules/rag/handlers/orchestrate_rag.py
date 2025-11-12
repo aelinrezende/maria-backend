@@ -96,6 +96,10 @@ async def orchestrate_rag(
     # 5.2 Finaliza tarefa de heartbeat
     if not heartbeat_task_handle.done():
         heartbeat_task_handle.cancel()
+        try:
+            await heartbeat_task_handle
+        except asyncio.CancelledError:
+            pass  # Expected when cancelling
 
     yield RAGStreamChunk(kind=RAGChunkKind.FINAL).streamed
 
