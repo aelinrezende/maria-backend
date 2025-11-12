@@ -1,4 +1,5 @@
 
+import asyncio
 from typing import TYPE_CHECKING, AsyncGenerator, List
 
 from loguru import logger
@@ -78,17 +79,23 @@ async def orchestrate_rag(
     ).streamed
 
     # 5. Gera resposta com LLM em streaming
-    messages = [Message(role="user", content=user_prompt)]
+    queue = asyncio.Queue()
 
-    async for chunk in hub.llm_provider.stream_chat(
-        messages=messages,
-        system_prompt=RAG_SYSTEM_PROMPT
-    ):
-        if chunk.content:
-            yield RAGStreamChunk(
-                content=chunk.content,
-                kind=RAGChunkKind.CONTENT
-            ).streamed
+    # 5.1 Configura tarefas
+    llm_task_handle = asyncio.create_task(llm_task(hub, queue, user_prompt))
+    heartbeat_task_handle = asyncio.create_task(heartbeat_task(queue, llm_task_handle))
+
+    while True:
+        chunk = await queue.get()
+
+        if chunk is None:
+            break
+
+        yield chunk.streamed
+
+    # 5.2 Finaliza tarefa de heartbeat
+    if not heartbeat_task_handle.done():
+        heartbeat_task_handle.cancel()
 
     yield RAGStreamChunk(kind=RAGChunkKind.FINAL).streamed
 
@@ -113,3 +120,43 @@ def _search_similar_chunks(
         )
 
     return callback
+
+async def llm_task(
+    hub: "RAGService",
+    queue: asyncio.Queue[RAGStreamChunk],
+    user_prompt: str
+):
+    """
+    Tarefa assíncrona que executa o LLM e coloca os chunks na fila.
+    """
+    messages = [Message(role="user", content=user_prompt)]
+    
+    async for chunk in hub.llm_provider.stream_chat(
+        messages=messages,
+        system_prompt=RAG_SYSTEM_PROMPT
+    ):
+        if chunk.content:
+            await queue.put(
+                RAGStreamChunk(
+                    content=chunk.content,
+                    kind=RAGChunkKind.CONTENT
+                )
+            )
+
+    await queue.put(None)
+    
+
+async def heartbeat_task(
+    queue: asyncio.Queue[RAGStreamChunk],
+    llm_task_handle: asyncio.Task
+):
+    """
+    Enfileira um chunk de tipo THINKING a cada 5 segundos
+    enquanto a tarefa de LLM não termina.
+    """
+    while not llm_task_handle.done():
+        try:
+            await asyncio.wait_for(asyncio.shield(llm_task_handle), timeout=5.0)
+        except asyncio.TimeoutError:
+            if not llm_task_handle.done():
+                await queue.put(RAGStreamChunk(kind=RAGChunkKind.THINKING))

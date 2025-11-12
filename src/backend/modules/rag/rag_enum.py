@@ -8,4 +8,5 @@ class RAGChunkKind(str, Enum):
     START = "START"
     CONTENT = "CONTENT"
     SOURCES = "SOURCES"
+    THINKING = "THINKING"
     FINAL = "FINAL"
