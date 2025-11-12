@@ -133,23 +133,24 @@ async def llm_task(
     """
     Tarefa assíncrona que executa o LLM e coloca os chunks na fila.
     """
-    messages = [Message(role="user", content=user_prompt)]
-    
-    async for chunk in hub.llm_provider.stream_chat(
-        messages=messages,
-        system_prompt=RAG_SYSTEM_PROMPT
-    ):
-        if chunk.content:
-            await queue.put(
-                RAGStreamChunk(
-                    content=chunk.content,
-                    kind=RAGChunkKind.CONTENT
+    try:
+        messages = [Message(role="user", content=user_prompt)]
+        
+        async for chunk in hub.llm_provider.stream_chat(
+            messages=messages,
+            system_prompt=RAG_SYSTEM_PROMPT
+        ):
+            if chunk.content:
+                await queue.put(
+                    RAGStreamChunk(
+                        content=chunk.content,
+                        kind=RAGChunkKind.CONTENT
+                    )
                 )
-            )
-
-    await queue.put(None)
-    
-
+    except Exception as e:
+        logger.error(f"Error in llm_task: {e}")
+    finally:
+        await queue.put(None)
 async def heartbeat_task(
     queue: asyncio.Queue[RAGStreamChunk],
     llm_task_handle: asyncio.Task
