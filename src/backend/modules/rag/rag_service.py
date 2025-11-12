@@ -1,5 +1,6 @@
 """Serviço para operações RAG (Retrieval-Augmented Generation)."""
 
+import asyncio
 from typing import AsyncGenerator
 
 from backend.modules.rag.rag_enum import RAGChunkKind
@@ -38,6 +39,7 @@ class RAGService:
         """
         # Envia um sinal de início para estabelecer a stream
         yield RAGStreamChunk(kind=RAGChunkKind.START).streamed
+        await asyncio.sleep(0)  # Force flush
 
         # Verifica se deve pular o RAG (consulta direta ao LLM)
         skip_rag: bool = await handlers.should_skip_rag(self, request.query)

@@ -6,6 +6,7 @@ mantendo a personalidade Mar.IA e a interface de streaming.
 """
 
 from typing import TYPE_CHECKING, AsyncGenerator
+import asyncio
 
 from loguru import logger
 
@@ -54,6 +55,8 @@ async def generate_direct_response(hub: "RAGService", user_input: str) -> AsyncG
                     content=chunk.content,
                     kind=RAGChunkKind.CONTENT
                 ).streamed
+                
+                await asyncio.sleep(0)  # Force flush to client immediately
 
         # Envia sinal de finalização
         yield RAGStreamChunk(kind=RAGChunkKind.FINAL).streamed
