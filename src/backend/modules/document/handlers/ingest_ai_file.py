@@ -18,7 +18,6 @@ from backend.modules.document.document_dto import (
     AIDocumentIngestResponse,
     DocumentIngestMetadata,
 )
-from backend.services.chunking.smart_chunker import SmartChunker
 from backend.services.converter import document_to_markdown
 from backend.services.converter.metadata_extractor import (
     MetadataExtractor,
@@ -83,9 +82,8 @@ async def ingest_file_by_ai(
     )
 
     # 6. Processa com Smart Chunker
-    smart_chunker = SmartChunker()
 
-    chunked_pages = smart_chunker.chunk_intelligently(
+    chunked_pages = hub.smart_chunker.chunk_intelligently(
         metadata_extractor.pages, document.kind
     )
 
