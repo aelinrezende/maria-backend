@@ -69,8 +69,6 @@ class DocumentRouter(BaseRouter[Document]):
 
         Args:
             document_file: Arquivo a ser processado
-            source: Fonte do documento
-            rag_hub: Serviço RAG com acesso ao LLM
 
         Returns:
             Documento criado com metadados extraídos pelo LLM e chunks processados
