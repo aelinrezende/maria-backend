@@ -453,7 +453,7 @@ Responda APENAS com JSON neste formato (sem blocos de código, sem explicações
     "summary": "string",
     "date": "string ou null",
     "keywords": ["lista", "de", "palavras-chave"],
-    "kind": "HORMONAL_SAFETY ou LEGAL_PROCEDURES ou HEALTH_INSURANCE ou GENERAL"
+    "kind": "HORMONAL_SAFETY ou LEGAL_PROCEDURES ou HEALTH_INSURANCE"
   }},
   "should_reject": boolean
 }}
@@ -464,7 +464,6 @@ TIPOS DE DOCUMENTO:
 - HORMONAL_SAFETY: Questões hormonais, riscos da automedicação, terapia hormonal, endocrinologia
 - LEGAL_PROCEDURES: Retificação de nome e gênero, processos legais, documentação, cartório
 - HEALTH_INSURANCE: Cirurgias de afirmação de gênero, planos de saúde, procedimentos médicos
-- GENERAL: Documentos genéricos que não se encaixam nas categorias acima (padrão se não conseguir determinar)
 
 EXEMPLOS:
 

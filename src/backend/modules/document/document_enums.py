@@ -7,7 +7,6 @@ class DocumentKind(str, Enum):
     HORMONAL_SAFETY = "HORMONAL_SAFETY"
     LEGAL_PROCEDURES = "LEGAL_PROCEDURES"
     HEALTH_INSURANCE = "HEALTH_INSURANCE"
-    GENERAL = "GENERAL"
 
 
 class DocumentStatus(str, Enum):
