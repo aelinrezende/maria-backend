@@ -53,3 +53,10 @@ class GeminiError(LLMError):
 
     def __init__(self, message: str = "Erro na API do Gemini"):
         super().__init__(message)
+
+
+class GLMError(LLMError):
+    """Erro específico do GLM."""
+
+    def __init__(self, message: str = "Erro na API do GLM"):
+        super().__init__(message)

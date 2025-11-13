@@ -66,3 +66,42 @@ class MetadataExtractor(DocumentConverter):
                         page=page + 1,
                         content=text
                     ))
+
+
+def extract_initial_pages(pages: List[PaperPage], max_pages: int = 3, max_chars: int = 8000) -> str:
+    """
+    Extrai conteúdo das primeiras páginas com limite simples de caracteres.
+
+    Args:
+        pages: Lista de páginas do documento
+        max_pages: Número máximo de páginas a extrair (padrão: 3)
+        max_chars: Número máximo de caracteres totais (padrão: 8000)
+
+    Returns:
+        str: Conteúdo concatenado das primeiras páginas dentro dos limites
+    """
+    selected_pages = pages[:max_pages]
+    content_parts = []
+    total_chars = 0
+
+    for page in selected_pages:
+        page_content = page.content.strip()
+        content_length = len(page_content)
+
+        if not page_content:
+            continue
+
+        if total_chars + content_length > max_chars:
+            remaining_chars = max_chars - total_chars
+
+            if remaining_chars > 0:
+                content_parts.append(
+                    page_content[:remaining_chars] + "..."
+                )
+
+            break
+
+        content_parts.append(page_content)
+        total_chars += content_length
+
+    return "\n\n--- PÁGINA SEPARADORA ---\n\n".join(content_parts)

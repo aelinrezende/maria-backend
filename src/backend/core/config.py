@@ -76,8 +76,15 @@ class Settings(BaseSettings):
     GEMINI_MAX_TOKENS: int = 4096
     GEMINI_TEMPERATURE: float = 0.7
 
+    # GLM (Z.AI)
+    ZAI_API_KEY: str = "your-zai-api-key-here"
+    ZAI_MODEL: str = "glm-4.6"
+    ZAI_MAX_TOKENS: int = 4096
+    ZAI_TEMPERATURE: float = 0.7
+    ZAI_BASE_URL: str = "https://api.z.ai/api/paas/v4/"
+
     # Configurações gerais LLM
-    DEFAULT_LLM_PROVIDER: str = "gemini"
+    DEFAULT_LLM_PROVIDER: str = "glm"
 
     # Configurações de Migrations Automáticas
     AUTO_MIGRATIONS: bool = True
