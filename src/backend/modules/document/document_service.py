@@ -5,10 +5,7 @@ from fastapi.params import Depends
 from wireup import service
 
 from backend.core import UnitOfWork
-from backend.integrations.embeddings import (
-    EmbeddingProvider,
-    LocalSentenceTransformerProvider,
-)
+from backend.integrations.llm.factory import LLMFactory
 from backend.models.document import Document
 from backend.modules.base.base_service import BaseService
 from backend.modules.chunk.chunk_service import ChunkService
@@ -30,13 +27,12 @@ class DocumentService(BaseService[Document]):
         self,
         repository: DocumentRepository = Depends(),
         unit_of_work: UnitOfWork = Depends(),
-        embeddings: LocalSentenceTransformerProvider = Depends(),
         chunk_service: ChunkService = Depends(),
     ):
         super().__init__(repository, Document, unit_of_work)
-        self._embeddings_provider: EmbeddingProvider = embeddings
-        self._chunk_service = chunk_service
-        self._smart_chunker = SmartChunker()
+        self.chunk_service = chunk_service
+        self.smart_chunker = SmartChunker()
+        self.llm_provider = LLMFactory.create_provider()
 
     async def ingest_file(
         self,
@@ -54,7 +50,7 @@ class DocumentService(BaseService[Document]):
         dto.meta.update(metadata.metadata or {})
 
         # 2. Processa com Smart Chunker
-        chunked_pages = self._smart_chunker.chunk_intelligently(
+        chunked_pages = self.smart_chunker.chunk_intelligently(
             metadata.pages, dto.kind
         )
 
@@ -62,7 +58,7 @@ class DocumentService(BaseService[Document]):
         document = self.repository.insert(Document(**dto.model_dump()))
 
         # 4. Cria os chunks com embeddings
-        saved_chunks = await self._chunk_service.create_chunks_with_embeddings(
+        saved_chunks = await self.chunk_service.create_chunks_with_embeddings(
             document.id, chunked_pages
         )
 

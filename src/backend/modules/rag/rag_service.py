@@ -3,7 +3,6 @@
 import asyncio
 from typing import AsyncGenerator
 
-from backend.modules.rag.rag_enum import RAGChunkKind
 from fastapi.params import Depends
 from wireup import service
 
@@ -12,6 +11,7 @@ from backend.integrations.llm import LLMFactory
 from backend.modules.chunk.chunk_repository import ChunkRepository
 from backend.modules.rag import handlers
 from backend.modules.rag.rag_dto import RAGQueryRequest, RAGStreamChunk
+from backend.modules.rag.rag_enum import RAGChunkKind
 
 
 @service(lifetime="scoped")

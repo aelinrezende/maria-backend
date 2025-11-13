@@ -48,3 +48,30 @@ class DocumentIngestResponse(DocumentBase, ModelBase):
     """Resposta de ingestão de arquivo com chunks processados."""
 
     total_chunks: int
+
+
+class ExtractedContent(SQLModel):
+    """Conteúdo extraído do documento pelo LLM."""
+
+    title: Optional[str] = Field()
+    source: Optional[str] = Field()
+    author: Optional[str] = Field()
+    date: Optional[str] = Field(default=None, max_length=50)
+    summary: Optional[str] = Field(max_length=4000)
+    keywords: List[str] = Field(default_factory=list, max_items=25)
+    kind: DocumentKind = Field(default=DocumentKind.GENERAL)
+
+
+class DocumentIngestMetadata(SQLModel):
+    """Metadados extraídos pelo LLM do documento."""
+
+    content: Optional[ExtractedContent] = Field(default=None)
+    should_reject: bool = Field(default=True)
+
+
+class AIDocumentIngestResponse(ModelBase):
+    """Resposta de ingestão via LLM com metadados extraídos."""
+
+    document_id: str = Field()
+    extracted_metadata: DocumentIngestMetadata = Field()
+    total_chunks: int = Field()

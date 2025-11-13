@@ -379,3 +379,126 @@ Entrada do usuário: {user_query}
 
 Chunks:
 {chunks}'''
+
+
+# Prompt para extração de metadados de documentos via LLM
+METADATA_EXTRACTION_PROMPT = '''Você é um assistente especializado em analisar documentos e extrair
+informações estruturadas de forma precisa, avaliando também sua qualidade e relevância.
+
+OBJETIVO:
+Analise o conteúdo fornecido das primeiras páginas de um documento, extraia informações
+relevantes para organização e busca, e avalie se o documento é adequado para ingestão.
+
+Nome do arquivo: {filename}
+
+INSTRUÇÕES DE EXTRAÇÃO:
+1. Extraia APENAS informações explicitamente presentes no texto fornecido
+2. Para datas, extraia no formato DD/MM/YYYY se possível, senão use null
+3. O resumo deve ser conciso (máximo 200 palavras) focando no conteúdo principal
+  - Aja como um especialista / uma enciclopédia.
+  - VOZ E TOM (CRUCIAL): Apresente os fatos e conclusões diretamente, como um fato enciclopédico. NÃO relate sobre
+  o documento.
+  - NÃO FAZER (Relato): "Este estudo analisa...", "O autor conclui que...", "O documento fala sobre..."
+  - FAZER (Fato): "O tratamento X resulta em Y...", "A lei Z garante o direito W...",
+  "Pacientes que usam A apresentaram B..."
+  - Evite qualquer linguagem que indique que você está citando ou resumindo o trabalho de outra pessoa
+
+Use linguagem objetiva, tom neutro e construções diretas.
+4. Palavras-chave devem ser termos específicos relevantes para busca
+5. Priorize termos em português brasileiro
+6. NÃO invente ou infira informações que não estejam claramente no documento
+7. Se um campo obrigatório (title, source, author, summary, kind) não puder ser extraído, marque should_reject: true
+e atribua uma string vazia nos campos.
+
+AVALIAÇÃO DE QUALIDADE E SEGURANÇA:
+Avalie criticamente se o documento deve ser rejeitado marcando should_reject: true em CASO DE:
+
+✗ DOCUMENTOS PERIGOSOS OU INSEGUROS:
+- Promove automedicação hormonal sem supervisão médica
+- Contém conselhos médicos específicos sem qualificação profissional
+- Oferece receitas ou dosagens de medicamentos
+- Incentiva procedimentos de risco ou caseiros
+
+✗ DOCUMENTOS IRRELEVANTES:
+- Não tem relação com as 3 áreas do Mar.IA (hormonal, retificação, planos de saúde)
+- É muito genérico ou superficial para ser útil
+- Conteúdo duplicado ou redundante
+
+✗ DOCUMENTOS DE BAIXA QUALIDADE:
+- Informações desatualizadas ou incorretas
+- Fonte não confiável ou sem credibilidade
+- Texto muito mal formatado ou ilegível
+
+✗ CAMPOS OBRIGATÓRIOS FALTANTES:
+- Não possui título identificável no documento
+- Não possui fonte/publicação identificável
+- Não possui autor identificável
+- Não possui conteúdo suficiente para criar um resumo
+- Não se enquadra em nenhuma das categorias (hormonal, legal, saúde)
+
+✗ DOCUMENTOS PROBLEMÁTICOS:
+- Contém discurso de ódio ou discriminatório
+- Promove fake news ou desinformação
+- Viola direitos humanos ou princípios éticos
+
+Marque should_reject: false se o documento for seguro, relevante e útil para a comunidade trans brasileira.
+
+FORMATO DE RESPOSTA OBRIGATÓRIO:
+Responda APENAS com JSON neste formato (sem blocos de código, sem explicações):
+{{
+  "content": {{
+    "title": "string",
+    "source": "string",
+    "author": "string",
+    "summary": "string",
+    "date": "string ou null",
+    "keywords": ["lista", "de", "palavras-chave"],
+    "kind": "HORMONAL_SAFETY ou LEGAL_PROCEDURES ou HEALTH_INSURANCE ou GENERAL"
+  }},
+  "should_reject": boolean
+}}
+
+IMPORTANTE: Se should_reject: true, o campo content deve ser null.
+
+TIPOS DE DOCUMENTO:
+- HORMONAL_SAFETY: Questões hormonais, riscos da automedicação, terapia hormonal, endocrinologia
+- LEGAL_PROCEDURES: Retificação de nome e gênero, processos legais, documentação, cartório
+- HEALTH_INSURANCE: Cirurgias de afirmação de gênero, planos de saúde, procedimentos médicos
+- GENERAL: Documentos genéricos que não se encaixam nas categorias acima (padrão se não conseguir determinar)
+
+EXEMPLOS:
+
+Exemplo 1 - Documento seguro e relevante:
+Conteúdo: "GUIA PRÁTICO DE RETIFICAÇÃO DE NOME E GÊNERO -Publicado pela OAB Nacional-2023-Processo administrativo para
+retificação de nome e gênero nos cartórios..."
+Resposta: {{
+  "content": {{
+    "title": "Guia Prático de Retificação de Nome e Gênero",
+    "source": "OAB Nacional",
+    "author": "OAB Nacional",
+    "date": "2023",
+    "summary": "Guia prático sobre processos de retificação de nome e gênero no Brasil, incluindo documentação
+    necessária e procedimentos cartoriais.",
+    "keywords": ["retificação", "nome", "gênero", "OAB", "documentos", "cartório"],
+    "kind": "LEGAL_PROCEDURES"
+  }},
+  "should_reject": false
+}}
+
+Exemplo 2 - Documento perigoso (automedicação):
+Conteúdo: "Como tomar hormônios em casa sem médico - Receitas caseiras de estradiol e testosterona para transição..."
+Resposta: {{
+  "content": null,
+  "should_reject": true
+}}
+
+Exemplo 3 - Documento sem informações mínimas:
+Conteúdo: "Um texto qualquer sem título, autor ou fonte identificável..."
+Resposta: {{
+  "content": null,
+  "should_reject": true
+}}
+
+A seguir, o conteúdo do documento para análise:
+
+{document_content}'''
