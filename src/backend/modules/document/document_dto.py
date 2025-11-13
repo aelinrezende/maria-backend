@@ -59,7 +59,7 @@ class ExtractedContent(SQLModel):
     date: Optional[str] = Field(default=None, max_length=50)
     summary: Optional[str] = Field(max_length=4000)
     keywords: List[str] = Field(default_factory=list, max_items=25)
-    kind: DocumentKind = Field(default=DocumentKind.GENERAL)
+    kind: DocumentKind = Field()
 
 
 class DocumentIngestMetadata(SQLModel):
