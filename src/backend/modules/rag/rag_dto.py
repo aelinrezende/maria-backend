@@ -14,7 +14,7 @@ class SourceInfo(BaseResponse):
     order: int = Field()
     title: str = Field()
     source: str = Field()
-    author: str = Field()
+    authors: List[str] = Field(default_factory=list)
     summary: str = Field()
     kind: DocumentKind = Field()
     url: Optional[str] = Field(default=None)
