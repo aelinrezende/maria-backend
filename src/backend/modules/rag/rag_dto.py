@@ -4,17 +4,21 @@ from typing import List, Optional
 from sqlmodel import Field, SQLModel
 
 from backend.models.chunk import Chunk
-from backend.modules.base.base_dto import ModelBase
+from backend.modules.base.base_dto import BaseResponse, ModelBase
+from backend.modules.document.document_enums import DocumentKind
 from backend.modules.rag.rag_enum import RAGChunkKind
 
 
-class SourceInfo(SQLModel):
+class SourceInfo(BaseResponse):
     """Informações estruturadas de uma fonte utilizada no RAG."""
-    title: str = Field()
-    category: str = Field()
-    description: str = Field()
     order: int = Field()
+    title: str = Field()
+    source: str = Field()
+    authors: List[str] = Field(default_factory=list)
+    summary: str = Field()
+    kind: DocumentKind = Field()
     url: Optional[str] = Field(default=None)
+    date: Optional[str] = Field(default=None)
 
 
 class RAGQueryRequest(SQLModel):

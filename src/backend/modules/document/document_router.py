@@ -7,7 +7,9 @@ from wireup import service as inject
 
 from backend.models import Document
 from backend.modules.base.base_router import get_base_router
+from backend.modules.document import handlers
 from backend.modules.document.document_dto import (
+    AIDocumentIngestResponse,
     DocumentIngestRequest,
     DocumentIngestResponse,
 )
@@ -50,3 +52,25 @@ class DocumentRouter(BaseRouter[Document]):
         """
 
         return await self.service.ingest_file(document_file, dto)
+
+    @document_router.post(
+        "/ingest/ai_file",
+        response_model=AIDocumentIngestResponse,
+        summary="Ingerir arquivo com extração automática de metadados via LLM"
+    )
+    async def ingest_ai_file(
+        self,
+        document_file: UploadFile = File(...)
+    ) -> AIDocumentIngestResponse:
+        """
+        Ingere um arquivo usando LLM para extrair metadados automaticamente.
+        O LLM analisa as primeiras páginas para extrair título, autor, data, resumo,
+        palavras-chave e tipo do documento.
+
+        Args:
+            document_file: Arquivo a ser processado
+
+        Returns:
+            Documento criado com metadados extraídos pelo LLM e chunks processados
+        """
+        return await handlers.ingest_file_by_ai(self.service, document_file)
