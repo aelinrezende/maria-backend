@@ -453,7 +453,7 @@ Responda APENAS com JSON neste formato (sem blocos de código, sem explicações
     "summary": "string",
     "date": "string ou null",
     "keywords": ["lista", "de", "palavras-chave"],
-    "kind": "HORMONAL_SAFETY ou LEGAL_PROCEDURES ou HEALTH_INSURANCE ou GENERAL"
+    "kind": "HORMONAL_SAFETY ou LEGAL_PROCEDURES ou HEALTH_INSURANCE"
   }},
   "should_reject": boolean
 }}
