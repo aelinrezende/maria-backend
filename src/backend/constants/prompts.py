@@ -422,7 +422,12 @@ Nome do arquivo: {filename}
 INSTRUÇÕES DE EXTRAÇÃO:
 1. Extraia APENAS informações explicitamente presentes no texto fornecido
 2. Para datas, extraia no formato DD/MM/YYYY se possível, senão use YYYY ou null
-3. O resumo deve ser conciso (máximo 50 palavras) focando no conteúdo principal
+3. Para URLs, procure por:
+   - Links diretos mencionados no documento (http://, https://)
+   - DOIs (Digital Object Identifiers) que podem ser convertidos em URLs
+   - Referências web explícitas
+   - Se não houver URL identificável, use null
+4. O resumo deve ser conciso (máximo 50 palavras) focando no conteúdo principal
   - Aja como um especialista / uma enciclopédia.
   - VOZ E TOM (CRUCIAL): Apresente os fatos e conclusões diretamente, como um fato enciclopédico. NÃO relate sobre
   o documento.
@@ -432,10 +437,10 @@ INSTRUÇÕES DE EXTRAÇÃO:
   - Evite qualquer linguagem que indique que você está citando ou resumindo o trabalho de outra pessoa
 
 Use linguagem objetiva, tom neutro e construções diretas.
-4. Palavras-chave devem ser termos específicos relevantes para busca
-5. Priorize termos em português brasileiro
-6. NÃO invente ou infira informações que não estejam claramente no documento
-7. Se um campo obrigatório (title, source, authors, summary, kind) não puder ser extraído, marque should_reject: true
+5. Palavras-chave devem ser termos específicos relevantes para busca
+6. Priorize termos em português brasileiro
+7. NÃO invente ou infira informações que não estejam claramente no documento
+8. Se um campo obrigatório (title, source, authors, summary, kind) não puder ser extraído, marque should_reject: true
 e atribua uma string vazia nos campos.
 
 AVALIAÇÃO DE QUALIDADE E SEGURANÇA:
@@ -478,6 +483,7 @@ Responda APENAS com JSON neste formato (sem blocos de código, sem explicações
     "title": "string",
     "source": "string",
     "authors": ["lista", "de", "autores"],
+    "url": "string ou null",
     "summary": "string",
     "date": "string ou null",
     "keywords": ["lista", "de", "palavras-chave"],
@@ -488,6 +494,8 @@ Responda APENAS com JSON neste formato (sem blocos de código, sem explicações
 
 IMPORTANTE: Se should_reject: true, o campo content deve ser null.
 Para authors, sempre retorne uma lista mesmo que tenha apenas um autor.
+Para url, extraia se estiver explicitamente mencionado no documento (como links, referências web, DOI). 
+Se não houver URL, use null.
 
 TIPOS DE DOCUMENTO:
 - HORMONAL_SAFETY: Questões hormonais, riscos da automedicação, terapia hormonal, endocrinologia

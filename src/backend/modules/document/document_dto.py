@@ -56,6 +56,7 @@ class ExtractedContent(SQLModel):
     title: str = Field()
     source: str = Field()
     authors: List[str] = Field(default_factory=list, max_items=10)
+    url: Optional[str] = Field(default=None)
     date: Optional[str] = Field(default=None, max_length=50)
     summary: str = Field(max_length=4000)
     keywords: List[str] = Field(default_factory=list, max_items=25)
