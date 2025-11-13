@@ -32,14 +32,10 @@ def extract_source_info(chunks: List[Chunk]) -> List[SourceInfo]:
     sources = []
 
     for order, (source, chunk) in enumerate(documents_by_source.items(), 1):
+        document = chunk.document
+
         sources.append(
-            SourceInfo(
-                title=source,
-                category=chunk.document.kind.value,
-                description=source[:200],
-                order=order,
-                url=chunk.document.url
-            )
+            SourceInfo(**document.model_dump(), order=order)
         )
 
     return sources
