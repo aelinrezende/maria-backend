@@ -393,8 +393,8 @@ Nome do arquivo: {filename}
 
 INSTRUÇÕES DE EXTRAÇÃO:
 1. Extraia APENAS informações explicitamente presentes no texto fornecido
-2. Para datas, extraia no formato DD/MM/YYYY se possível, senão use null
-3. O resumo deve ser conciso (máximo 100 palavras) focando no conteúdo principal
+2. Para datas, extraia no formato DD/MM/YYYY se possível, senão use YYYY ou null
+3. O resumo deve ser conciso (máximo 50 palavras) focando no conteúdo principal
   - Aja como um especialista / uma enciclopédia.
   - VOZ E TOM (CRUCIAL): Apresente os fatos e conclusões diretamente, como um fato enciclopédico. NÃO relate sobre
   o documento.
@@ -476,7 +476,7 @@ Resposta: {{
     "title": "Guia Prático de Retificação de Nome e Gênero",
     "source": "OAB Nacional",
     "authors": ["OAB Nacional"],
-    "date": "2023",
+    "date": "15/03/2023",
     "summary": "Guia prático sobre processos de retificação de nome e gênero no Brasil, incluindo documentação
     necessária e procedimentos cartoriais.",
     "keywords": ["retificação", "nome", "gênero", "OAB", "documentos", "cartório"],
