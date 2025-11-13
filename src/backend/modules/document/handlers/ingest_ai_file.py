@@ -74,7 +74,7 @@ async def ingest_file_by_ai(
             **content.model_dump(),
             meta={
                 **(metadata_extractor.metadata or {}),
-                "extracted_date": content.date,
+                "date": content.date,
             }
         )
     )
@@ -112,7 +112,6 @@ async def _extract_metadata(
     Extrai metadados de um documento usando LLM.
 
     Args:
-        hub: Instância do DocumentService com acesso ao LLM
         text_content: Conteúdo texto do documento para análise
 
     Returns:
