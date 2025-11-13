@@ -162,7 +162,8 @@ jobs:
             --set-env-vars "DATABASE_URL=${{ secrets.DATABASE_URL }}" \
             --set-env-vars "CLAUDE_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}" \
             --set-env-vars "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" \
-            --set-env-vars "DEFAULT_LLM_PROVIDER=${{ vars.DEFAULT_LLM_PROVIDER || 'gemini' }}" \
+            --set-env-vars "ZAI_API_KEY=${{ secrets.ZAI_API_KEY }}" \
+            --set-env-vars "DEFAULT_LLM_PROVIDER=${{ vars.DEFAULT_LLM_PROVIDER }}" \
             --set-env-vars "DEBUG=false" \
             --set-env-vars "LOG_LEVEL=INFO" \
             --set-env-vars "AUTO_MIGRATIONS=${{ vars.AUTO_MIGRATIONS || 'true' }}" \
