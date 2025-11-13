@@ -53,11 +53,11 @@ class DocumentIngestResponse(DocumentBase, ModelBase):
 class ExtractedContent(SQLModel):
     """Conteúdo extraído do documento pelo LLM."""
 
-    title: Optional[str] = Field()
-    source: Optional[str] = Field()
-    author: Optional[str] = Field()
+    title: str = Field()
+    source: str = Field()
+    authors: List[str] = Field(default_factory=list, max_items=10)
     date: Optional[str] = Field(default=None, max_length=50)
-    summary: Optional[str] = Field(max_length=4000)
+    summary: str = Field(max_length=4000)
     keywords: List[str] = Field(default_factory=list, max_items=25)
     kind: DocumentKind = Field()
 

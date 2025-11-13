@@ -394,7 +394,7 @@ Nome do arquivo: {filename}
 INSTRUÇÕES DE EXTRAÇÃO:
 1. Extraia APENAS informações explicitamente presentes no texto fornecido
 2. Para datas, extraia no formato DD/MM/YYYY se possível, senão use null
-3. O resumo deve ser conciso (máximo 200 palavras) focando no conteúdo principal
+3. O resumo deve ser conciso (máximo 100 palavras) focando no conteúdo principal
   - Aja como um especialista / uma enciclopédia.
   - VOZ E TOM (CRUCIAL): Apresente os fatos e conclusões diretamente, como um fato enciclopédico. NÃO relate sobre
   o documento.
@@ -432,7 +432,7 @@ Avalie criticamente se o documento deve ser rejeitado marcando should_reject: tr
 ✗ CAMPOS OBRIGATÓRIOS FALTANTES:
 - Não possui título identificável no documento
 - Não possui fonte/publicação identificável
-- Não possui autor identificável
+- Não possui pelo menos um autor identificável
 - Não possui conteúdo suficiente para criar um resumo
 - Não se enquadra em nenhuma das categorias (hormonal, legal, saúde)
 
@@ -449,16 +449,17 @@ Responda APENAS com JSON neste formato (sem blocos de código, sem explicações
   "content": {{
     "title": "string",
     "source": "string",
-    "author": "string",
+    "authors": ["lista", "de", "autores"],
     "summary": "string",
     "date": "string ou null",
     "keywords": ["lista", "de", "palavras-chave"],
-    "kind": "HORMONAL_SAFETY ou LEGAL_PROCEDURES ou HEALTH_INSURANCE"
+    "kind": "HORMONAL_SAFETY ou LEGAL_PROCEDURES ou HEALTH_INSURANCE ou GENERAL"
   }},
   "should_reject": boolean
 }}
 
 IMPORTANTE: Se should_reject: true, o campo content deve ser null.
+Para authors, sempre retorne uma lista mesmo que tenha apenas um autor.
 
 TIPOS DE DOCUMENTO:
 - HORMONAL_SAFETY: Questões hormonais, riscos da automedicação, terapia hormonal, endocrinologia
@@ -474,7 +475,7 @@ Resposta: {{
   "content": {{
     "title": "Guia Prático de Retificação de Nome e Gênero",
     "source": "OAB Nacional",
-    "author": "OAB Nacional",
+    "authors": ["OAB Nacional"],
     "date": "2023",
     "summary": "Guia prático sobre processos de retificação de nome e gênero no Brasil, incluindo documentação
     necessária e procedimentos cartoriais.",
