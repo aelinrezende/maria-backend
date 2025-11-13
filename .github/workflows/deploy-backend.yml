@@ -163,6 +163,10 @@ jobs:
             --set-env-vars "CLAUDE_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}" \
             --set-env-vars "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" \
             --set-env-vars "ZAI_API_KEY=${{ secrets.ZAI_API_KEY }}" \
+            --set-env-vars "ZAI_MODEL=${{ vars.ZAI_MODEL || 'glm-4.6' }}" \
+            --set-env-vars "ZAI_MAX_TOKENS=${{ vars.ZAI_MAX_TOKENS || '4096' }}" \
+            --set-env-vars "ZAI_TEMPERATURE=${{ vars.ZAI_TEMPERATURE || '0.7' }}" \
+            --set-env-vars "ZAI_BASE_URL=${{ vars.ZAI_BASE_URL || 'https://api.z.ai/api/paas/v4/' }}" \
             --set-env-vars "DEFAULT_LLM_PROVIDER=${{ vars.DEFAULT_LLM_PROVIDER }}" \
             --set-env-vars "DEBUG=false" \
             --set-env-vars "LOG_LEVEL=INFO" \
