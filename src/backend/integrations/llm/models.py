@@ -42,3 +42,12 @@ class GeminiConfig(ILLMConfig):
     model: str = settings.GEMINI_MODEL
     max_tokens: int = settings.GEMINI_MAX_TOKENS
     temperature: float = settings.GEMINI_TEMPERATURE
+
+
+@dataclass
+class GLMConfig(ILLMConfig):
+    """Configuração específica para o provedor GLM da Z.AI."""
+    api_key: str = settings.ZAI_API_KEY
+    model: str = settings.ZAI_MODEL
+    max_tokens: int = settings.ZAI_MAX_TOKENS
+    temperature: float = settings.ZAI_TEMPERATURE
