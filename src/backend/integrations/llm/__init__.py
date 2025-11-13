@@ -31,6 +31,7 @@ from .claude import ClaudeProvider
 from .exceptions import (
     ClaudeError,
     GeminiError,
+    GLMError,
     LLMAuthenticationError,
     LLMConnectionError,
     LLMError,
@@ -39,7 +40,8 @@ from .exceptions import (
 )
 from .factory import LLMFactory
 from .gemini import GeminiProvider
-from .models import ClaudeConfig, GeminiConfig, Message, StreamChunk
+from .glm import GLMProvider
+from .models import ClaudeConfig, GeminiConfig, GLMConfig, Message, StreamChunk
 from .protocol import ILLMProvider
 
 __all__ = [
@@ -52,6 +54,7 @@ __all__ = [
     "ILLMConfig",
     "ClaudeConfig",
     "GeminiConfig",
+    "GLMConfig",
 
     # Exceptions
     "LLMError",
@@ -61,9 +64,11 @@ __all__ = [
     "LLMValidationError",
     "ClaudeError",
     "GeminiError",
+    "GLMError",
 
     # Providers
     "LLMFactory",
     "ClaudeProvider",
     "GeminiProvider",
+    "GLMProvider",
 ]
