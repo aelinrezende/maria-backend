@@ -26,6 +26,8 @@ class Document(BaseModel, table=True):
 
     # Informações básicas
     title: str = Field(nullable=False, index=True)
+    summary: str = Field(nullable=False, max_length=4000)
+    author: str = Field(nullable=False)
 
     # Categorização
     keywords: List[str] = Field(
