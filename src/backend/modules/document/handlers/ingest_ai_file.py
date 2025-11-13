@@ -6,7 +6,10 @@ from typing import TYPE_CHECKING
 from fastapi import UploadFile
 from loguru import logger
 
-from backend.constants.prompts import METADATA_EXTRACTION_PROMPT, RAG_SYSTEM_PROMPT
+from backend.constants.prompts import (
+    METADATA_EXTRACTION_PROMPT,
+    METADATA_EXTRACTION_SYSTEM_PROMPT,
+)
 from backend.exceptions import BadRequestException, InternalServerException
 from backend.integrations.llm.factory import LLMFactory
 from backend.integrations.llm.models import GeminiConfig
@@ -130,7 +133,7 @@ async def _extract_metadata(
         )
 
         response = await llm.complete_message(
-            system_prompt=RAG_SYSTEM_PROMPT,
+            system_prompt=METADATA_EXTRACTION_SYSTEM_PROMPT,
             message=prompt,
             temperature=0.1,
             as_json=True,
