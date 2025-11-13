@@ -27,11 +27,13 @@ class Document(BaseModel, table=True):
     # Informações básicas
     title: str = Field(nullable=False, index=True)
     summary: str = Field(nullable=False, max_length=4000)
-    author: str = Field(nullable=False)
+    authors: List[str] = Field(
+        sa_column=Column(JSON, nullable=False, server_default='[]'),
+    )
 
     # Categorização
     keywords: List[str] = Field(
-        sa_column=Column(JSON, nullable=False), default_factory=list,
+        sa_column=Column(JSON, nullable=False, server_default='[]'),
     )
     kind: DocumentKind = Field(sa_column=Column(
         Enum(DocumentKind), nullable=False)
