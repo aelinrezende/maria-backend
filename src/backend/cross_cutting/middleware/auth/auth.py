@@ -4,7 +4,7 @@ from typing import Annotated
 
 from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from jose import jwt
+from jose import ExpiredSignatureError, JWTError, jwt
 
 from backend.core.config import settings
 from backend.cross_cutting.middleware.auth.models import JwtPayload
@@ -46,10 +46,11 @@ async def authenticate(
             algorithms=[settings.JWT_ALGORITHM]
         ))
 
-        user_id: str = payload.sub
+    except ExpiredSignatureError as exception:
+        raise UnauthorizedException("TOKEN_EXPIRED") from exception
 
-        if user_id is None:
-            raise UnauthorizedException("INVALID_TOKEN")
+    except JWTError as exception:
+        raise UnauthorizedException("INVALID_TOKEN") from exception
 
     except Exception as exception:
         raise UnauthorizedException("INVALID_TOKEN") from exception
