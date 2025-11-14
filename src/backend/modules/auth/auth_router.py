@@ -3,9 +3,11 @@ from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
 from wireup import service
 
+from backend.modules.auth import handlers
 from backend.modules.auth.auth_dto import (
     CompleteRegistrationRequest,
     InviteRequest,
+    LoginRequest,
     ValidateInviteRequest,
 )
 from backend.modules.session.session_dto import SessionResponse
@@ -39,6 +41,20 @@ class AuthRouter:
             self.user_service,
             request.invitation_code
         )
+
+    @auth_router.post(
+        "/login",
+        response_model=SessionResponse,
+        summary="Login de usuário"
+    )
+    async def login(self, request: LoginRequest) -> SessionResponse:
+        """
+        Autentica usuário existente e cria sessão.
+
+        Este endpoint permite que usuários já cadastrados façam login
+        fornecendo e-mail e senha. Um token JWT será gerado para acesso.
+        """
+        return await handlers.login(self.user_service, request)
 
     @auth_router.post(
         "/complete_registration/{invitation_code}",
