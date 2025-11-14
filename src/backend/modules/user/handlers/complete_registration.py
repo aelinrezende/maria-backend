@@ -15,7 +15,6 @@ from backend.exceptions.http_exceptions import (
 from backend.models.session import Session
 from backend.models.user import User
 from backend.modules.auth.auth_dto import CompleteRegistrationRequest
-from backend.modules.session.session_dto import SessionResponse
 from backend.modules.session.session_enums import SessionStatus
 from backend.modules.user.user_enums import UserStatus
 from backend.utils.date import is_past
@@ -30,7 +29,7 @@ async def complete_registration(
     hub: "UserService",
     invitation_code: str,
     request: CompleteRegistrationRequest
-) -> SessionResponse:
+) -> Session:
     """
     Finaliza o cadastro de usuário convocado.
 
@@ -39,7 +38,7 @@ async def complete_registration(
         request: Dados de finalização de cadastro
 
     Returns:
-        SessionResponse: Dados da sessão criada para o usuário
+        Session: Dados da sessão criada para o usuário
 
     Raises:
         NotFoundException: Se código de convite não for encontrado
@@ -80,7 +79,7 @@ async def complete_registration(
 
     # 7. Cria sessão para o usuário
     session = Session(
-        user_id=updated_user.id,
+        user=updated_user,
         token=access_token,
         status=SessionStatus.ACTIVE
     )
@@ -90,4 +89,4 @@ async def complete_registration(
     await hub.unit_of_work.commit()
 
     # 8. Retorna sessão criada
-    return SessionResponse(**session.model_dump())
+    return session

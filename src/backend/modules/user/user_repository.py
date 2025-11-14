@@ -17,9 +17,7 @@ class UserRepository(BaseRepository[User]):
 
     async def find_by_email(self, email: str) -> User | None:
         """Busca usuário por e-mail"""
-        return await self.find_one(
-            User.email == email.lower()
-        )
+        return await self.find_one(User.email == email)
 
     async def find_by_invitation_code(self, invitation_code: str) -> User | None:
         """Busca usuário por código de convite"""
