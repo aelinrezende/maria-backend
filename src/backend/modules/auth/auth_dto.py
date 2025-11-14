@@ -71,6 +71,8 @@ class LoginRequest(BaseRequest):
 
     password: StrongPassword = Field(
         ...,
+        min_length=1,
+        max_length=128,
         description="Senha do usuário"
     )
 
