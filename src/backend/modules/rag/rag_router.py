@@ -6,6 +6,8 @@ from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
 from wireup import service as inject
 
+from backend.cross_cutting.middleware.auth.auth import authenticate
+
 from .rag_dto import RAGQueryRequest
 from .rag_service import RAGService
 
@@ -27,6 +29,7 @@ class RAGRouter:
     async def query_rag_stream(
         self,
         request: RAGQueryRequest,
+        _=Depends(authenticate),
     ) -> StreamingResponse:
         """
         Endpoint para consultas RAG com streaming de respostas.
@@ -43,7 +46,7 @@ class RAGRouter:
             headers={
                 "Cache-Control": "no-cache, no-store, must-revalidate",
                 "Connection": "keep-alive",
-                "X-Accel-Buffering": "no", 
+                "X-Accel-Buffering": "no",
                 "Access-Control-Allow-Origin": "*"
             }
         )

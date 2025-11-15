@@ -14,3 +14,15 @@ class SessionRepository(BaseRepository[Session]):
 
     def __init__(self, connection: DatabaseConnection = Depends()):
         super().__init__(Session, connection)
+
+    async def get_by_token(self, token: str) -> Session | None:
+        """
+        Busca sessão pelo token JWT.
+
+        Args:
+            token: Token JWT a ser buscado
+
+        Returns:
+            Session | None: Sessão encontrada ou None
+        """
+        return await self.find_one(self.model.token == token)

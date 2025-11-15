@@ -39,7 +39,7 @@ def create_access_token(
             minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES
         )
 
-    to_encode.update({"exp": expire})
+    to_encode.update({"exp": expire.timestamp()})
 
     # Gera token
     encoded_jwt = jwt.encode(

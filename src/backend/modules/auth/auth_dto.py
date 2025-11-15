@@ -60,6 +60,23 @@ class CompleteRegistrationRequest(BaseRequest):
     )
 
 
+class LoginRequest(BaseRequest):
+    """Request para login de usuário"""
+
+    email: EmailStr = Field(
+        ...,
+        max_length=255,
+        description="Endereço de e-mail do usuário"
+    )
+
+    password: StrongPassword = Field(
+        ...,
+        min_length=1,
+        max_length=128,
+        description="Senha do usuário"
+    )
+
+
 class CompleteRegistrationResponse(ModelBase):
     """Response para finalização bem-sucedida de cadastro"""
 
