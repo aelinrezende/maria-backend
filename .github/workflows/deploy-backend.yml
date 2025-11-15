@@ -32,11 +32,6 @@ jobs:
           chmod +x free_disk_space.sh
           sudo ./free_disk_space.sh
 
-      - name: Deep Disk Space Cleanup Action
-        uses: jlumbroso/free-disk-space@main
-        with:
-          tool-cache: true
-
       - name: Google Auth
         id: "auth"
         uses: "google-github-actions/auth@v2"
