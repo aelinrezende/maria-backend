@@ -43,12 +43,12 @@ sudo apt-get clean
 df -h
 echo "Removing large directories"
 # deleting 15GB
-# sudo rm -rf /usr/local/.ghcup
-# sudo rm -rf /opt/hostedtoolcache/CodeQL
-# sudo rm -rf /usr/local/lib/android/sdk/ndk
+sudo rm -rf /usr/local/.ghcup
+sudo rm -rf /opt/hostedtoolcache/CodeQL
+sudo rm -rf /usr/local/lib/android/sdk/ndk
 sudo rm -rf /usr/share/dotnet
-# sudo rm -rf /opt/ghc
-# sudo rm -rf /usr/local/share/boost
+sudo rm -rf /opt/ghc
+sudo rm -rf /usr/local/share/boost
 
 # Additional large packages (from workflow steps)
 echo "Removing additional large packages..."
@@ -145,7 +145,7 @@ sudo find /usr/lib/python* -name "*.pyc" -delete 2>/dev/null || echo "   ⚠️ 
 
 echo "   ✅ Fast additional cleanup completed"
 
-# curl -fsSL https://raw.githubusercontent.com/kou/arrow/e49d8ae15583ceff03237571569099a6ad62be32/ci/scripts/util_free_space.sh | bash
+curl -fsSL https://raw.githubusercontent.com/kou/arrow/e49d8ae15583ceff03237571569099a6ad62be32/ci/scripts/util_free_space.sh | bash
 
 echo "Disk space after cleanup:"
 df -h
