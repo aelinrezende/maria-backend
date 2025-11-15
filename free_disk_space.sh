@@ -145,7 +145,7 @@ sudo find /usr/lib/python* -name "*.pyc" -delete 2>/dev/null || echo "   ⚠️ 
 
 echo "   ✅ Fast additional cleanup completed"
 
-curl -fsSL https://raw.githubusercontent.com/kou/arrow/e49d8ae15583ceff03237571569099a6ad62be32/ci/scripts/util_free_space.sh | bash
+# curl -fsSL https://raw.githubusercontent.com/kou/arrow/e49d8ae15583ceff03237571569099a6ad62be32/ci/scripts/util_free_space.sh | bash
 
 echo "Disk space after cleanup:"
 df -h
