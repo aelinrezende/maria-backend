@@ -16,7 +16,7 @@ env:
 jobs:
   build-and-deploy:
     name: Build and Deploy to Cloud Run
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     permissions:
       contents: "read"
@@ -31,15 +31,6 @@ jobs:
           echo "🧹 Running unified disk space cleanup..."
           chmod +x free_disk_space.sh
           sudo ./free_disk_space.sh
-
-      - name: Check working space directory
-        run: du ${GITHUB_WORKSPACE} -h -d 1
-
-      - name: Get more space
-        run: |
-          df . -h
-          sudo rm -rf ${GITHUB_WORKSPACE}/.git
-          df . -h
 
       - name: Deep Disk Space Cleanup Action
         uses: jlumbroso/free-disk-space@main
