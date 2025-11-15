@@ -43,7 +43,12 @@ sudo apt-get clean
 df -h
 echo "Removing large directories"
 # deleting 15GB
-rm -rf /usr/share/dotnet/
+sudo rm -rf /usr/local/.ghcup
+sudo rm -rf /opt/hostedtoolcache/CodeQL
+sudo rm -rf /usr/local/lib/android/sdk/ndk
+sudo rm -rf /usr/share/dotnet
+sudo rm -rf /opt/ghc
+sudo rm -rf /usr/local/share/boost
 
 # Additional large packages (from workflow steps)
 echo "Removing additional large packages..."
@@ -64,6 +69,9 @@ sudo find /opt -maxdepth 1 -mindepth 1 \
     '!' -path /opt/runner \
     '!' -path /opt/runner-cache \
     -exec rm -rf '{}' ';' 2>/dev/null || true
+
+
+
 
 # Remaining tool cache cleanup
 echo "Removing remaining tool cache..."
@@ -105,6 +113,7 @@ sudo rm -rf /usr/share/dotnet/sdk/*/NuGetFallbackFolder || echo "⚠️ .NET SDK
 echo "🗑️ Cleaning GitHub Actions caches..."
 sudo rm -rf /home/runner/actions-runner/cached/_diag/* || echo "⚠️ Actions cache cleanup failed"
 sudo rm -rf /home/runner/work/_temp/* || echo "⚠️ Work temp cleanup failed"
+sudo rm -rf /home/runner/actions-runner/_work/_tool/* || echo "⚠️ Actions tool cache cleanup failed"
 
 echo "🧹 Cleaning language caches..."
 npm cache clean --force 2>/dev/null || echo "⚠️ npm cache clean failed"
@@ -135,3 +144,8 @@ sudo rm -rf /usr/local/lib/python*/__pycache__ 2>/dev/null || echo "   ⚠️ Lo
 sudo find /usr/lib/python* -name "*.pyc" -delete 2>/dev/null || echo "   ⚠️ Python bytecode cleanup skipped"
 
 echo "   ✅ Fast additional cleanup completed"
+
+curl -fsSL https://raw.githubusercontent.com/kou/arrow/e49d8ae15583ceff03237571569099a6ad62be32/ci/scripts/util_free_space.sh | bash
+
+echo "Disk space after cleanup:"
+df -h
