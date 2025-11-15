@@ -16,7 +16,7 @@ env:
 jobs:
   build-and-deploy:
     name: Build and Deploy to Cloud Run
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
 
     permissions:
       contents: "read"
