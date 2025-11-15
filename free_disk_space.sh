@@ -43,12 +43,12 @@ sudo apt-get clean
 df -h
 echo "Removing large directories"
 # deleting 15GB
-sudo rm -rf /usr/local/.ghcup
-sudo rm -rf /opt/hostedtoolcache/CodeQL
-sudo rm -rf /usr/local/lib/android/sdk/ndk
+# sudo rm -rf /usr/local/.ghcup
+# sudo rm -rf /opt/hostedtoolcache/CodeQL
+# sudo rm -rf /usr/local/lib/android/sdk/ndk
 sudo rm -rf /usr/share/dotnet
-sudo rm -rf /opt/ghc
-sudo rm -rf /usr/local/share/boost
+# sudo rm -rf /opt/ghc
+# sudo rm -rf /usr/local/share/boost
 
 # Additional large packages (from workflow steps)
 echo "Removing additional large packages..."
