@@ -17,6 +17,7 @@ from backend.exceptions.handler import register_exception_handler
 from backend.integrations.embeddings import LocalSentenceTransformerProvider
 from backend.integrations.mailgun import MailGun
 from backend.modules.auth.auth_router import AuthRouter, auth_router
+from backend.modules.me.me_router import MeRouter, me_router
 from backend.modules.chunk.chunk_repository import ChunkRepository
 from backend.modules.chunk.chunk_service import ChunkService
 from backend.modules.document.document_repository import DocumentRepository
@@ -69,6 +70,7 @@ def create_app() -> tuple[FastAPI, AsyncContainer]:
     # Incluir routers
     application.include_router(user_router)
     application.include_router(auth_router)
+    application.include_router(me_router)
     application.include_router(document_router)
     application.include_router(rag_router)
 
@@ -97,6 +99,9 @@ def create_app() -> tuple[FastAPI, AsyncContainer]:
             # Session
             SessionRepository,
             SessionService,
+
+            # Profile
+            MeRouter,
 
             # User
             UserRepository,
