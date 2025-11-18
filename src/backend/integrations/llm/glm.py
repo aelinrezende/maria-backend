@@ -67,7 +67,8 @@ class GLMProvider(ILLMProvider):
             system_prompt: Prompt de sistema opcional
 
         Yields:
-            StreamChunk: Chunks da resposta em streaming
+            StreamChunk: Chunks da resposta em streaming incluindo o chunk final
+            com o conteúdo completo.
 
         Raises:
             GLMError: Em caso de erro na API do GLM
@@ -92,15 +93,21 @@ class GLMProvider(ILLMProvider):
                 )
 
             stream = await self.client.chat.completions.create(**params)
+            full_content = ""
 
             async for chunk in stream:
-                if chunk.choices and chunk.choices[0].delta.content:
+                content = chunk.choices[0].delta.content if chunk.choices else None
+
+                if content:
                     yield StreamChunk(
-                        content=chunk.choices[0].delta.content,
-                        is_final=False
+                        content=content, is_final=False
                     )
 
-            yield StreamChunk(content="", is_final=True)
+                    full_content += content
+
+            yield StreamChunk(
+                content=full_content, is_final=True
+            )
 
         except openai.AuthenticationError as exception:
             raise LLMAuthenticationError(
