@@ -1,6 +1,7 @@
 """Recursos para autenticação JWT FastAPI."""
 
-from typing import Annotated
+from contextvars import ContextVar
+from typing import Annotated, Optional
 
 from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -8,13 +9,20 @@ from jose import ExpiredSignatureError, JWTError, jwt
 
 from backend.core.config import settings
 from backend.cross_cutting.middleware.auth.models import JwtPayload
-from backend.exceptions.http_exceptions import UnauthorizedException
+from backend.exceptions.http_exceptions import (
+    InternalServerException,
+    UnauthorizedException,
+)
 from backend.models.user import User
 from backend.modules.session.session_enums import SessionStatus
 from backend.modules.session.session_repository import SessionRepository
 from backend.utils import date
 
 security = HTTPBearer(auto_error=False)
+
+requesting_user: ContextVar[
+    Optional[User]
+] = ContextVar('requesting_user', default=None)
 
 
 async def authenticate(
@@ -63,4 +71,25 @@ async def authenticate(
     if payload.exp and date.is_past(payload.expiration_date):
         raise UnauthorizedException("TOKEN_EXPIRED")
 
+    requesting_user.set(session.user)
+
     return session.user
+
+
+def get_requesting_user() -> User:
+    """
+    Retorna o usuário atualmente autenticado.
+
+    Args:
+        current_user: Usuário autenticado via dependência
+
+    Returns:
+        User: Usuário autenticado
+
+    Raises:
+        InternalServerException: Se usuário não estiver autenticado
+    """
+    if requesting_user.get() is None:
+        raise InternalServerException("USER_NOT_AUTHENTICATED")
+
+    return requesting_user.get()
