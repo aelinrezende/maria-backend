@@ -1,7 +1,7 @@
 """Middleware para carregar contexto histórico de mensagens."""
 
 from contextvars import ContextVar
-from typing import List, Optional
+from typing import List
 
 from fastapi.params import Depends
 
@@ -26,7 +26,7 @@ def set_chat_messages(messages: List[Message]) -> None:
     conversation_history.set(messages)
 
 
-def get_chat_messages() -> Optional[List[Message]]:
+def get_chat_messages() -> List[Message]:
     """
     Retorna o histórico de conversas do contexto atual.
 
@@ -36,7 +36,7 @@ def get_chat_messages() -> Optional[List[Message]]:
     return conversation_history.get()
 
 
-def get_chat_context() -> Optional[List[LLMMessage]]:
+def get_chat_context() -> List[LLMMessage]:
     """
     Retorna N últimas mensagens do histórico no formato LLMMessage.
 
