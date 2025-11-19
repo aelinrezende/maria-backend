@@ -65,7 +65,8 @@ class ClaudeProvider(ILLMProvider):
             system_prompt: Prompt de sistema opcional
 
         Yields:
-            StreamChunk: Chunks da resposta em streaming
+            StreamChunk: Chunks da resposta em streaming, incluindo o chunk final
+            com o conteúdo completo.
 
         Raises:
             ClaudeError: Em caso de erro na API do Claude
@@ -90,18 +91,20 @@ class ClaudeProvider(ILLMProvider):
             if system_prompt:
                 request_params["system"] = system_prompt
 
+            full_content = ""
+
             # Inicia streaming
             async with self.client.messages.stream(**request_params) as stream:
                 async for chunk in stream.text_stream:
                     yield StreamChunk(
-                        content=chunk,
-                        is_final=False
+                        content=chunk, is_final=False
                     )
+
+                    full_content += chunk
 
                 # Envia chunk final para indicar fim do streaming
                 yield StreamChunk(
-                    content="",
-                    is_final=True
+                    content=full_content, is_final=True
                 )
 
         except anthropic.AuthenticationError as exception:

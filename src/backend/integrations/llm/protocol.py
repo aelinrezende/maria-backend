@@ -41,7 +41,8 @@ class ILLMProvider(Protocol):
             system_prompt: Prompt de sistema opcional
 
         Yields:
-            StreamChunk: Chunks da resposta em streaming
+            StreamChunk: Chunks da resposta em streaming incluindo o chunk final
+            com o conteúdo completo.
 
         Raises:
             LLMError: Em caso de erro na comunicação

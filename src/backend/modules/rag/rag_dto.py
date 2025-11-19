@@ -6,6 +6,8 @@ from sqlmodel import Field, SQLModel
 from backend.models.chunk import Chunk
 from backend.modules.base.base_dto import BaseResponse, ModelBase
 from backend.modules.document.document_enums import DocumentKind
+from backend.modules.message.message_dto import ConversationPair
+from backend.modules.message.message_enums import MessageRole
 from backend.modules.rag.rag_enum import RAGChunkKind
 
 
@@ -21,6 +23,20 @@ class SourceInfo(BaseResponse):
     date: Optional[str] = Field(default=None)
 
 
+class MessageResponse(ModelBase):
+    """DTO de resposta para Message."""
+
+    content: str = Field()
+    author_role: MessageRole = Field()
+    sources: List[SourceInfo] = Field(default_factory=list)
+
+
+class Conversation(BaseResponse):
+    """Estrutura de conversa com mensagens do usuário e assistente."""
+    user: MessageResponse
+    assistant: MessageResponse
+
+
 class RAGQueryRequest(SQLModel):
     """Payload para consulta RAG."""
 
@@ -33,18 +49,56 @@ class RAGQueryRequest(SQLModel):
 
 class RAGStreamChunk(ModelBase):
     """Chunk individual de streaming com metadados."""
-    content: Optional[str] = Field(
-        default=None, description="Resposta gerada pela Mar.IA"
-    )
-    kind: RAGChunkKind = Field(description="Tipo do chunk")
-    sources: Optional[List[SourceInfo]] = Field(
-        default=None, description="Informações das fontes utilizadas"
-    )
+    content: Optional[str] = Field(default=None)
+    kind: RAGChunkKind = Field()
+    sources: Optional[List[SourceInfo]] = Field(default=None)
+    conversation: Optional[Conversation] = Field(default=None)
 
     @property
     def streamed(self) -> str:
         """Formata o chunk para streaming no formato SSE."""
         return f"data: {self.model_dump_json(exclude_none=True)}\n\n"
+
+    @staticmethod
+    def stream_content(content: str) -> str:
+        """
+        Retorna o chunk de conteúdo formatado para streaming no formato SSE.
+
+        Args:
+            content: Conteúdo gerado pelo LLM
+        """
+        return RAGStreamChunk(content=content, kind=RAGChunkKind.CONTENT).streamed
+
+    @staticmethod
+    def stream_source(sources: List[SourceInfo]) -> str:
+        """
+        Retorna o chunk de fontes formatado para streaming no formato SSE.
+
+        Args:
+            sources: Lista de informações das fontes utilizadas
+        """
+        return RAGStreamChunk(kind=RAGChunkKind.SOURCES, sources=sources).streamed
+
+    @staticmethod
+    def stream_final(messages: ConversationPair, sources: Optional[List[SourceInfo]] = None) -> str:
+        """
+        Retorna o chunk final formatado para streaming SSE.
+
+        Args:
+            messages: Tupla com mensagens do usuário e do assistente, respectivamente.
+            sources: Lista de informações das fontes utilizadas
+        """
+        user_message, assistant_message = messages
+
+        return RAGStreamChunk(
+            kind=RAGChunkKind.FINAL,
+            conversation=Conversation(
+                user=user_message,
+                assistant=MessageResponse(
+                    **assistant_message.model_dump(), sources=sources or []
+                )
+            )
+        ).streamed
 
 
 class UserInputEvaluation(SQLModel):

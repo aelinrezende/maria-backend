@@ -10,12 +10,12 @@ from backend.constants.prompts import (
     RAG_SYSTEM_PROMPT,
     RAG_USER_PROMPT_TEMPLATE,
 )
+from backend.cross_cutting.middleware.auth import get_requesting_user
 from backend.integrations.llm.models import Message
 from backend.models.chunk import Chunk
 from backend.modules.rag import handlers
 from backend.modules.rag.handlers.source_extraction import extract_source_info
 from backend.modules.rag.rag_dto import RAGStreamChunk
-from backend.modules.rag.rag_enum import RAGChunkKind
 
 if TYPE_CHECKING:
     from backend.modules.rag.rag_service import RAGService
@@ -37,6 +37,8 @@ async def orchestrate_rag(
     5. Gera resposta com LLM em streaming.
     """
     logger.info(f"Iniciando orquestração RAG para query: {query}")
+
+    requesting_user = get_requesting_user()
 
     # 1. Expansão e extração da query
     expansion_result = await handlers.expand_user_query(hub, query)
@@ -62,7 +64,8 @@ async def orchestrate_rag(
 
         # Usa o texto refinado no prompt do usuário
         user_prompt = RAG_USER_PROMPT_TEMPLATE.format(
-            chunks_context=refinement_result.refined_text, user_query=expanded_query
+            chunks_context=refinement_result.refined_text,
+            user_query=expanded_query
         )
     else:
         # 4.2 Usa prompt especializado para ausência de fontes
@@ -72,28 +75,38 @@ async def orchestrate_rag(
 
     # Extrai informações estruturadas das fontes
     sources = extract_source_info(similar_chunks)
-    
-    yield RAGStreamChunk(
-        kind=RAGChunkKind.SOURCES,
-        sources=sources
-    ).streamed
 
-    await asyncio.sleep(0) 
+    yield RAGStreamChunk.stream_source(sources)
+    await asyncio.sleep(0)
 
     # 5. Gera resposta com LLM em streaming
     messages = [Message(role="user", content=user_prompt)]
+    full_content = ""
 
     async for chunk in hub.llm_provider.stream_chat(
         messages=messages, system_prompt=RAG_SYSTEM_PROMPT
     ):
-        if chunk.content:
-            yield RAGStreamChunk(
-                content=chunk.content, kind=RAGChunkKind.CONTENT
-            ).streamed
+        if chunk.content and not chunk.is_final:
+            yield RAGStreamChunk.stream_content(
+                content=chunk.content
+            )
 
-            await asyncio.sleep(0) 
+            await asyncio.sleep(0)
 
-    yield RAGStreamChunk(kind=RAGChunkKind.FINAL).streamed
+        if chunk.is_final:
+            full_content = chunk.content
+
+    # 6. Armazena conversa no banco
+    conversation = hub.message_repository.insert_conversation(
+        requesting_user.id,
+        query,
+        full_content,
+        similar_chunks
+    )
+
+    await hub.unit_of_work.commit()
+
+    yield RAGStreamChunk.stream_final(conversation, sources)
 
 
 def _search_similar_chunks(
