@@ -1,12 +1,14 @@
 """Router para endpoints RAG (Retrieval-Augmented Generation)."""
 
+
 from fastapi import Depends
 from fastapi.responses import StreamingResponse
 from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
 from wireup import service as inject
 
-from backend.cross_cutting.middleware.auth.auth import authenticate
+from backend.cross_cutting.middleware.auth import authenticate
+from backend.cross_cutting.middleware.chat.chat import load_user_messages
 
 from .rag_dto import RAGQueryRequest
 from .rag_service import RAGService
@@ -30,6 +32,7 @@ class RAGRouter:
         self,
         request: RAGQueryRequest,
         _=Depends(authenticate),
+        __=Depends(load_user_messages)
     ) -> StreamingResponse:
         """
         Endpoint para consultas RAG com streaming de respostas.

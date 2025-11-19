@@ -22,6 +22,8 @@ from backend.modules.chunk.chunk_service import ChunkService
 from backend.modules.document.document_repository import DocumentRepository
 from backend.modules.document.document_router import DocumentRouter, document_router
 from backend.modules.document.document_service import DocumentService
+from backend.modules.me.me_router import MeRouter, me_router
+from backend.modules.message.message_repository import MessageRepository
 from backend.modules.rag.rag_router import RAGRouter, rag_router
 from backend.modules.rag.rag_service import RAGService
 from backend.modules.session.session_repository import SessionRepository
@@ -69,6 +71,7 @@ def create_app() -> tuple[FastAPI, AsyncContainer]:
     # Incluir routers
     application.include_router(user_router)
     application.include_router(auth_router)
+    application.include_router(me_router)
     application.include_router(document_router)
     application.include_router(rag_router)
 
@@ -97,6 +100,12 @@ def create_app() -> tuple[FastAPI, AsyncContainer]:
             # Session
             SessionRepository,
             SessionService,
+
+            # Profile
+            MeRouter,
+
+            # Message
+            MessageRepository,
 
             # User
             UserRepository,

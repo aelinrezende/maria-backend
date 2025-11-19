@@ -67,7 +67,8 @@ class GeminiProvider(ILLMProvider):
             system_prompt: Prompt de sistema opcional
 
         Yields:
-            StreamChunk: Chunks da resposta em streaming
+            StreamChunk: Chunks da resposta em streaming, incluindo o chunk final
+            com o conteúdo completo.
 
         Raises:
             GeminiError: Em caso de erro na API do Gemini
@@ -91,17 +92,18 @@ class GeminiProvider(ILLMProvider):
             }
 
             response = await self.client.aio.models.generate_content_stream(**request_params)
+            full_content = ""
 
             async for chunk in response:
                 if chunk.text:
                     yield StreamChunk(
-                        content=chunk.text,
-                        is_final=False
+                        content=chunk.text, is_final=False
                     )
 
+                    full_content += chunk.text
+
             yield StreamChunk(
-                content="",
-                is_final=True
+                content=full_content, is_final=True
             )
 
         except Exception as exception:

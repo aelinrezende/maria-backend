@@ -6,9 +6,11 @@ from typing import AsyncGenerator
 from fastapi.params import Depends
 from wireup import service
 
+from backend.core.unit_of_work import UnitOfWork
 from backend.integrations.embeddings import LocalSentenceTransformerProvider
 from backend.integrations.llm import LLMFactory
 from backend.modules.chunk.chunk_repository import ChunkRepository
+from backend.modules.message.message_repository import MessageRepository
 from backend.modules.rag import handlers
 from backend.modules.rag.rag_dto import RAGQueryRequest, RAGStreamChunk
 from backend.modules.rag.rag_enum import RAGChunkKind
@@ -21,13 +23,20 @@ class RAGService:
     def __init__(
         self,
         embeddings: LocalSentenceTransformerProvider = Depends(),
-        chunk_repository: ChunkRepository = Depends()
+        chunk_repository: ChunkRepository = Depends(),
+        message_repository: MessageRepository = Depends(),
+        unit_of_work: UnitOfWork = Depends(),
     ):
         self.embeddings = embeddings
         self.chunk_repository = chunk_repository
+        self.message_repository = message_repository
+        self.unit_of_work = unit_of_work
         self.llm_provider = LLMFactory.create_provider()
 
-    async def query_rag_stream(self, request: RAGQueryRequest) -> AsyncGenerator[str, None]:
+    async def query_rag_stream(
+        self,
+        request: RAGQueryRequest
+    ) -> AsyncGenerator[str, None]:
         """
         Realiza consultas RAG com streaming de respostas em tempo real.
 

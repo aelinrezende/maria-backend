@@ -6,10 +6,11 @@ e configurações dos provedores LLM.
 """
 
 from dataclasses import dataclass
-from typing import Literal
+from typing import List, Literal
 
 from backend.core.config import settings
 from backend.interfaces.llm import ILLMConfig
+from backend.models.message import Message as MessageModel
 
 
 @dataclass
@@ -17,6 +18,19 @@ class Message:
     """Representa uma mensagem no chat."""
     role: Literal["user", "assistant"]
     content: str
+
+    @staticmethod
+    def from_messages_model(messages: List[MessageModel]) -> List["Message"]:
+        """
+        Converte um modelo de mensagem do banco para o modelo Message.
+
+        Args:
+            message: Instância do modelo de mensagem do banco
+        """
+        return [Message(
+            role=message.author_role.value.lower(),
+            content=message.content
+        ) for message in messages]
 
 
 @dataclass
