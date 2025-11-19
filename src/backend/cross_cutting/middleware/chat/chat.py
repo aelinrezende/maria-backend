@@ -31,7 +31,7 @@ def get_chat_messages() -> List[Message]:
     Retorna o histórico de conversas do contexto atual.
 
     Returns:
-        Lista de mensagens ou None se não definido
+        Lista de mensagens
     """
     return conversation_history.get()
 
@@ -41,7 +41,7 @@ def get_chat_context() -> List[LLMMessage]:
     Retorna N últimas mensagens do histórico no formato LLMMessage.
 
     Returns:
-        Lista de mensagens ou None se não definido
+        Lista de mensagens
     """
     return LLMMessage.from_messages_model(conversation_history.get())
 
