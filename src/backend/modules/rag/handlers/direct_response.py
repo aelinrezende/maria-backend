@@ -12,6 +12,7 @@ from loguru import logger
 
 from backend.constants import RAG_DIRECT_RESPONSE_PROMPT, RAG_SYSTEM_PROMPT
 from backend.cross_cutting.middleware.auth import get_requesting_user
+from backend.cross_cutting.middleware.chat import get_chat_context
 from backend.exceptions.http_exceptions import InternalServerException
 from backend.integrations.llm import Message
 from backend.modules.rag.rag_dto import RAGStreamChunk
@@ -41,12 +42,15 @@ async def generate_direct_response(hub: "RAGService", user_input: str) -> AsyncG
         requesting_user = get_requesting_user()
 
         # Prepara mensagem para o LLM adicionando contexto como prefixo da mensagem do usuário
-        messages = [Message(
-            role="user",
-            content=RAG_DIRECT_RESPONSE_PROMPT.format(
-                user_input=user_input
+        messages = [
+            *get_chat_context(),
+            Message(
+                role="user",
+                content=RAG_DIRECT_RESPONSE_PROMPT.format(
+                    user_input=user_input
+                )
             )
-        )]
+        ]
 
         full_content = ""
 

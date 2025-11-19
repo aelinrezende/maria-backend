@@ -11,6 +11,9 @@ from backend.constants.prompts import (
     RAG_USER_PROMPT_TEMPLATE,
 )
 from backend.cross_cutting.middleware.auth import get_requesting_user
+from backend.cross_cutting.middleware.chat.chat import (
+    get_chat_context,
+)
 from backend.integrations.llm.models import Message
 from backend.models.chunk import Chunk
 from backend.modules.rag import handlers
@@ -79,8 +82,12 @@ async def orchestrate_rag(
     yield RAGStreamChunk.stream_source(sources)
     await asyncio.sleep(0)
 
-    # 5. Gera resposta com LLM em streaming
-    messages = [Message(role="user", content=user_prompt)]
+    # 5. Prepara mensagens com contexto histórico
+    messages = [
+        *get_chat_context(),
+        Message(role="user", content=user_prompt)
+    ]
+
     full_content = ""
 
     async for chunk in hub.llm_provider.stream_chat(

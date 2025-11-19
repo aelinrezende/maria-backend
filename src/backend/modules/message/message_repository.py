@@ -4,6 +4,7 @@
 from typing import List, Optional
 
 from fastapi.params import Depends
+from sqlmodel import col, desc
 from wireup import service
 
 from backend.core.database import DatabaseConnection
@@ -38,10 +39,13 @@ class MessageRepository(BaseRepository[Message]):
         :return: Tupla com as mensagens inseridas (usuário, assistente).
         """
         user_message = Message(
-            user_id=user_id, content=user_input, author_role=MessageRole.USER
+            user_id=user_id,
+            content=user_input,
+            author_role=MessageRole.USER
         )
 
         assistant_message = Message(
+            user_id=user_id,
             content=assistant_response,
             author_role=MessageRole.ASSISTANT,
             chunks=similar_chunks or []
@@ -50,3 +54,28 @@ class MessageRepository(BaseRepository[Message]):
         self.insert_multiple([user_message, assistant_message])
 
         return ConversationPair(user_message, assistant_message)
+
+    async def get_last_n_messages(
+        self,
+        user_id: str,
+        limit: int = 10
+    ) -> List[Message]:
+        """
+        Recupera as últimas N mensagens de um usuário, ordenadas por data (mais antigas primeiro).
+
+        Args:
+            user_id: ID do usuário
+            limit: Número máximo de mensagens a recuperar
+
+        Returns:
+            Lista de mensagens ordenadas por created_at (mais antigas primeiro)
+        """
+        query = self.query.where(
+            col(Message.user_id) == user_id,
+            col(Message.author_role).in_(  # pylint: disable=E1101
+                [MessageRole.USER, MessageRole.ASSISTANT]
+            )).order_by(desc(Message.created_at)).limit(limit)
+
+        result = await self.run(query)
+
+        return list(reversed(result.scalars().all()))
