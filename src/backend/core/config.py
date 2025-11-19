@@ -55,6 +55,7 @@ class Settings(BaseSettings):
     # Configurações RAG
     RAG_TOP_K_CHUNKS: int = 5
     RAG_MAX_SEARCH_ATTEMPTS: int = 2
+    RAG_MAX_CONTEXT_MESSAGES: int = 50
 
     # Configurações do fluxo RAG
     ENABLE_QUERY_EXPANSION: bool = True
