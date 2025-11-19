@@ -39,10 +39,13 @@ class MessageRepository(BaseRepository[Message]):
         :return: Tupla com as mensagens inseridas (usuário, assistente).
         """
         user_message = Message(
-            user_id=user_id, content=user_input, author_role=MessageRole.USER
+            user_id=user_id,
+            content=user_input,
+            author_role=MessageRole.USER
         )
 
         assistant_message = Message(
+            user_id=user_id,
             content=assistant_response,
             author_role=MessageRole.ASSISTANT,
             chunks=similar_chunks or []

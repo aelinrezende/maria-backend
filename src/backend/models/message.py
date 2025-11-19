@@ -16,9 +16,8 @@ class Message(BaseModel, table=True):
     """Modelo de mensagem para histórico de conversas"""
 
     # Relacionamentos
-    # Nulo para mensagens do sistema
     user_id: str = Field(
-        nullable=True,
+        nullable=False,
         foreign_key="user.id",
         ondelete="CASCADE"
     )
