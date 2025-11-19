@@ -31,8 +31,10 @@ class MessageRepository(BaseRepository[Message]):
         """
         Insere uma conversa composta por mensagem do usuário e do assistente.
 
-        :param user_message: Mensagem do usuário.
-        :param assistant_message: Mensagem do assistente.
+        :param user_id: ID do usuário.
+        :param user_input: Mensagem enviada pelo usuário.
+        :param assistant_response: Resposta gerada pelo assistente.
+        :param similar_chunks: Lista opcional de trechos similares (chunks) associados à resposta do assistente.
         :return: Tupla com as mensagens inseridas (usuário, assistente).
         """
         user_message = Message(
