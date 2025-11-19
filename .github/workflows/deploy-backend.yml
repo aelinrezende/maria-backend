@@ -180,6 +180,7 @@ jobs:
             --set-env-vars "CHUNK_OVERLAP=${{ vars.CHUNK_OVERLAP || '50' }}" \
             --set-env-vars "RAG_TOP_K_CHUNKS=${{ vars.RAG_TOP_K_CHUNKS || '5' }}" \
             --set-env-vars "RAG_MAX_SEARCH_ATTEMPTS=${{ vars.RAG_MAX_SEARCH_ATTEMPTS || '2' }}" \
+            --set-env-vars "RAG_MAX_CONTEXT_MESSAGES=${{ vars.RAG_MAX_CONTEXT_MESSAGES || '20' }}" \
             --set-env-vars "EMBEDDING_MODEL=${{ vars.EMBEDDING_MODEL || 'intfloat/multilingual-e5-base' }}" \
             --set-env-vars "EMBEDDING_DIMENSION=${{ vars.EMBEDDING_DIMENSION || '768' }}" \
             --set-env-vars "EMBEDDING_PROVIDER=${{ vars.EMBEDDING_PROVIDER || 'local' }}" \
