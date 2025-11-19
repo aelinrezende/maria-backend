@@ -153,12 +153,12 @@ jobs:
             --platform managed \
             --allow-unauthenticated \
             --add-cloudsql-instances ${{ vars.CLOUD_SQL_CONNECTION_NAME }} \
-            --memory 4Gi \
+            --memory ${{ vars.GCLOUD_MEMORY || '4Gi' }} \
             --cpu 2 \
             --timeout 1000 \
             --concurrency 10 \
-            --max-instances 10 \
-            --min-instances 0 \
+            --max-instances ${{ vars.GCLOUD_MAX_INSTANCES || '10' }} \
+            --min-instances ${{ vars.GCLOUD_MIN_INSTANCES || '0' }} \
             --set-env-vars "DATABASE_URL=${{ secrets.DATABASE_URL }}" \
             --set-env-vars "CLAUDE_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}" \
             --set-env-vars "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" \
