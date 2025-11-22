@@ -24,6 +24,8 @@ from backend.modules.document.document_router import DocumentRouter, document_ro
 from backend.modules.document.document_service import DocumentService
 from backend.modules.me.me_router import MeRouter, me_router
 from backend.modules.message.message_repository import MessageRepository
+from backend.modules.message.message_router import MessageRouter, message_router
+from backend.modules.message.message_service import MessageService
 from backend.modules.rag.rag_router import RAGRouter, rag_router
 from backend.modules.rag.rag_service import RAGService
 from backend.modules.session.session_repository import SessionRepository
@@ -66,6 +68,7 @@ def create_app() -> tuple[FastAPI, AsyncContainer]:
         docs_url="/docs",
         redoc_url="/redoc",
         lifespan=lifespan,
+        swagger_ui_parameters={"persistAuthorization": True},
     )
 
     # Incluir routers
@@ -74,6 +77,7 @@ def create_app() -> tuple[FastAPI, AsyncContainer]:
     application.include_router(me_router)
     application.include_router(document_router)
     application.include_router(rag_router)
+    application.include_router(message_router)
 
     # Configurar CORS
     application.add_middleware(
@@ -106,6 +110,8 @@ def create_app() -> tuple[FastAPI, AsyncContainer]:
 
             # Message
             MessageRepository,
+            MessageRouter,
+            MessageService,
 
             # User
             UserRepository,

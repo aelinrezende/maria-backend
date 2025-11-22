@@ -1,6 +1,7 @@
 """Repositório para operações de persistência de Message."""
 
 
+from datetime import datetime
 from typing import List, Optional
 
 from fastapi.params import Depends
@@ -10,8 +11,9 @@ from wireup import service
 from backend.core.database import DatabaseConnection
 from backend.models.chunk import Chunk
 from backend.models.message import Message
+from backend.modules.base.base_dto import PaginatedResponse
 from backend.modules.base.base_repository import BaseRepository
-from backend.modules.message.message_dto import ConversationPair
+from backend.modules.message.message_dto import ConversationPair, MessageResponse
 from backend.modules.message.message_enums import MessageRole
 
 
@@ -79,3 +81,52 @@ class MessageRepository(BaseRepository[Message]):
         result = await self.run(query)
 
         return list(reversed(result.scalars().all()))
+
+    async def get_cursor_paginated_messages(
+        self,
+        user_id: str,
+        limit: int = 10,
+        cursor: Optional[datetime] = None,
+    ) -> PaginatedResponse[MessageResponse]:
+        """
+        Recupera mensagens paginadas usando cursor-based pagination.
+
+        Args:
+            user_id: ID do usuário
+            limit: Número máximo de mensagens a retornar
+            cursor: Timestamp do cursor para paginação (None para primeira página)
+
+        Returns:
+            PaginatedResponse com MessageResponse formatados e metadados de paginação
+        """
+        query = self.query.where(
+            col(Message.user_id) == user_id
+        )
+
+        if cursor:
+            query = query.where(col(Message.created_at) < cursor)
+
+        # Ordena por data descendente (mais recentes primeiro)
+        query = query.order_by(desc(Message.created_at)).limit(limit + 1)
+        messages = list((await self.run(query)).scalars().all())
+
+        has_next = len(messages) > limit
+
+        # Remove a mensagem extra usada para verificação
+        if has_next:
+            messages = messages[:limit]
+
+        # Reverte para ordem cronológica (mais antigas primeiro)
+        messages = list(reversed(messages))
+
+        cursor_next = None
+
+        if has_next and messages:
+            # Usa a created_at da última mensagem retornada como próximo cursor
+            cursor_next = messages[-1].created_at
+
+        return PaginatedResponse[MessageResponse](
+            data=MessageResponse.from_messages(messages),
+            has_next=has_next,
+            cursor_next=cursor_next
+        )
