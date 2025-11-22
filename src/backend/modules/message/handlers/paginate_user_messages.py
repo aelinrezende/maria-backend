@@ -13,8 +13,8 @@ async def paginate_user_messages(
     Processa requisição de paginação de mensagens.
 
     Args:
-        request: Parâmetros da requisição de paginação
-        message_repository: Repository de mensagens
+        hub: Instância do MessageService
+        request: Parâmetros de paginação 
 
     Returns:
         Resposta paginada com mensagens do usuário
