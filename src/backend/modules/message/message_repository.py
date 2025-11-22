@@ -1,7 +1,6 @@
 """Repositório para operações de persistência de Message."""
 
 
-from datetime import datetime
 from typing import List, Optional
 
 from fastapi.params import Depends
@@ -11,7 +10,7 @@ from wireup import service
 from backend.core.database import DatabaseConnection
 from backend.models.chunk import Chunk
 from backend.models.message import Message
-from backend.modules.base.base_dto import PaginatedResponse
+from backend.modules.base.base_dto import PaginatedResponse, PaginateRequest
 from backend.modules.base.base_repository import BaseRepository
 from backend.modules.message.message_dto import ConversationPair, MessageResponse
 from backend.modules.message.message_enums import MessageRole
@@ -85,8 +84,7 @@ class MessageRepository(BaseRepository[Message]):
     async def get_cursor_paginated_messages(
         self,
         user_id: str,
-        limit: int = 10,
-        cursor: Optional[datetime] = None,
+        request: PaginateRequest,
     ) -> PaginatedResponse[MessageResponse]:
         """
         Recupera mensagens paginadas usando cursor-based pagination.
@@ -102,6 +100,8 @@ class MessageRepository(BaseRepository[Message]):
         query = self.query.where(
             col(Message.user_id) == user_id
         )
+        print("request:", request)
+        cursor, limit = request.cursor, request.limit
 
         if cursor:
             query = query.where(col(Message.created_at) < cursor)
