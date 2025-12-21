@@ -5,11 +5,17 @@ Configurações centralizadas do sistema Mar.IA
 import os
 
 from loguru import logger
+from pydantic import ConfigDict
 from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
     """Configurações do sistema Mar.IA"""
+
+    model_config = ConfigDict(
+        env_file=".env",
+        case_sensitive=True
+    )
 
     # Configurações básicas
     APP_NAME: str = "Mar.IA"
@@ -90,9 +96,8 @@ class Settings(BaseSettings):
     # Configurações de Migrations Automáticas
     AUTO_MIGRATIONS: bool = True
 
-    class Config:
-        env_file = ".env"
-        case_sensitive = True
+    # Configurações de Paginação
+    PAGINATION_LIMIT: int = 10
 
 
 # Instância global das configurações

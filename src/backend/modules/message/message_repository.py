@@ -4,14 +4,16 @@
 from typing import List, Optional
 
 from fastapi.params import Depends
+from sqlalchemy.orm import selectinload
 from sqlmodel import col, desc
 from wireup import service
 
 from backend.core.database import DatabaseConnection
 from backend.models.chunk import Chunk
 from backend.models.message import Message
+from backend.modules.base.base_dto import PaginatedResponse, PaginateRequest
 from backend.modules.base.base_repository import BaseRepository
-from backend.modules.message.message_dto import ConversationPair
+from backend.modules.message.message_dto import ConversationPair, MessageResponse
 from backend.modules.message.message_enums import MessageRole
 
 
@@ -79,3 +81,55 @@ class MessageRepository(BaseRepository[Message]):
         result = await self.run(query)
 
         return list(reversed(result.scalars().all()))
+
+    async def get_cursor_paginated_messages(
+        self,
+        user_id: str,
+        request: PaginateRequest,
+    ) -> PaginatedResponse[MessageResponse]:
+        """
+        Recupera mensagens paginadas usando cursor-based pagination.
+
+        Args:
+            user_id: ID do usuário
+            limit: Número máximo de mensagens a retornar
+            cursor: Timestamp do cursor para paginação (None para primeira página)
+
+        Returns:
+            PaginatedResponse com MessageResponse formatados e metadados de paginação
+        """
+        query = self.query.where(
+            col(Message.user_id) == user_id
+        ).options(
+            selectinload(Message.chunks).selectinload(Chunk.document)
+        )
+
+        cursor, limit = request.cursor, request.limit
+
+        if cursor:
+            query = query.where(col(Message.created_at) < cursor)
+
+        # Ordena por data descendente (mais recentes primeiro)
+        query = query.order_by(desc(Message.created_at)).limit(limit + 1)
+        messages = list((await self.run(query)).scalars().all())
+
+        has_next = len(messages) > limit
+
+        # Remove a mensagem extra usada para verificação
+        if has_next:
+            messages = messages[:limit]
+
+        cursor_next = None
+
+        if has_next and messages:
+            # Usa a created_at da última mensagem retornada como próximo cursor
+            cursor_next = messages[-1].created_at
+
+        # Reverte para ordem cronológica (mais antigas primeiro)
+        messages = list(reversed(messages))
+
+        return PaginatedResponse[MessageResponse](
+            data=MessageResponse.from_messages(messages),
+            has_next=has_next,
+            cursor_next=cursor_next
+        )
