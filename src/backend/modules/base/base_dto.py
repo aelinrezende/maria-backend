@@ -21,12 +21,15 @@ class BaseRequest(SQLModel):
 
 class BaseResponse(SQLModel):
     """Modelo base para Responses."""
-    model_config = ConfigDict(use_enum_values=True)
+    model_config = ConfigDict(
+        use_enum_values=True,
+        populate_by_name=True,
+        alias_generator=to_camel
+    )
 
 
 class ModelBase(BaseResponse):
     """Modelo base para DTOs."""
-    model_config = ConfigDict(use_enum_values=True)
 
     id: Optional[str] = None
     created_at: Optional[datetime] = None
