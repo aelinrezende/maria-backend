@@ -4,6 +4,7 @@
 from typing import List, Optional
 
 from fastapi.params import Depends
+from sqlalchemy.orm import selectinload
 from sqlmodel import col, desc
 from wireup import service
 
@@ -99,8 +100,10 @@ class MessageRepository(BaseRepository[Message]):
         """
         query = self.query.where(
             col(Message.user_id) == user_id
+        ).options(
+            selectinload(Message.chunks).selectinload(Chunk.document)
         )
-        print("request:", request)
+
         cursor, limit = request.cursor, request.limit
 
         if cursor:
@@ -116,14 +119,14 @@ class MessageRepository(BaseRepository[Message]):
         if has_next:
             messages = messages[:limit]
 
-        # Reverte para ordem cronológica (mais antigas primeiro)
-        messages = list(reversed(messages))
-
         cursor_next = None
 
         if has_next and messages:
             # Usa a created_at da última mensagem retornada como próximo cursor
             cursor_next = messages[-1].created_at
+
+        # Reverte para ordem cronológica (mais antigas primeiro)
+        messages = list(reversed(messages))
 
         return PaginatedResponse[MessageResponse](
             data=MessageResponse.from_messages(messages),
