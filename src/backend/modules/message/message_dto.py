@@ -1,10 +1,13 @@
 """DTOs para mensagens."""
 
-from datetime import datetime
-from typing import List, NamedTuple
 
-from backend.models.base import BaseModel
+from typing import List, NamedTuple, Optional
+
+from pydantic import Field
+
 from backend.models.message import Message
+from backend.modules.base.base_dto import BaseResponse, ModelBase
+from backend.modules.document.document_enums import DocumentKind
 
 
 class ConversationPair(NamedTuple):
@@ -13,19 +16,39 @@ class ConversationPair(NamedTuple):
     assistant_message: Message
 
 
-class MessageResponse(BaseModel):
+class SourceInfo(BaseResponse):
+    """Informações estruturadas de uma fonte utilizada no RAG."""
+    order: int = Field()
+    title: str = Field()
+    source: str = Field()
+    authors: List[str] = Field(default_factory=list)
+    summary: str = Field()
+    kind: DocumentKind = Field()
+    url: Optional[str] = Field(default=None)
+    date: Optional[str] = Field(default=None)
+
+
+class MessageResponse(ModelBase):
     """Resposta de mensagem individual."""
     id: str
     content: str
     author_role: str
-    created_at: datetime
+    sources: List[SourceInfo] = []
 
     @staticmethod
     def from_messages(messages: List[Message]) -> List["MessageResponse"]:
         """Cria uma lista de MessageResponse a partir de uma lista de Message."""
+
         return [MessageResponse(
-            id=message.id,
-            content=message.content,
-            author_role=message.author_role.value,
-            created_at=message.created_at
+            **message.model_dump(),
+            sources=[
+                SourceInfo(
+                    **chunk.document.model_dump(),
+                    order=index
+                )
+                for index, chunk in enumerate(message.chunks, 1)
+            ]
         ) for message in messages]
+
+
+MessageResponse.model_rebuild()
