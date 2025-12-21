@@ -18,6 +18,7 @@ class ConversationPair(NamedTuple):
 
 class SourceInfo(BaseResponse):
     """Informações estruturadas de uma fonte utilizada no RAG."""
+    id: str = Field()
     order: int = Field()
     title: str = Field()
     source: str = Field()
@@ -39,16 +40,26 @@ class MessageResponse(ModelBase):
     def from_messages(messages: List[Message]) -> List["MessageResponse"]:
         """Cria uma lista de MessageResponse a partir de uma lista de Message."""
 
-        return [MessageResponse(
+        messages = [MessageResponse(
             **message.model_dump(),
             sources=[
                 SourceInfo(
                     **chunk.document.model_dump(),
-                    order=index
+                    order=index,
+                    date=chunk.document.meta.get("date")
                 )
                 for index, chunk in enumerate(message.chunks, 1)
             ]
         ) for message in messages]
+
+        for message in messages:
+            message.sources = list({
+                source.id: source for source in reversed(
+                    message.sources
+                )
+            }.values())
+
+        return messages
 
 
 MessageResponse.model_rebuild()
