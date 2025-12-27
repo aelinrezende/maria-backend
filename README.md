@@ -7,9 +7,14 @@
 
 **MAR.IA** is an Agentic RAG (Retrieval-Augmented Generation) system designed to provide safe, verified information to the Transgender community in Brazil.
 
-> **🏆 Academic Highlight:** Developed as a Bachelor's Thesis (TCC), this project bridges the gap between advanced AI and social responsibility, focusing on harm reduction (hormone therapy safety) and legal rights (name rectification). [Read the full Bachelor's Thesis (PDF)](./docs/TCC%20-%20Mar.IA.pdf)
+> **🏆 Academic Highlight:** Developed as a Bachelor's Thesis (TCC), this project bridges the gap between advanced AI and social responsibility, focusing on harm reduction (hormone therapy safety) and legal rights (name rectification).
 
 ---
+
+## 🎓 Academic Background
+This software is the practical result of my Bachelor's Thesis in Computer Science.
+* **Title:** MAR.IA: A Digital Platform for Transgender Support
+* **Paper:** [📄 Read the Full Thesis (PT-BR)](./docs/TCC%20-%20Mar.IA.pdf)
 
 ## 🏗️ Technical Architecture
 
