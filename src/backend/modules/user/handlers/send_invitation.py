@@ -11,18 +11,18 @@ from backend.modules.user.user_enums import UserStatus
 from backend.utils import date, random
 
 if TYPE_CHECKING:
-    from backend.modules.user.user_service import UserService
+    from backend.modules.user.user_hub import UserHub
 
 
 async def send_invitation(
-    hub: "UserService",
+    hub: "UserHub",
     request: InviteRequest,
 ) -> bool:
     """
     Handler principal para envio de convites.
 
     Args:
-        hub: Instância do UserService
+        hub: Instância do UserHub
         request: Dados do convite
 
     Returns:
@@ -64,7 +64,7 @@ async def send_invitation(
 
 
 async def _send_invitation_email(
-    hub: "UserService",
+    hub: "UserHub",
     user: User,
     invitation_code: str,
     expiration_date: datetime
@@ -73,7 +73,7 @@ async def _send_invitation_email(
     Envia e-mail de convite para novo usuário.
 
     Args:
-        hub: Instância do UserService
+        hub: Instância do UserHub
         user: Instância do usuário convidado
         invitation_code: Código de convite
         expiration_date: Data de expiração do convite

@@ -11,7 +11,7 @@ from backend.cross_cutting.middleware.auth import authenticate
 from backend.cross_cutting.middleware.chat.chat import load_user_messages
 
 from .rag_dto import RAGQueryRequest
-from .rag_service import RAGService
+from .rag_hub import RAGHub
 
 rag_router = InferringRouter(prefix="/rag", tags=["RAG"])
 
@@ -21,8 +21,8 @@ rag_router = InferringRouter(prefix="/rag", tags=["RAG"])
 class RAGRouter:
     """Endpoints para consultas RAG."""
 
-    def __init__(self, service: RAGService = Depends()):
-        self.service = service
+    def __init__(self, hub: RAGHub = Depends()):
+        self.hub = hub
 
     @rag_router.post(
         "/query/stream",
@@ -44,7 +44,7 @@ class RAGRouter:
             Streaming da resposta gerada em tempo real
         """
         return StreamingResponse(
-            self.service.query_rag_stream(request),
+            self.hub.query_rag_stream(request),
             media_type="text/event-stream",
             headers={
                 "Cache-Control": "no-cache, no-store, must-revalidate",

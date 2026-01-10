@@ -11,15 +11,15 @@ from backend.exceptions.http_exceptions import InternalServerException
 from backend.modules.rag.rag_dto import QueryExpansionResponse
 
 if TYPE_CHECKING:
-    from backend.modules.rag.rag_service import RAGService
+    from backend.modules.rag.rag_hub import RAGHub
 
 
-async def expand_user_query(hub: "RAGService", query: str) -> QueryExpansionResponse:
+async def expand_user_query(hub: "RAGHub", query: str) -> QueryExpansionResponse:
     """
     Expande e extrai entidades da consulta do usuário para melhorar a precisão da busca.
 
     Args:
-        hub: Instância do RAGService com acesso ao LLM provider
+        hub: Instância do RAGHub com acesso ao LLM provider
         query: Consulta original do usuário
 
     Returns:

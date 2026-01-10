@@ -6,8 +6,8 @@ from backend.modules.rag.rag_dto import (
     SourceEvaluationResult,
 )
 from backend.modules.rag.rag_enum import RAGChunkKind
+from backend.modules.rag.rag_hub import RAGHub
 from backend.modules.rag.rag_router import RAGRouter, rag_router
-from backend.modules.rag.rag_service import RAGService
 
 __all__ = [
     "RAGQueryRequest",
@@ -16,5 +16,5 @@ __all__ = [
     "RAGChunkKind",
     "RAGRouter",
     "rag_router",
-    "RAGService",
+    "RAGHub",
 ]

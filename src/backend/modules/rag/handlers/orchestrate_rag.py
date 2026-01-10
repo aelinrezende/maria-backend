@@ -21,11 +21,11 @@ from backend.modules.rag.handlers.source_extraction import extract_source_info
 from backend.modules.rag.rag_dto import RAGStreamChunk
 
 if TYPE_CHECKING:
-    from backend.modules.rag.rag_service import RAGService
+    from backend.modules.rag.rag_hub import RAGHub
 
 
 async def orchestrate_rag(
-    hub: "RAGService",
+    hub: "RAGHub",
     query: str
 ) -> AsyncGenerator[str, None]:
     """Orquestra o fluxo de RAG para uma requisição, retornando respostas em streaming.
@@ -117,7 +117,7 @@ async def orchestrate_rag(
 
 
 def _search_similar_chunks(
-    hub: "RAGService",
+    hub: "RAGHub",
     query_embedding: List[float]
 ):
     """

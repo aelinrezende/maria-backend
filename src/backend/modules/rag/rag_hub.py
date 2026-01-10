@@ -17,7 +17,7 @@ from backend.modules.rag.rag_enum import RAGChunkKind
 
 
 @service(lifetime="scoped")
-class RAGService:
+class RAGHub:
     """Serviço para consultas RAG com busca semântica."""
 
     def __init__(
