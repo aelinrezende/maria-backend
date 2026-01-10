@@ -16,18 +16,18 @@ from backend.modules.user.user_enums import UserStatus
 from backend.utils import date
 
 if TYPE_CHECKING:
-    from backend.modules.user.user_service import UserService
+    from backend.modules.user.user_hub import UserHub
 
 
 async def validate_invitation(
-    user_service: "UserService",
+    user_hub: "UserHub",
     invitation_code: str
 ) -> UserResponse:
     """
     Valida um código de convite verificando existência, expiração e status.
 
     Args:
-        user_service: Instância do UserService
+        user_hub: Instância do UserHub
         invitation_code: Código de convite a ser validado
 
     Returns:
@@ -38,7 +38,7 @@ async def validate_invitation(
         NotFoundException: Se o código não for encontrado
     """
     # Busca usuário pelo código de convite
-    user = await user_service.repository.find_by_invitation_code(invitation_code)
+    user = await user_hub.repository.find_by_invitation_code(invitation_code)
 
     if not user or not user.invitation_code:
         raise NotFoundException("CODE_NOT_FOUND")

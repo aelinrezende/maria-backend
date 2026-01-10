@@ -7,7 +7,7 @@ from backend.modules.base.base_repository import BaseRepository
 T = TypeVar("T", bound=BaseModel)
 
 
-class BaseService(Generic[T]):
+class BaseHub(Generic[T]):
     """
     Classe base para serviços, fornecendo métodos comuns para regras de negócio e lógica de aplicação.
     """

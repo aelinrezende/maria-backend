@@ -25,18 +25,18 @@ from backend.services.converter.metadata_extractor import (
 )
 
 if TYPE_CHECKING:
-    from backend.modules.document.document_service import DocumentService
+    from backend.modules.document.document_hub import DocumentHub
 
 
 async def ingest_file_by_ai(
-    hub: "DocumentService",
+    hub: "DocumentHub",
     document_file: UploadFile,
 ) -> AIDocumentIngestResponse:
     """
     Processa ingestão de arquivo com extração automática de metadados via LLM.
 
     Args:
-        hub: Instância do DocumentService com acesso ao LLM e serviços
+        hub: Instância do DocumentHub com acesso ao LLM e serviços
         document_file: Arquivo para upload
         source: Fonte do documento
 
@@ -88,8 +88,8 @@ async def ingest_file_by_ai(
     )
 
     # 7. Cria os chunks com embeddings
-    saved_chunks = await hub.chunk_service.create_chunks_with_embeddings(
-        document.id, chunked_pages
+    saved_chunks = await hub.chunk_hub.handlers.create_chunks_with_embeddings(
+        hub.chunk_hub, document.id, chunked_pages
     )
 
     await hub.unit_of_work.commit()

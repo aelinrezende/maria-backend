@@ -9,11 +9,11 @@ from backend.modules.session.session_dto import SessionResponse
 from backend.modules.session.session_enums import SessionStatus
 
 if TYPE_CHECKING:
-    from backend.modules.session.session_service import SessionService
+    from backend.modules.session.session_hub import SessionHub
 
 
 async def create_user_session(
-    session_service: "SessionService",
+    session_hub: "SessionHub",
     user_id: str,
     token: str
 ) -> SessionResponse:
@@ -21,7 +21,7 @@ async def create_user_session(
     Cria uma nova sessão para o usuário.
 
     Args:
-        session_service: Instância do SessionService
+        session_hub: Instância do SessionHub
         user_id: ID do usuário
         token: Token JWT gerado
 
@@ -34,6 +34,6 @@ async def create_user_session(
         status=SessionStatus.ACTIVE
     )
 
-    created_session = await session_service.create(session.model_dump())
+    created_session = await session_hub.create(session.model_dump())
 
     return SessionResponse(**created_session.model_dump())

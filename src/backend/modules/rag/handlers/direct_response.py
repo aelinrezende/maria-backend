@@ -19,15 +19,15 @@ from backend.modules.rag.rag_dto import RAGStreamChunk
 from backend.modules.rag.rag_enum import RAGChunkKind
 
 if TYPE_CHECKING:
-    from backend.modules.rag.rag_service import RAGService
+    from backend.modules.rag.rag_hub import RAGHub
 
 
-async def generate_direct_response(hub: "RAGService", user_input: str) -> AsyncGenerator[str, None]:
+async def generate_direct_response(hub: "RAGHub", user_input: str) -> AsyncGenerator[str, None]:
     """
     Gera resposta direta em streaming quando RAG deve ser pulado.
 
     Args:
-        hub: Instância do RAGService com acesso ao LLM provider
+        hub: Instância do RAGHub com acesso ao LLM provider
         user_input: Mensagem/pergunta do usuário
 
     Yields:

@@ -16,23 +16,25 @@ from backend.core.migrations import MigrationRunner
 from backend.exceptions.handler import register_exception_handler
 from backend.integrations.embeddings import LocalSentenceTransformerProvider
 from backend.integrations.mailgun import MailGun
+from backend.modules.auth.auth_hub import AuthHub
 from backend.modules.auth.auth_router import AuthRouter, auth_router
+from backend.modules.chunk.chunk_hub import ChunkHub
 from backend.modules.chunk.chunk_repository import ChunkRepository
-from backend.modules.chunk.chunk_service import ChunkService
+from backend.modules.document.document_hub import DocumentHub
 from backend.modules.document.document_repository import DocumentRepository
 from backend.modules.document.document_router import DocumentRouter, document_router
-from backend.modules.document.document_service import DocumentService
+from backend.modules.me.me_hub import MeHub
 from backend.modules.me.me_router import MeRouter, me_router
+from backend.modules.message.message_hub import MessageHub
 from backend.modules.message.message_repository import MessageRepository
 from backend.modules.message.message_router import MessageRouter, message_router
-from backend.modules.message.message_service import MessageService
+from backend.modules.rag.rag_hub import RAGHub
 from backend.modules.rag.rag_router import RAGRouter, rag_router
-from backend.modules.rag.rag_service import RAGService
+from backend.modules.session.session_hub import SessionHub
 from backend.modules.session.session_repository import SessionRepository
-from backend.modules.session.session_service import SessionService
+from backend.modules.user.user_hub import UserHub
 from backend.modules.user.user_repository import UserRepository
 from backend.modules.user.user_router import user_router
-from backend.modules.user.user_service import UserService
 
 
 @asynccontextmanager
@@ -100,35 +102,37 @@ def create_app() -> tuple[FastAPI, AsyncContainer]:
 
             # Auth
             AuthRouter,
+            AuthHub,
 
             # Session
             SessionRepository,
-            SessionService,
+            SessionHub,
 
             # Profile
             MeRouter,
+            MeHub,
 
             # Message
             MessageRepository,
             MessageRouter,
-            MessageService,
+            MessageHub,
 
             # User
             UserRepository,
-            UserService,
+            UserHub,
 
             # Document
             DocumentRouter,
-            DocumentService,
+            DocumentHub,
             DocumentRepository,
 
             # Chunk
-            ChunkService,
+            ChunkHub,
             ChunkRepository,
 
             # RAG
             RAGRouter,
-            RAGService,
+            RAGHub,
 
             # Outros
             UnitOfWork

@@ -14,11 +14,11 @@ from backend.models.chunk import Chunk
 from backend.modules.rag.rag_dto import ChunkRefinementResponse
 
 if TYPE_CHECKING:
-    from backend.modules.rag.rag_service import RAGService
+    from backend.modules.rag.rag_hub import RAGHub
 
 
 async def refine_and_reorder_chunks(
-    hub: "RAGService",
+    hub: "RAGHub",
     chunks: List[Chunk],
     query: str
 ) -> ChunkRefinementResponse:
@@ -26,7 +26,7 @@ async def refine_and_reorder_chunks(
     Refina e reordena os chunks encontrados usando LLM para agrupamento semântico.
 
     Args:
-        hub: Instância do RAGService com acesso ao LLM provider
+        hub: Instância do RAGHub com acesso ao LLM provider
         chunks: Lista de chunks encontrados na busca
         query: Consulta original do usuário
 
