@@ -7,13 +7,12 @@ from wireup import service as inject
 
 from backend.models import Document
 from backend.modules.base.base_router import get_base_router
-from backend.modules.document import handlers
 from backend.modules.document.document_dto import (
     AIDocumentIngestResponse,
     DocumentIngestRequest,
     DocumentIngestResponse,
 )
-from backend.modules.document.document_service import DocumentService
+from backend.modules.document.document_hub import DocumentHub
 
 document_router = InferringRouter(prefix="/documents", tags=["Documents"])
 BaseRouter = get_base_router(document_router)
@@ -24,9 +23,9 @@ BaseRouter = get_base_router(document_router)
 class DocumentRouter(BaseRouter[Document]):
     """Endpoints para criação e manipulação de documentos."""
 
-    def __init__(self, service: DocumentService = Depends()):
-        super().__init__(service)
-        self.service = service
+    def __init__(self, hub: DocumentHub = Depends()):
+        super().__init__(hub)
+        self.hub = hub
 
     @document_router.post(
         "/ingest/file",
@@ -51,7 +50,7 @@ class DocumentRouter(BaseRouter[Document]):
             Informações do documento criado com chunks e embeddings
         """
 
-        return await self.service.ingest_file(document_file, dto)
+        return await self.hub.handlers.ingest_file(self.hub, document_file, dto)
 
     @document_router.post(
         "/ingest/ai_file",
@@ -73,4 +72,4 @@ class DocumentRouter(BaseRouter[Document]):
         Returns:
             Documento criado com metadados extraídos pelo LLM e chunks processados
         """
-        return await handlers.ingest_file_by_ai(self.service, document_file)
+        return await self.hub.handlers.ingest_file_by_ai(self.hub, document_file)

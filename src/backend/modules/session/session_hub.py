@@ -3,12 +3,13 @@ from wireup import service
 
 from backend.core.unit_of_work import UnitOfWork
 from backend.models.session import Session
-from backend.modules.base.base_service import BaseService
+from backend.modules.base.base_hub import BaseHub
+from backend.modules.session import handlers
 from backend.modules.session.session_repository import SessionRepository
 
 
 @service(lifetime="scoped")
-class SessionService(BaseService[Session]):
+class SessionHub(BaseHub[Session]):
     """
     Serviço para operações relacionadas a sessões.
     """
@@ -19,3 +20,4 @@ class SessionService(BaseService[Session]):
         unit_of_work: UnitOfWork = Depends()
     ):
         super().__init__(repository, Session, unit_of_work)
+        self.handlers = handlers

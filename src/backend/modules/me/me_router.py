@@ -7,7 +7,7 @@ from wireup import service
 
 from backend.cross_cutting.middleware.auth import authenticate
 from backend.models.user import User
-from backend.modules.me import handlers
+from backend.modules.me.me_hub import MeHub
 from backend.modules.user.user_dto import UserResponse
 
 me_router = InferringRouter(prefix="/me", tags=["Profile"])
@@ -17,6 +17,9 @@ me_router = InferringRouter(prefix="/me", tags=["Profile"])
 @cbv(me_router)
 class MeRouter:
     """Router para serviços de perfil de usuário."""
+
+    def __init__(self, hub: MeHub = Depends()):
+        self.hub = hub
 
     @me_router.get(
         "/",
@@ -33,6 +36,6 @@ class MeRouter:
         Este endpoint retorna informações básicas do usuário logado,
         incluindo nome, e-mail e status. Requer autenticação JWT válida.
         """
-        return handlers.get_profile(
+        return self.hub.handlers.get_profile(
             current_user
         )

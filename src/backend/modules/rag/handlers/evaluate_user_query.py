@@ -16,10 +16,10 @@ from backend.exceptions.http_exceptions import InternalServerException
 from backend.modules.rag.rag_dto import UserInputEvaluation
 
 if TYPE_CHECKING:
-    from backend.modules.rag.rag_service import RAGService
+    from backend.modules.rag.rag_hub import RAGHub
 
 
-async def should_skip_rag(hub: "RAGService", user_input: str) -> bool:
+async def should_skip_rag(hub: "RAGHub", user_input: str) -> bool:
     """
       Avalia se deve pular a busca RAG para a entrada do usuário.
 

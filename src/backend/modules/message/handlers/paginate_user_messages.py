@@ -1,21 +1,23 @@
 """Handler para paginação de mensagens do usuário."""
 
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from backend.cross_cutting.middleware.auth import get_requesting_user
 from backend.modules.base.base_dto import PaginatedResponse, PaginateRequest
-from backend.modules.message.message_service import MessageService
+
+if TYPE_CHECKING:
+    from backend.modules.message.message_hub import MessageHub
 
 
 async def paginate_user_messages(
-    hub: MessageService,
+    hub: "MessageHub",
     request: Optional[PaginateRequest] = None,
 ) -> PaginatedResponse:
     """
     Processa requisição de paginação de mensagens.
 
     Args:
-        hub: Instância do MessageService
+        hub: Instância do MessageHub
         request: Parâmetros de paginação
 
     Returns:

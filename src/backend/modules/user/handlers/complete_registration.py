@@ -22,11 +22,11 @@ from backend.utils.jwt import create_user_token
 from backend.utils.password import hash_password
 
 if TYPE_CHECKING:
-    from backend.modules.user.user_service import UserService
+    from backend.modules.user.user_hub import UserHub
 
 
 async def complete_registration(
-    hub: "UserService",
+    hub: "UserHub",
     invitation_code: str,
     request: CompleteRegistrationRequest
 ) -> Session:
@@ -34,7 +34,7 @@ async def complete_registration(
     Finaliza o cadastro de usuário convocado.
 
     Args:
-        hub: Instância do UserService
+        hub: Instância do UserHub
         request: Dados de finalização de cadastro
 
     Returns:

@@ -12,8 +12,7 @@ from backend.cross_cutting.middleware.auth import authenticate
 from backend.models.message import Message
 from backend.modules.base.base_dto import PaginatedResponse, PaginateRequest
 from backend.modules.base.base_router import get_base_router
-from backend.modules.message import handlers
-from backend.modules.message.message_service import MessageService
+from backend.modules.message.message_hub import MessageHub
 
 message_router = InferringRouter(prefix="/message", tags=["Messages"])
 BaseRouter = get_base_router(message_router, exclude=["list"])
@@ -24,8 +23,9 @@ BaseRouter = get_base_router(message_router, exclude=["list"])
 class MessageRouter(BaseRouter[Message]):
     """Router para operações relacionadas a mensagens."""
 
-    def __init__(self, service: MessageService = Depends()):
-        super().__init__(service)
+    def __init__(self, hub: MessageHub = Depends()):
+        super().__init__(hub)
+        self.hub = hub
 
     @message_router.get(
         "/",
@@ -50,4 +50,4 @@ class MessageRouter(BaseRouter[Message]):
         Returns:
             Resposta paginada com mensagens do usuário
         """
-        return await handlers.paginate_user_messages(self.service, request)
+        return await self.hub.handlers.paginate_user_messages(self.hub, request)

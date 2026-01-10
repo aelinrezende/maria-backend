@@ -17,7 +17,7 @@ from backend.models.chunk import Chunk
 from backend.modules.rag.rag_dto import SourceEvaluationResult
 
 if TYPE_CHECKING:
-    from backend.modules.rag.rag_service import RAGService
+    from backend.modules.rag.rag_hub import RAGHub
 
 ChunkEvaluationCallback = Callable[
     [List[str]], Awaitable[Tuple[List[Chunk], SourceEvaluationResult]]
@@ -25,7 +25,7 @@ ChunkEvaluationCallback = Callable[
 
 
 async def evaluate_found_sources(
-    hub: "RAGService",
+    hub: "RAGHub",
     user_query: str,
     chunks: List[str]
 ) -> SourceEvaluationResult:
@@ -33,7 +33,7 @@ async def evaluate_found_sources(
     Avalia se os chunks encontrados são suficientes e relevantes para responder à pergunta.
 
     Args:
-        hub: Instância do RAGService com acesso ao LLM
+        hub: Instância do RAGHub com acesso ao LLM
         user_query: Pergunta original do usuário
         chunks: Lista de chunks encontrados na busca semântica
 
@@ -94,7 +94,7 @@ async def evaluate_found_sources(
 
 
 async def rag_chunk_evaluation(
-    hub: "RAGService",
+    hub: "RAGHub",
     query: str,
     callback: Callable[[List[str]], Awaitable[List[Chunk]]],
 ) -> List[Chunk]:
@@ -102,7 +102,7 @@ async def rag_chunk_evaluation(
     Realiza a lógica de tentativas múltiplas para busca e avaliação de chunks.
 
     Args:
-        hub: Instância do RAGService com acesso ao LLM
+        hub: Instância do RAGHub com acesso ao LLM
         query: Pergunta original do usuário
         callback: Função assíncrona que recebe IDs de chunks irrelevantes e retorna
         uma lista de chunks similares encontrados, excluindo os irrelevantes.

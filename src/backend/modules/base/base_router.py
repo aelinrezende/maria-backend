@@ -7,7 +7,7 @@ from fastapi_utils.inferring_router import InferringRouter
 
 from backend.models.base import BaseModel
 from backend.modules.base.base_dto import PaginateRequest
-from backend.modules.base.base_service import BaseService
+from backend.modules.base.base_hub import BaseHub
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -50,8 +50,8 @@ def get_base_router(
     class BaseRouter(Generic[T]):
         """Router base genérico para operações CRUD."""
 
-        def __init__(self, service: BaseService[T] = Depends()):
-            self.service = service
+        def __init__(self, hub: BaseHub[T] = Depends()):
+            self.hub = hub
 
         @router.get(_endpoints["list"].path)
         async def list(self, request: Annotated[PaginateRequest, Query()]) -> list[T]:
@@ -80,7 +80,7 @@ def get_base_router(
             Returns:
                 T: Instância do recurso criado.
             """
-            await self.service.create(dto.model_dump())
+            await self.hub.create(dto.model_dump())
 
         @router.patch(_endpoints["update"].path)
         async def update(self) -> T:
